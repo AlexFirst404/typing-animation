@@ -2,6 +2,7 @@
 # Run Gradle for one target with the right Gradle JVM (from target.properties).
 #   scripts/run-target.sh <target> build            -> ./gradlew build --no-daemon
 #   scripts/run-target.sh <target> selftest [args]  -> dev client with the self-test, PASS/FAIL summary
+#   scripts/run-target.sh <target> showcase [args]  -> dev client recording the gallery media (26.3 targets only)
 #   scripts/run-target.sh <target> <any gradle args>
 # <target> is a directory name under targets/, e.g. 26.3-neoforge.
 #
@@ -85,6 +86,32 @@ if [ "${1:-}" = "selftest" ]; then
   grep -n -A40 "\[typinganimation\] SELFTEST FAIL" "$LOG" | head -80
   grep -n -i -E "mixin.*(error|fail)|InvalidInjection|Exception in|Crash report|---- Minecraft Crash Report" "$LOG" | head -40
   echo "SELFTEST FAILED ($T) gradle-rc=$rc log=$LOG"
+  exit 1
+fi
+
+if [ "${1:-}" = "showcase" ]; then
+  # Dev showcase recorder (mc/26.3 only): TYPINGANIMATION_SHOWCASE=1, frames to TYPINGANIMATION_SHOWCASE_OUT
+  # (default: the system temp dir). Used by scripts/make-gallery.sh.
+  shift
+  if ! grep -q '^group=26\.3\s*$' "$DIR/target.properties"; then
+    echo "$T: the showcase exists only in mc/26.3 (targets 26.3-*)"
+    exit 2
+  fi
+  OUT="$DIR/build/showcase"
+  mkdir -p "$OUT"
+  LOG="$OUT/showcase.log"
+  unset TYPINGANIMATION_SELFTEST
+  export TYPINGANIMATION_SHOWCASE=1
+  timeout "${SHOWCASE_TIMEOUT:-1800}" ./gradlew runClient --no-daemon "$@" > "$LOG" 2>&1
+  rc=$?
+  grep -h "\[typinganimation\] SHOWCASE" "$LOG" | sed 's/.*\[typinganimation\] /  /'
+  if grep -q "\[typinganimation\] SHOWCASE DONE" "$LOG"; then
+    echo "SHOWCASE DONE ($T)"
+    exit 0
+  fi
+  grep -n -A40 "\[typinganimation\] SHOWCASE FAIL" "$LOG" | head -80
+  grep -n -i -E "mixin.*(error|fail)|InvalidInjection|Exception in|Crash report|---- Minecraft Crash Report" "$LOG" | head -40
+  echo "SHOWCASE FAILED ($T) gradle-rc=$rc log=$LOG"
   exit 1
 fi
 

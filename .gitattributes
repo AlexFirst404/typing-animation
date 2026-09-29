@@ -8,3 +8,4 @@ gradlew       text eol=lf
 # Binary files: never normalise.
 *.jar         binary
 *.png         binary
+*.gif         binary

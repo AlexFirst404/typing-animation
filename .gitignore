@@ -27,3 +27,5 @@ replay_*.log
 .research/
 # build outputs collected by scripts
 dist/
+# showcase frames: scripts/make-gallery.sh writes them to the system temp dir; this only guards a SHOWCASE_OUT set inside the repo
+typinganimation-showcase/

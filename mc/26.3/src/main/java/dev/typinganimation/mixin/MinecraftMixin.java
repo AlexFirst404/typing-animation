@@ -2,6 +2,7 @@ package dev.typinganimation.mixin;
 
 import dev.typinganimation.mc.ClientInit;
 import dev.typinganimation.mc.SelfTest;
+import dev.typinganimation.mc.Showcase;
 import dev.typinganimation.mc.TypingRenderer;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,8 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Loader-independent client tick / frame hooks: the end of every rendered frame advances the renderer's frame
- * counter (an increment); everything else only drives the dev self-test and does nothing unless it is enabled
- * ({@code TYPINGANIMATION_SELFTEST=1} or {@code -Dtypinganimation.selftest=true}).
+ * counter (an increment); everything else only drives the dev tools and does nothing unless one is enabled
+ * (self-test: {@code TYPINGANIMATION_SELFTEST=1} or {@code -Dtypinganimation.selftest=true}; showcase recorder:
+ * {@code TYPINGANIMATION_SHOWCASE=1}).
  */
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
@@ -20,6 +22,8 @@ public abstract class MinecraftMixin {
     private void typinganimation$tick(CallbackInfo ci) {
         if (ClientInit.SELFTEST) {
             SelfTest.onTick((Minecraft) (Object) this);
+        } else if (ClientInit.SHOWCASE) {
+            Showcase.onTick((Minecraft) (Object) this);
         }
     }
 
@@ -28,6 +32,8 @@ public abstract class MinecraftMixin {
         TypingRenderer.onFrameEnd();
         if (ClientInit.SELFTEST) {
             SelfTest.onFrame();
+        } else if (ClientInit.SHOWCASE) {
+            Showcase.onFrame((Minecraft) (Object) this);
         }
     }
 }

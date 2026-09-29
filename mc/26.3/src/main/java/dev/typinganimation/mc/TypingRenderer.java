@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;
-import net.minecraft.util.Util;
 import org.joml.Matrix3x2fStack;
 
 import java.util.Set;
@@ -223,7 +222,7 @@ public final class TypingRenderer {
             // e.g. PageUp/PageDown in the book editor: a new page, not typing (no cross-fade of two whole pages)
             animate = false;
         }
-        long now = Util.getMillis();
+        long now = AnimationClock.nowMs();
         FieldAnimationState st = anim.state;
         st.beginFrame(now, originX, originY, scrollKey);
         st.sync(value, animate, cfg);

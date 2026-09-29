@@ -1,6 +1,6 @@
 {
   "typinganimation.title": "Typing Animation",
-  "typinganimation.description": "Smooth animations for typing in any text field: new characters glide in, deleted ones drift away, and the text and cursor move fluidly.",
+  "typinganimation.description": "Smooth animations for typing in chat, commands and other text fields: new characters glide in, deleted ones drift away, and the text and cursor move fluidly.",
   "typinganimation.options.button": "Typing Animation...",
 
   "typinganimation.config.preview.hint": "Type here to try it out...",

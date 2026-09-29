@@ -1,0 +1,51 @@
+[
+  {
+    "file": "chat-typing.gif",
+    "title": "Typing in chat",
+    "description": "Letters slide into place as you type. Editing in the middle of a line glides the rest aside, deleted letters fall away, pasted text is typed out letter by letter, and the message is sent as usual.",
+    "featured": false,
+    "ordering": 0
+  },
+  {
+    "file": "command-highlighting.gif",
+    "title": "Commands keep their colours",
+    "description": "A command typed with syntax highlighting and a Tab completion: every character animates in its highlight colour.",
+    "featured": false,
+    "ordering": 1
+  },
+  {
+    "file": "styles.gif",
+    "title": "Appear and remove styles",
+    "description": "Pop, Scramble, Wave and Drop, each cleared with a different remove style. There are 11 appear styles and 5 remove styles in total.",
+    "featured": false,
+    "ordering": 2
+  },
+  {
+    "file": "chat-in-world.png",
+    "title": "In the world",
+    "description": "A pasted sentence typing itself out in the chat, one letter after another. The mod is client-side only.",
+    "featured": true,
+    "ordering": 3
+  },
+  {
+    "file": "config-screen-en.png",
+    "title": "Settings",
+    "description": "The main options on one screen, with a live preview field and a Demo button that types a sample sentence for you (shown here mid-demo). A few advanced options live only in the config file.",
+    "featured": false,
+    "ordering": 4
+  },
+  {
+    "file": "config-screen-ru.png",
+    "title": "Settings in Russian",
+    "description": "The settings screen with the built-in Russian translation.",
+    "featured": false,
+    "ordering": 5
+  },
+  {
+    "file": "options-button.png",
+    "title": "Options button",
+    "description": "The settings are one click away in the vanilla Options screen. The button can be hidden.",
+    "featured": false,
+    "ordering": 6
+  }
+]

@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -182,7 +181,7 @@ public class ConfigScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         frames++;
-        demo.update(Util.getMillis());
+        demo.update(AnimationClock.nowMs());
         super.extractRenderState(graphics, mouseX, mouseY, a);
         graphics.centeredText(font, title, width / 2, titleY, TITLE_COLOR);
     }
@@ -209,7 +208,7 @@ public class ConfigScreen extends Screen {
         if (demo.running) {
             demo.stop();
         } else {
-            demo.start(Util.getMillis());
+            demo.start(AnimationClock.nowMs());
             refocusPreview = true; // show the caret while the demo types
         }
         demoButton.setMessage(demoLabel());

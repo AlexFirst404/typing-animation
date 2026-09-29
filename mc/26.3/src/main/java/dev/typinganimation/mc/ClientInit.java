@@ -11,6 +11,8 @@ public final class ClientInit {
     /** Dev self-test switch: env {@code TYPINGANIMATION_SELFTEST=1} or {@code -Dtypinganimation.selftest=true}. */
     public static final boolean SELFTEST = flag(System.getenv("TYPINGANIMATION_SELFTEST"))
             || Boolean.getBoolean("typinganimation.selftest");
+    /** Dev showcase recorder (gallery media): env {@code TYPINGANIMATION_SHOWCASE=1}; never together with the self-test. */
+    public static final boolean SHOWCASE = !SELFTEST && flag(System.getenv("TYPINGANIMATION_SHOWCASE"));
 
     private static boolean initialized;
 
@@ -29,6 +31,9 @@ public final class ClientInit {
                     TypingAnimationMod.MOD_NAME, ConfigManager.path());
             if (SELFTEST) {
                 TypingAnimationMod.LOGGER.info("[{}] self-test enabled", TypingAnimationMod.MOD_ID);
+            }
+            if (SHOWCASE) {
+                TypingAnimationMod.LOGGER.info("[{}] showcase recorder enabled", TypingAnimationMod.MOD_ID);
             }
         } catch (Throwable t) {
             TypingAnimationMod.LOGGER.error("[{}] Initialisation failed; using default settings",

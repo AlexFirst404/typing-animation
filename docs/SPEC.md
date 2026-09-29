@@ -3,10 +3,9 @@
 Client-side Minecraft mod: characters typed into any text field (chat, commands, anvil, search,
 world/server names, sign-less `EditBox` fields, and multi-line fields where feasible) appear with a
 smooth animation; deleted characters animate out; text re-flows and the caret glide smoothly.
-Inspired by the concept of "Animated Typing" (Modrinth, Fabric only, 1.21.4–1.21.11) but **this is an
-original, clean-room implementation**. That mod is *All Rights Reserved*: never copy, paraphrase or
-port its code, names of its classes, or its assets. Only the general idea ("animate newly typed chars")
-is shared.
+All code, texts and media of this project are original. Another mod with a similar idea, "Animated Typing"
+(Modrinth), is *All Rights Reserved*: never copy, paraphrase or port its code, names of its classes, its texts or
+its assets, and never describe this mod by comparison to it (Modrinth page, README, changelog).
 
 - Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.0.0` · License: MIT
 - Java package root: `dev.typinganimation`
@@ -21,7 +20,7 @@ Loader versions below are "latest as of 2026-09-29"; bumping to a newer patch is
 
 | Anchor MC | Declared range     | Java | NeoForge            | Forge            | Fabric (loader 0.19.5) |
 |-----------|--------------------|------|---------------------|------------------|------------------------|
-| 1.20.1    | 1.20 – 1.20.1      | 17   | — (Forge jar also runs on NeoForge 1.20.1) | 47.4.x | yes |
+| 1.20.1    | 1.20 – 1.20.1      | 17   | — (Forge jar also runs on NeoForge 1.20.1, tested with 47.1.106) | 47.4.x | yes |
 | 1.21.1    | 1.21 – 1.21.1      | 21   | 21.1.252            | 52.1.x           | yes |
 | 1.21.4    | 1.21.4             | 21   | 21.4.158            | 54.1.x           | yes |
 | 1.21.5    | 1.21.5             | 21   | 21.5.98             | 55.1.x           | yes |
@@ -47,7 +46,14 @@ Loader floors (in each target's `gradle.properties`):
 - Fabric `fabricloader_dependency` = the stable loader that Fabric's announcement of that Minecraft line told players
   to install: 1.20–1.20.1 `>=0.14.19`, 1.21–1.21.1 `>=0.15.11`, 1.21.4 `>=0.16.9`, 1.21.5 `>=0.16.10`,
   1.21.6–1.21.8 `>=0.16.14`, 1.21.9–1.21.10 `>=0.17.2`, 1.21.11 `>=0.18.1`, 26.1–26.1.2 `>=0.18.4`, 26.2 `>=0.19.3`,
-  26.3 `>=0.19.5` (all of them bundle a Mixin that knows the `compatibilityLevel` we use).
+  26.3 `>=0.19.5`. All of them bundle a Mixin that knows the `compatibilityLevel` we use. The floors below 0.19.5
+  also rely on the Fabric compile-classpath pin of section 3: compiled against the Mixin of Fabric Loader 0.19.5
+  (sponge-mixin 0.17.4, where `at` of `@Redirect`/`@ModifyArg`/`@ModifyVariable` is an array), a `@Redirect` is
+  written as `at=[@At]`, and the MixinExtras 0.3.0–0.5.4 bundled with Fabric Loader 0.15.0–0.19.4 (and Quilt Loader
+  0.30.1) fails the whole mixin on it with a ClassCastException, so EditBox cannot load. Verified in production
+  clients: before the pin, 1.21.1 on Fabric Loader 0.15.11 and 1.20.1/1.21.1 on Quilt Loader 0.30.1 crashed; with it
+  they run. `node scripts/modrinth-publish.mjs` rejects a Fabric jar with an array-valued `@Redirect` `at` whose
+  fabricloader floor is below 0.19.5.
 
 ## 2. Repository layout
 
@@ -109,6 +115,10 @@ unobfuscated 26.x), NeoForge/Forge use official names natively.
   plugin pinned to an exact version (no `+`, ranges or `-SNAPSHOT`): Loom 1.18.2, ModDevGradle 2.0.147,
   ForgeGradle 7.0.40 (6.0.54 + MixinGradle 0.7.38 for 1.20.1). No MDK leftovers the mod does not use (event-bus
   validator, logging markers, IDE plugins, sources jars).
+- Fabric targets compile against `net.fabricmc:sponge-mixin:0.17.3+mixin.0.8.7` (`resolutionStrategy.force` on
+  `compileClasspath` in `scripts/target-common.gradle`) while the dev client runs the loader's own Mixin, so every
+  injector `at`/`slice` is written in the single-value form that all Mixin and MixinExtras versions read (see the
+  Fabric loader floors in section 1).
 - Output jar name: `typinganimation-1.0.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
   (the only jar in `build/libs`; Fabric's remapJar, Forge 1.20.1's reobfJar and the plain jar task all produce it).
 - Mod metadata: id/name/version/license MIT/authors `alext`/description (see lang `typinganimation.description`
@@ -398,3 +408,29 @@ driven from a client tick hook, starting once the first title/onboarding screen 
    `[typinganimation] SELFTEST FAIL: <reason>` (with stack), then `Minecraft#stop()`.
 Run: `TYPINGANIMATION_SELFTEST=1 ./gradlew runClient --no-daemon` in the target dir; pass = log line present
 and no crash report.
+
+## 10. Dev showcase (gallery media, 26.3 group only)
+
+Activated by env var `TYPINGANIMATION_SHOWCASE=1` (ignored when the self-test is on; zero effect otherwise), in
+`mc/26.3` (`dev.typinganimation.mc.Showcase` + `ShowcaseRecorder`), driven by the same tick/frame hooks as the self-test.
+Run: `bash scripts/run-target.sh 26.3-<loader> showcase` (log `targets/<t>/build/showcase/showcase.log`); the media:
+`bash scripts/make-gallery.sh` (records on 26.3-neoforge, then builds `modrinth/gallery/*` with `tools/MakeGif.java`).
+- Recreates the singleplayer world `typinganimation-showcase` (superflat, creative, peaceful, cheats, fixed seed), sets
+  noon/clear weather with time and weather frozen, removes mobs, makes the player invisible and selects the empty
+  hotbar slot 2 (no first-person arm in the pictures), places a few trees, flowers and a pond, and waits until all
+  chunk sections are rendered. Window 800x480 (chat/command clips) and 1280x720 (still, styles, settings), GUI scale 2
+  in the world and 3 for the settings stills; the original options (GUI scale, language, pause-on-lost-focus, tutorial
+  step) and the mod config are restored and saved at the end.
+- Uses the real chat: the chat key through `KeyboardHandler#keyPress` (SDL scancode + keycode) opens the `ChatScreen`,
+  text goes through `KeyboardHandler#charTyped`, editing keys (arrows, End, Backspace, Tab, Ctrl+A, Enter, Escape)
+  through `keyPress`; a paste is `ChatScreen#insertText` (what Ctrl+V calls, without touching the system clipboard).
+  Messages and a `/give` command are really sent. Seeded human-like typing rhythm.
+- Deterministic capture: the renderer and the settings demo read the time through `AnimationClock.nowMs()`
+  (= `Util.getMillis()` unless overridden); while a clip records, the recorder's clock advances by exactly 1000/30 ms
+  per captured frame, each frame is read back after it was rendered (`Screenshot.takeScreenshot` of the main render
+  target at the end of `runTick`) and written as `<out>/<clip>/frame-NNNNN.png` (`TYPINGANIMATION_SHOWCASE_OUT`, default
+  `<java.io.tmpdir>/typinganimation-showcase`); recording is paced to real time so the game ticks at the same speed.
+- Asserts: every opened chat input is `FieldKind.CHAT`, a traced chat frame drew animated chars, animated glyphs and
+  ghosts were drawn while the `ChatScreen` was open, `TypingRenderer.statFallbacks == 0`, no render error; the sent
+  message is in the chat history and the command put the item in the inventory. Logs
+  `[typinganimation] SHOWCASE DONE: ...` or `[typinganimation] SHOWCASE FAIL: <reason>`, leaves the world, stops.
