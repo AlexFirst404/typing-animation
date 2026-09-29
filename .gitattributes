@@ -1,0 +1,10 @@
+# Line endings for every standalone Gradle project in this repository (core/, targets/*/): the POSIX scripts must stay
+# LF even on a Windows checkout with core.autocrlf=true, or Git Bash / Linux cannot run ./gradlew.
+gradlew       text eol=lf
+*.sh          text eol=lf
+*.bat         text eol=crlf
+*.cmd         text eol=crlf
+
+# Binary files: never normalise.
+*.jar         binary
+*.png         binary

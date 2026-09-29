@@ -1,0 +1,29 @@
+# Gradle / IDE
+.gradle/
+build/
+out/
+bin/
+classes/
+run/
+runs/
+# 1.21.8-fabric production smoke-test client (prodClient task)
+run-prod/
+*.iml
+*.ipr
+*.iws
+*.launch
+.idea/
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store
+# JVM crash logs and dumps (game clients started by the self-test)
+hs_err_pid*.log
+replay_*.log
+*.hprof
+*.jfr
+# local notes (may contain decompiled Minecraft excerpts - never commit)
+.research/
+# build outputs collected by scripts
+dist/

@@ -1,0 +1,34 @@
+# Typing Animation - Forge metadata, expanded by processResources (build.gradle).
+modLoader="javafml"
+# javafml loader version = Forge major version
+loaderVersion="${forge_version_range}"
+license="${mod_license}"
+# Client-only mod: Forge does not load it on dedicated servers and never requires it on one.
+clientSideOnly=true
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="assets/typinganimation/icon.png"
+authors="${mod_authors}"
+# docs/SPEC.md section 3: accept any (or no) server version.
+displayTest="IGNORE_SERVER_VERSION"
+description='''${mod_description}'''
+
+# Forge has no [[mixins]] table: the mixin config (typinganimation.mixins.json) is registered by the MixinConfigs
+# jar manifest attribute (build.gradle).
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="CLIENT"

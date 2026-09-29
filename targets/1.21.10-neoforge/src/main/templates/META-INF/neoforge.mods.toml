@@ -1,0 +1,32 @@
+# Typing Animation - NeoForge metadata, expanded by the generateModMetadata task (build.gradle).
+# modLoader/loaderVersion are mandatory up to FML 6 (NeoForge 21.1 - 21.4) and optional later; declared everywhere.
+modLoader="javafml"
+loaderVersion="[1,)"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="assets/typinganimation/icon.png"
+authors="${mod_authors}"
+description='''${mod_description}'''
+
+# Shared mixin config (mc/<group>/src/main/resources; Mojang names at runtime, no refmap).
+[[mixins]]
+config="typinganimation.mixins.json"
+
+# Client-only mod: @Mod(dist = Dist.CLIENT) plus side="CLIENT" dependencies (NeoForge has no displayTest key).
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="CLIENT"

@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.typinganimation.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChatScreenMixin",
+    "EditBoxMixin",
+    "LanguageManagerMixin",
+    "MinecraftMixin",
+    "MultiLineEditBoxMixin",
+    "OptionsScreenMixin",
+    "StringSplitterAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

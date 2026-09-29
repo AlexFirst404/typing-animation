@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "${mod_id}",
+	"version": "${mod_version}",
+	"name": "${mod_name}",
+	"description": "${mod_description}",
+	"authors": [
+		"${mod_authors}"
+	],
+	"license": "${mod_license}",
+	"icon": "assets/typinganimation/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.typinganimation.fabric.TypingAnimationFabric"
+		],
+		"modmenu": [
+			"dev.typinganimation.fabric.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		{
+			"config": "typinganimation.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": "${fabricloader_dependency}",
+		"minecraft": "${minecraft_version_range}",
+		"java": ">=${java_version}"
+	},
+	"suggests": {
+		"modmenu": "*"
+	}
+}

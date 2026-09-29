@@ -1,0 +1,46 @@
+// Typing Animation - Fabric target 26.3-fabric (docs/SPEC.md). Derived from the official fabric-example-mod (branch 26.3):
+// example content, split source sets and the Fabric API dependency removed (client-only mod).
+// Minecraft 26.x is unobfuscated: the non-remapping Loom plugin without mappings (no remapJar, no refmap).
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+// Shared target setup: target.properties, mod metadata, source dirs, release jar name, toolchain, LICENSE.
+apply from: '../../scripts/target-common.gradle'
+
+repositories {
+	// Mod Menu (optional integration, compile only)
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/releases/'
+		content { includeGroup 'com.terraformersmc' }
+	}
+}
+
+loom {
+	mods {
+		"typinganimation" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// No Fabric API. Mod Menu only at compile time: never bundled or required, and without its own dependencies
+	// (Fabric API) on the classpath.
+	compileOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
+		transitive = false
+	}
+}
+
+// fabric.mod.json: shared metadata (scripts/target-common.gradle) + this target's loader floor.
+processResources {
+	def props = typing.expand + [fabricloader_dependency: project.fabricloader_dependency]
+	inputs.properties props
+	filesMatching('fabric.mod.json') {
+		expand props
+	}
+}

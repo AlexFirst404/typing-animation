@@ -1,0 +1,105 @@
+// Shared part of every targets/<anchor>-<loader>/build.gradle, applied right after its plugins block:
+//     apply from: '../../scripts/target-common.gradle'
+// It is the single source of what all targets have in common (docs/SPEC.md sections 2, 3 and 7):
+//  - target.properties: the mc/<group> source tree, the declared Minecraft range (mc.range), the loader and the
+//    Java release;
+//  - the mod metadata: id, name, version, license and author below, and the description, which is the English
+//    lang string typinganimation.description (common-resources/assets/typinganimation/lang/en_us.json);
+//  - the release jar name typinganimation-<version>+<mc.range>-<loader>.jar (project version + archives name);
+//  - the shared source dirs (core, mc/<group>, common-resources), the Java toolchain and --release, UTF-8 sources,
+//    and the LICENSE and standard manifest attributes in the jar.
+// Loader metadata templates are expanded from `typing.expand` (plus the target's own loader version range), so
+// every value above is written in exactly one place.
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+def MOD_ID = 'typinganimation'
+def MOD_NAME = 'Typing Animation'
+def MOD_VERSION = '1.0.0'
+def MOD_LICENSE = 'MIT'
+def MOD_AUTHORS = 'alext'
+
+def targetProps = new Properties()
+file('target.properties').withInputStream { targetProps.load(it) }
+def targetProp = { String key ->
+    String v = targetProps.getProperty(key)?.trim()
+    if (!v) {
+        throw new GradleException("target.properties of ${project.projectDir.name} has no '${key}'")
+    }
+    return v
+}
+def mcGroup = targetProp('group')
+def mcRange = targetProp('mc.range')          // e.g. 1.21.6-1.21.8, or 26.3 for a single version
+def loader = targetProp('loader')             // fabric | forge | neoforge
+def javaRelease = targetProp('java.release') as int
+
+def langFile = file("../../common-resources/assets/${MOD_ID}/lang/en_us.json")
+def description = new JsonSlurper().parse(langFile, 'UTF-8')["${MOD_ID}.description"] as String
+if (!description) {
+    throw new GradleException("${langFile} has no ${MOD_ID}.description")
+}
+
+// The declared Minecraft range in the loader's own syntax: Fabric version predicates, Maven ranges for
+// Forge/NeoForge (closed on both ends, so no pre-release or release candidate of the next version slips in).
+def bounds = mcRange.split('-', 2)
+def minecraftRange
+if (loader == 'fabric') {
+    minecraftRange = bounds.length == 2 ? ">=${bounds[0]} <=${bounds[1]}".toString() : mcRange
+} else if (loader == 'forge' || loader == 'neoforge') {
+    minecraftRange = (bounds.length == 2 ? "[${bounds[0]},${bounds[1]}]" : "[${mcRange}]").toString()
+} else {
+    throw new GradleException("target.properties of ${project.projectDir.name}: unknown loader '${loader}'")
+}
+
+ext.typing = [
+        modId       : MOD_ID,
+        modName     : MOD_NAME,
+        modVersion  : MOD_VERSION,
+        mcGroup     : mcGroup,
+        mcRange     : mcRange,
+        loader      : loader,
+        javaRelease : javaRelease,
+        // placeholders of fabric.mod.json / neoforge.mods.toml / mods.toml / pack.mcmeta
+        expand      : [
+                mod_id                 : MOD_ID,
+                mod_name               : MOD_NAME,
+                mod_version            : MOD_VERSION,
+                mod_license            : MOD_LICENSE,
+                mod_authors            : MOD_AUTHORS,
+                // JSON-escaped for fabric.mod.json; the TOML files use it inside a '''literal''' string
+                mod_description        : loader == 'fabric' ? JsonOutput.toJson(description)[1..-2] : description,
+                minecraft_version_range: minecraftRange,
+                java_version           : javaRelease as String,
+        ],
+]
+
+// Release jar: build/libs/typinganimation-<version>+<mc.range>-<loader>.jar (Loom's remapJar, Forge's reobfJar and
+// the plain jar task all name their output <archivesName>-<version>.jar). The metadata keeps the plain mod version.
+group = 'dev.typinganimation'
+version = "${MOD_VERSION}+${mcRange}-${loader}".toString()
+base.archivesName = MOD_ID
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(javaRelease)
+
+sourceSets.main.java.srcDirs += ['../../core/src/main/java', "../../mc/${mcGroup}/src/main/java"]
+sourceSets.main.resources.srcDirs += ['../../common-resources', "../../mc/${mcGroup}/src/main/resources"]
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = javaRelease
+}
+
+tasks.named('jar', Jar) {
+    manifest.attributes(
+            'Specification-Title': MOD_ID,
+            'Specification-Vendor': MOD_AUTHORS,
+            'Specification-Version': '1',
+            'Implementation-Title': MOD_NAME,
+            'Implementation-Version': MOD_VERSION,
+            'Implementation-Vendor': MOD_AUTHORS,
+    )
+    // MIT: ship the license text with every copy.
+    from(file('../../LICENSE')) {
+        rename { 'LICENSE_typinganimation' }
+    }
+}

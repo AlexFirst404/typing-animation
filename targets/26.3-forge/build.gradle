@@ -1,0 +1,49 @@
+// Typing Animation - Forge target 26.3-forge (docs/SPEC.md). Derived from the official Forge MDK forge-26.3-66.0.8-mdk.zip
+// (ForgeGradle 7), example content removed. Client-only mod. Minecraft 26.x is unobfuscated (no mappings, no refmap).
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '7.0.40'
+}
+
+// Shared target setup: target.properties, mod metadata, source dirs, release jar name, toolchain, LICENSE.
+apply from: '../../scripts/target-common.gradle'
+
+minecraft {
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            // Forge reads mixin configs only from the jar manifest (MixinConfigs below); in dev (classes dirs, no
+            // manifest) Mixin gets the config from this argument, as in Forge's MDKExamples.
+            args '--mixin.config=typinganimation.mixins.json'
+        }
+
+        // Client-only mod: no server/data runs. The dev client inherits the Gradle environment
+        // (TYPINGANIMATION_SELFTEST=1, docs/SPEC.md section 9).
+        register('client')
+    }
+}
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+}
+
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+}
+
+// mods.toml / pack.mcmeta: shared metadata (scripts/target-common.gradle) + this target's Forge range.
+tasks.named('processResources', ProcessResources) {
+    var replaceProperties = typing.expand + [forge_version_range: forge_version_range]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+// Forge's Mixin (upstream 0.8.7, no [[mixins]] in mods.toml) finds mixin configs only through this attribute.
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'typinganimation.mixins.json')
+}

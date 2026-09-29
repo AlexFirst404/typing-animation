@@ -1,0 +1,49 @@
+// Typing Animation - Fabric target 1.21.4-fabric (docs/SPEC.md). Derived from the official fabric-example-mod (branch 1.21.4):
+// example content, split source sets and the Fabric API dependency removed (client-only mod).
+// Minecraft 1.21.4 is obfuscated: the remapping Loom plugin with official Mojang mappings; remapJar remaps the
+// mixin annotations statically to intermediary names (no refmap, jar manifest Fabric-Loom-Mixin-Remap-Type: static),
+// so the shared mixin json needs no refmap key.
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+// Shared target setup: target.properties, mod metadata, source dirs, release jar name, toolchain, LICENSE.
+apply from: '../../scripts/target-common.gradle'
+
+repositories {
+	// Mod Menu (optional integration, compile only)
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/releases/'
+		content { includeGroup 'com.terraformersmc' }
+	}
+}
+
+loom {
+	mods {
+		"typinganimation" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// No Fabric API. Mod Menu only at compile time: never bundled or required, and without its own dependencies
+	// (Fabric API) on the classpath.
+	modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
+		transitive = false
+	}
+}
+
+// fabric.mod.json: shared metadata (scripts/target-common.gradle) + this target's loader floor.
+processResources {
+	def props = typing.expand + [fabricloader_dependency: project.fabricloader_dependency]
+	inputs.properties props
+	filesMatching('fabric.mod.json') {
+		expand props
+	}
+}

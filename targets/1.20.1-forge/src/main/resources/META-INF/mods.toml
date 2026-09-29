@@ -1,0 +1,38 @@
+# Typing Animation - Forge / NeoForge 1.20.x metadata, expanded by processResources (build.gradle).
+modLoader="javafml"
+# FML 46 (MC 1.20) / 47 (MC 1.20.1, Forge 47.x and NeoForge 47.1.x): javafml loader version = Forge major
+loaderVersion="${forge_version_range}"
+license="${mod_license}"
+# Client-only: Forge 47.4.x skips loading this mod on dedicated servers; Forge 46.0.x and NeoForge 47.1.x do not know
+# the key (verified in their fmlloader) and ignore it -> the entrypoint must still guard client code by FMLEnvironment.dist.
+clientSideOnly=true
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="assets/typinganimation/icon.png"
+authors="${mod_authors}"
+# docs/SPEC.md section 3. IGNORE_SERVER_VERSION pings the IGNORESERVERONLY marker, which clients skip when listing extra
+# server mods, so a server that loads this jar anyway (Forge 46 / NeoForge 47.1 ignore clientSideOnly) is not shown as
+# incompatible to clients without it; IGNORE_ALL_VERSION would ping "" and cause that red X. Our own remote-version test
+# accepts anything, so clients with the mod see any server as compatible. Understood by Forge 46/47 and NeoForge 47.1.
+displayTest="IGNORE_SERVER_VERSION"
+description='''${mod_description}'''
+
+# Forge 46/47 have no [[mixins]] table: the mixin config is registered by the MixinConfigs jar manifest attribute
+# (build.gradle).
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="CLIENT"
