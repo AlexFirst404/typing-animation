@@ -17,6 +17,9 @@ else
   done
 fi
 
+MOD_VERSION=$(sed -n "s/^def MOD_VERSION = '\([^']*\)'.*/\1/p" scripts/target-common.gradle | tr -d '\r' | head -1)
+[ -n "$MOD_VERSION" ] || { echo "cannot read MOD_VERSION from scripts/target-common.gradle"; exit 2; }
+
 mkdir -p dist
 ok=(); failed=()
 for t in "${TARGETS[@]}"; do
@@ -26,9 +29,10 @@ for t in "${TARGETS[@]}"; do
     failed+=("$t (build)"); continue
   fi
   glob=$(grep '^jar.glob=' "targets/$t/target.properties" | cut -d= -f2- | tr -d '\r')
-  jar=$(ls targets/$t/$glob 2>/dev/null | grep -v -- '-sources' | head -1)
+  # build/libs keeps jars of earlier mod versions, so pick the one for the current MOD_VERSION.
+  jar=$(ls targets/$t/$glob 2>/dev/null | grep -v -- '-sources' | grep -F -- "/typinganimation-$MOD_VERSION+" | head -1)
   if [ -z "$jar" ]; then
-    echo "    NO JAR matching $glob"; failed+=("$t (no jar)"); continue
+    echo "    NO JAR matching $glob for version $MOD_VERSION"; failed+=("$t (no jar)"); continue
   fi
   cp -f "$jar" dist/
   echo "    -> dist/$(basename "$jar")"

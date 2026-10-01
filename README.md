@@ -2,6 +2,8 @@
 
 **RU** · [EN](#english)
 
+[Страница мода на Modrinth](https://modrinth.com/mod/typing-animation)
+
 Клиентский мод для Minecraft, который делает набор текста плавным. Новые символы красиво появляются, удалённые исчезают, а текст и курсор движутся без рывков.
 Работает в чате, в командах и в большинстве других полей ввода: наковальня, поиск в творческом режиме, названия миров и серверов, командные блоки. Там, где версия позволяет, поддерживаются и многострочные поля (книги).
 
@@ -41,7 +43,7 @@
 | 1.21 – 1.21.1 | ✅ | ✅ | ✅ |
 | 1.20 – 1.20.1 | через Forge-сборку | ✅ | ✅ |
 
-Имена файлов: `typinganimation-1.0.0+<версии>-<загрузчик>.jar`, например `typinganimation-1.0.0+26.3-neoforge.jar`.
+Имена файлов: `typinganimation-1.0.1+<версии>-<загрузчик>.jar`, например `typinganimation-1.0.1+26.3-neoforge.jar`.
 Forge-сборку для 1.20.1 можно ставить и на NeoForge 1.20.1 (проверено на NeoForge 47.1.106).
 
 **Quilt.** На Quilt Loader проверены только некоторые Fabric-сборки:
@@ -109,6 +111,8 @@ MIT.
 
 <a id="english"></a>
 # Typing Animation (English)
+
+[Modrinth project page](https://modrinth.com/mod/typing-animation)
 
 A client-side Minecraft mod that makes typing feel smooth. New characters animate in, deleted ones animate out, and the text and caret glide instead of jumping.
 It works in chat, commands and most other text fields: anvil, creative search, world and server names, command blocks. Multi-line fields such as books are supported where the version allows it.

@@ -1,3 +1,13 @@
+## 1.0.1: new icon
+
+- New mod icon: a pressed "T" key (the key that opens chat) with letters flying out of it. It is shown in the mods list (NeoForge/Forge mods screen, Mod Menu) and on the Modrinth page.
+- No other changes: the animations, settings and supported versions are the same as in 1.0.0.
+
+## 1.0.1: новая иконка
+
+- Новая иконка мода: нажатая клавиша «T» (та, что открывает чат), из которой вылетают буквы. Её видно в списке модов (экран модов NeoForge/Forge, Mod Menu) и на странице Modrinth.
+- Больше ничего не менялось: анимации, настройки и поддерживаемые версии те же, что в 1.0.0.
+
 ## 1.0.0: first release
 
 - Smooth typing animations for chat, the command line and most other text fields, including multi-line boxes where the game version allows it.

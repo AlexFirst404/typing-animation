@@ -15,7 +15,7 @@ import groovy.json.JsonSlurper
 
 def MOD_ID = 'typinganimation'
 def MOD_NAME = 'Typing Animation'
-def MOD_VERSION = '1.0.0'
+def MOD_VERSION = '1.0.1'
 def MOD_LICENSE = 'MIT'
 def MOD_AUTHORS = 'alext'
 

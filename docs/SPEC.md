@@ -7,7 +7,7 @@ All code, texts and media of this project are original. Another mod with a simil
 (Modrinth), is *All Rights Reserved*: never copy, paraphrase or port its code, names of its classes, its texts or
 its assets, and never describe this mod by comparison to it (Modrinth page, README, changelog).
 
-- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.0.0` · License: MIT
+- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.0.1` · License: MIT
 - Java package root: `dev.typinganimation`
 - Client only. Must never be required on servers; must never crash the game (see "Safety").
 - No dependency on Fabric API. Mod Menu integration on Fabric is optional (compileOnly).
@@ -119,7 +119,7 @@ unobfuscated 26.x), NeoForge/Forge use official names natively.
   `compileClasspath` in `scripts/target-common.gradle`) while the dev client runs the loader's own Mixin, so every
   injector `at`/`slice` is written in the single-value form that all Mixin and MixinExtras versions read (see the
   Fabric loader floors in section 1).
-- Output jar name: `typinganimation-1.0.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
+- Output jar name: `typinganimation-1.0.1+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
   (the only jar in `build/libs`; Fabric's remapJar, Forge 1.20.1's reobfJar and the plain jar task all produce it).
 - Mod metadata: id/name/version/license MIT/authors `alext`/description (see lang `typinganimation.description`
   in English)/icon `assets/typinganimation/icon.png`; client-only markers where the loader supports them

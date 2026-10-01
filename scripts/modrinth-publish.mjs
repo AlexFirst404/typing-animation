@@ -4,7 +4,7 @@
 //   node scripts/modrinth-publish.mjs                     dry run (default): validate everything and print the
 //                                                         version table; needs no token and changes nothing
 //   node scripts/modrinth-publish.mjs --json              dry run, plus every version payload as JSON
-//   node scripts/modrinth-publish.mjs --create-project    create the project as a draft (needs MODRINTH_TOKEN)
+//   node scripts/modrinth-publish.mjs --create-project    create a draft with icon, gallery and description (MODRINTH_TOKEN)
 //   node scripts/modrinth-publish.mjs --sync-project      update title/summary/body/categories/license/links, the icon,
 //                                                         and upload new gallery images (MODRINTH_TOKEN, MODRINTH_PROJECT)
 //   node scripts/modrinth-publish.mjs --publish           upload every version that is not on Modrinth yet
@@ -474,6 +474,86 @@ async function loadKit(problems) {
     return kit;
 }
 
+// Description sources stay local and reproducible. Only these kit assets may be substituted with uploaded URLs.
+function kitImageRef(file) {
+    const ref = path.relative(KIT_DIR, file).split(path.sep).join('/');
+    if (!ref || ref === '..' || ref.startsWith('../') || path.isAbsolute(ref) || !/^[\w./-]+$/.test(ref)) return null;
+    return ref;
+}
+
+function descriptionAssets(kit) {
+    const assets = new Map();
+    const icon = kitImageRef(kit.iconPath);
+    if (icon) assets.set(icon, { icon: true });
+    for (const g of kit.gallery) {
+        if (typeof g.file !== 'string') continue;
+        const ref = kitImageRef(path.resolve(path.dirname(kit.galleryPath), g.file));
+        if (ref) assets.set(ref, { title: g.title });
+    }
+    return assets;
+}
+
+/** Locate inline Markdown image destinations and HTML img src attributes, preserving the surrounding markup. */
+function descriptionImages(body) {
+    const images = [];
+    // Deliberately reject reference-style images: their definitions may also be links and are not safely rewritten.
+    const markdown = /!\[(?:\\.|[^\]\\])*\]\(\s*(<[^>\n]*>|[^\s()]*)\s*(?:(?:"[^"\n]*"|'[^'\n]*'|\([^\)\n]*\))\s*)?\)/y;
+    for (const start of body.matchAll(/!\[/g)) {
+        markdown.lastIndex = start.index;
+        const match = markdown.exec(body);
+        if (!match) throw new Fail('description.md: unsupported image syntax; use ![alt](gallery/file.gif) or <img src="icon.png">');
+        const wrapped = match[1].startsWith('<');
+        const offset = match[0].indexOf('](') + 2;
+        const index = start.index + offset + match[0].slice(offset).indexOf(match[1]) + Number(wrapped);
+        images.push({ ref: wrapped ? match[1].slice(1, -1) : match[1], index,
+            length: match[1].length - (wrapped ? 2 : 0), html: false });
+    }
+    for (const tag of body.matchAll(/<img\b[^>]*>/gi)) {
+        const attrs = [...tag[0].matchAll(/\ssrc\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gi)];
+        if (attrs.length !== 1 || /\ssrcset\s*=/i.test(tag[0])) {
+            throw new Fail('description.md: each img must have exactly one src and no srcset');
+        }
+        const attr = attrs[0];
+        const ref = attr[1] ?? attr[2] ?? attr[3];
+        const valueOffset = attr[0].indexOf('=') + 1;
+        const rest = attr[0].slice(valueOffset);
+        images.push({ ref, index: tag.index + attr.index + valueOffset + rest.indexOf(ref), length: ref.length, html: true });
+    }
+    return images.sort((a, b) => a.index - b.index);
+}
+
+function validateDescriptionImages(kit) {
+    const assets = descriptionAssets(kit);
+    const images = descriptionImages(kit.body);
+    for (const { ref } of images) {
+        if (!isHttpsUrl(ref) && !assets.has(ref)) {
+            throw new Fail(`description.md: image "${ref}" must be an https:// URL or an exact kit-relative path to icon_file or a gallery.json image`);
+        }
+    }
+    return images;
+}
+
+function resolveDescription(kit, remote) {
+    const assets = descriptionAssets(kit);
+    let body = kit.body;
+    for (const image of validateDescriptionImages(kit).reverse()) {
+        if (isHttpsUrl(image.ref)) continue;
+        const asset = assets.get(image.ref);
+        const matches = asset.icon ? [] : (remote.gallery ?? []).filter((g) => g.title === asset.title);
+        if (!asset.icon && matches.length !== 1) {
+            throw new Fail(`description.md: expected one uploaded gallery image titled "${asset.title}", found ${matches.length}; body was not updated`);
+        }
+        const url = asset.icon ? remote.icon_url : matches[0].url;
+        if (typeof url !== 'string' || !isHttpsUrl(url) || /[\s<>"'`\\]/.test(url)) {
+            throw new Fail(`description.md: no safe HTTPS URL returned for "${image.ref}"; body was not updated`);
+        }
+        const escaped = image.html ? url.replace(/&/g, '&amp;') : url.replace(/\(/g, '%28').replace(/\)/g, '%29');
+        body = body.slice(0, image.index) + escaped + body.slice(image.index + image.length);
+    }
+    if (body.length > BODY_MAX) throw new Fail(`resolved description is ${body.length} characters (max ${BODY_MAX}); body was not updated`);
+    return body;
+}
+
 /** Checks project.json and the texts/images against Modrinth's rules (no network). */
 async function validateKit(kit, problems) {
     const p = kit.project;
@@ -512,14 +592,14 @@ async function validateKit(kit, problems) {
     if (kit.body !== null) {
         if (kit.body.trim().length === 0) problems.error('description.md is empty');
         if (kit.body.length > BODY_MAX) problems.error(`description.md is ${kit.body.length} characters (max ${BODY_MAX})`);
-        const localImages = [...kit.body.matchAll(/!\[[^\]]*\]\((?!https:\/\/)([^)]*)\)|<img[^>]+src=["'](?!https:\/\/)([^"']*)/g)];
-        for (const m of localImages) problems.error(`description.md: image "${m[1] ?? m[2]}" is not an https:// URL (upload it to the gallery and link the CDN URL)`);
+        try { validateDescriptionImages(kit); } catch (e) { problems.error(e.message); }
     }
     if (kit.changelog !== null) {
         if (kit.changelog.trim().length === 0) problems.error('changelog.md is empty');
         if (kit.changelog.length > CHANGELOG_MAX) problems.error(`changelog.md is ${kit.changelog.length} characters (max ${CHANGELOG_MAX})`);
     }
     if (kit.icon) {
+        if (!kitImageRef(kit.iconPath)) problems.error('project.json: icon_file must point to an image inside modrinth/');
         const ext = path.extname(kit.iconPath).slice(1).toLowerCase();
         if (!IMAGE_TYPES[ext]) problems.error(`icon ${rel(kit.iconPath)}: unsupported type .${ext}`);
         if (kit.icon.length > ICON_MAX) problems.error(`icon ${rel(kit.iconPath)} is ${kib(kit.icon.length)} (max ${kib(ICON_MAX)})`);
@@ -535,6 +615,7 @@ async function validateKit(kit, problems) {
         const at = `gallery.json entry #${i + 1}`;
         if (typeof g.file !== 'string' || !g.file) { problems.error(`${at}: "file" is required`); continue; }
         const file = path.join(path.dirname(kit.galleryPath), g.file);
+        if (!kitImageRef(file)) { problems.error(`${at}: image must be inside modrinth/`); continue; }
         const ext = path.extname(file).slice(1).toLowerCase();
         if (!IMAGE_TYPES[ext]) problems.error(`${at}: unsupported image type .${ext} (${Object.keys(IMAGE_TYPES).join(', ')})`);
         if (!existsSync(file)) problems.error(`${at}: missing file ${rel(file)}`);
@@ -569,7 +650,7 @@ function imageSize(buf) {
 async function printGallery(kit) {
     if (kit.gallery.length === 0) return;
     log('');
-    log(`Gallery (${rel(kit.galleryPath)}), uploaded by --sync-project in this order:`);
+    log(`Gallery (${rel(kit.galleryPath)}), uploaded by --create-project / --sync-project in this order:`);
     const rows = [];
     for (const g of [...kit.gallery].sort((a, b) => (a.ordering ?? 0) - (b.ordering ?? 0))) {
         const file = path.join(path.dirname(kit.galleryPath), String(g.file ?? ''));
@@ -954,12 +1035,12 @@ async function dryRun(kit, opts, problems) {
     return 0;
 }
 
-function projectFields(kit) {
+function projectFields(kit, body) {
     const p = kit.project;
     const out = {
         title: p.title,
         description: p.summary,
-        body: kit.body,
+        body,
         categories: p.categories,
         additional_categories: p.additional_categories ?? [],
         license_id: p.license_id,
@@ -969,7 +1050,7 @@ function projectFields(kit) {
 }
 
 async function createProject(kit) {
-    TOKEN = requireEnv('MODRINTH_TOKEN', 'creating a project needs a personal access token with the "Create projects" scope');
+    TOKEN = requireEnv('MODRINTH_TOKEN', 'creating a project needs a personal access token with the "Create projects", "Read projects" and "Write projects" scopes');
     const problems = new Problems();
     await validateKit(kit, problems);
     validateProjectTags(kit, await fetchTags(), problems);
@@ -983,7 +1064,7 @@ async function createProject(kit) {
         if (!(e instanceof ApiError && e.status === 404)) throw e;
     }
     const data = {
-        ...projectFields(kit),
+        ...projectFields(kit, p.summary), // CDN URLs exist only after the draft and its images have been created.
         slug: p.slug,
         project_type: 'mod',
         client_side: p.client_side,
@@ -1000,10 +1081,16 @@ async function createProject(kit) {
     log('');
     log(`Created project id: ${created.id}  (slug ${created.slug}, status ${created.status})`);
     log(`Page: ${API_BASE.includes('staging') ? 'https://staging.modrinth.com' : 'https://modrinth.com'}/mod/${created.slug}`);
+    log(`  To resume after any upload error: set MODRINTH_PROJECT=${created.id} and run --sync-project.`);
+    await uploadGallery(kit, created);
+    const remote = await getProject(created.id);
+    checkSameProject(remote, kit);
+    const body = resolveDescription(kit, remote);
+    log('  updating the description with uploaded image URLs ...');
+    await api('PATCH', `/project/${created.id}`, { token: TOKEN, json: { body } });
     log('');
     log('Next steps:');
     log(`  set MODRINTH_PROJECT=${created.id}`);
-    log('  node scripts/modrinth-publish.mjs --sync-project   (gallery images)');
     log('  node scripts/modrinth-publish.mjs --publish        (versions)');
     return 0;
 }
@@ -1039,13 +1126,23 @@ async function syncProject(kit) {
     const id = remote.id;
     log(`Project "${remote.title}" (id ${id}, status ${remote.status})`);
 
-    log('  updating title, summary, body, categories, license and links ...');
-    await api('PATCH', `/project/${id}`, { token: TOKEN, json: projectFields(kit) });
-
     const ext = path.extname(kit.iconPath).slice(1).toLowerCase();
     log(`  uploading icon ${rel(kit.iconPath)} (${kib(kit.icon.length)}) ...`);
     await api('PATCH', `/project/${id}/icon?ext=${ext}`, { token: TOKEN, body: kit.icon, contentType: IMAGE_TYPES[ext] });
 
+    const { added, skipped } = await uploadGallery(kit, remote);
+    const refreshed = await getProject(id);
+    checkSameProject(refreshed, kit);
+    const body = resolveDescription(kit, refreshed);
+    log('  updating title, summary, body, categories, license and links ...');
+    await api('PATCH', `/project/${id}`, { token: TOKEN, json: projectFields(kit, body) });
+    log('');
+    log(`SYNC OK: project fields and icon updated; gallery: ${added} uploaded, ${skipped} already there.`);
+    return 0;
+}
+
+async function uploadGallery(kit, remote) {
+    const id = remote.id;
     const existingTitles = new Set((remote.gallery ?? []).map((g) => g.title).filter(Boolean));
     let added = 0, skipped = 0;
     for (const g of kit.gallery) {
@@ -1064,9 +1161,7 @@ async function syncProject(kit) {
         await api('POST', `/project/${id}/gallery?${q}`, { token: TOKEN, body: bytes, contentType: IMAGE_TYPES[gext] });
         added++;
     }
-    log('');
-    log(`SYNC OK: project fields and icon updated; gallery: ${added} uploaded, ${skipped} already there.`);
-    return 0;
+    return { added, skipped };
 }
 
 async function publish(kit, opts) {

@@ -59,6 +59,10 @@ if (-not $Targets -or $Targets.Count -eq 0) {
         ForEach-Object { $_.Name }
 }
 
+$modVersion = (Select-String -Path "$root\scripts\target-common.gradle" -Pattern "^def MOD_VERSION = '([^']+)'" |
+    Select-Object -First 1).Matches.Groups[1].Value
+if (-not $modVersion) { throw "cannot read MOD_VERSION from scripts\target-common.gradle" }
+
 New-Item -ItemType Directory -Force "$root\dist" | Out-Null
 $ok = @(); $failed = @()
 foreach ($t in $Targets) {
@@ -70,9 +74,11 @@ foreach ($t in $Targets) {
     try {
         & .\gradlew.bat build --no-daemon *> "$root\dist\.build-$t.log"
         if ($LASTEXITCODE -ne 0) { throw "gradle exit $LASTEXITCODE" }
+        # build\libs keeps jars of earlier mod versions, so pick the one for the current MOD_VERSION.
         $jar = Get-ChildItem (Join-Path $dir $props['jar.glob']) -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -notlike '*-sources*' } | Select-Object -First 1
-        if (-not $jar) { throw "no jar matching $($props['jar.glob'])" }
+            Where-Object { $_.Name -notlike '*-sources*' -and $_.Name.StartsWith("typinganimation-$modVersion+") } |
+            Select-Object -First 1
+        if (-not $jar) { throw "no jar matching $($props['jar.glob']) for version $modVersion" }
         Copy-Item $jar.FullName "$root\dist\" -Force
         Write-Host "    -> dist\$($jar.Name)"
         $ok += $t
