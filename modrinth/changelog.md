@@ -1,3 +1,13 @@
+## 1.0.2: author credit
+
+- The mod's author is now credited as **AlexFirst** in Fabric, Forge and NeoForge metadata and JAR manifests.
+- Animation behaviour and supported Minecraft versions are unchanged.
+
+## 1.0.2: имя автора
+
+- В метаданных Fabric, Forge, NeoForge и манифестах JAR имя автора исправлено на **AlexFirst**.
+- Анимации и поддерживаемые версии Minecraft не изменились.
+
 ## 1.0.1: new icon
 
 - New mod icon: a pressed "T" key (the key that opens chat) with letters flying out of it. It is shown in the mods list (NeoForge/Forge mods screen, Mod Menu) and on the Modrinth page.

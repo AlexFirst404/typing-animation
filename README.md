@@ -8,6 +8,7 @@
 Работает в чате, в командах и в большинстве других полей ввода: наковальня, поиск в творческом режиме, названия миров и серверов, командные блоки. Там, где версия позволяет, поддерживаются и многострочные поля (книги).
 
 - **Только клиент.** На сервер ставить не нужно, мод никак не влияет на игру по сети.
+- **Автор:** AlexFirst.
 - **Не нужен Fabric API.** На Fabric достаточно Fabric Loader, Mod Menu поддерживается по желанию.
 - **В покое текст выглядит точно как в ванилле.** Автотест проверяет это попиксельно для каждой сборки.
 
@@ -43,7 +44,7 @@
 | 1.21 – 1.21.1 | ✅ | ✅ | ✅ |
 | 1.20 – 1.20.1 | через Forge-сборку | ✅ | ✅ |
 
-Имена файлов: `typinganimation-1.0.1+<версии>-<загрузчик>.jar`, например `typinganimation-1.0.1+26.3-neoforge.jar`.
+Имена файлов: `typinganimation-1.0.2+<версии>-<загрузчик>.jar`, например `typinganimation-1.0.2+26.3-neoforge.jar`.
 Forge-сборку для 1.20.1 можно ставить и на NeoForge 1.20.1 (проверено на NeoForge 47.1.106).
 
 **Quilt.** На Quilt Loader проверены только некоторые Fabric-сборки:
@@ -118,6 +119,7 @@ A client-side Minecraft mod that makes typing feel smooth. New characters animat
 It works in chat, commands and most other text fields: anvil, creative search, world and server names, command blocks. Multi-line fields such as books are supported where the version allows it.
 
 - **Client only.** Nothing is needed on the server.
+- **Author:** AlexFirst.
 - **No Fabric API needed.** Mod Menu is supported but optional.
 - **Text at rest is pixel-identical to vanilla.** This is verified for every build by an in-game self-test.
 

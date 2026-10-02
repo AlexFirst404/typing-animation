@@ -1226,7 +1226,7 @@ async function main() {
     API_BASE = (process.env.MODRINTH_API_URL || (opts.staging ? API_STAGING : API_PRODUCTION)).replace(/\/+$/, '');
     const problems = new Problems();
     const kit = await loadKit(problems);
-    USER_AGENT = `alext/typing-animation/${kit.modVersion} (release kit: scripts/modrinth-publish.mjs)`;
+    USER_AGENT = `AlexFirst/typing-animation/${kit.modVersion} (release kit: scripts/modrinth-publish.mjs)`;
     switch (opts.mode) {
         case 'create-project': abortOnProblems(problems); return createProject(kit);
         case 'sync-project': abortOnProblems(problems); return syncProject(kit);

@@ -49,7 +49,7 @@ Syntax colours stay intact, including when completing a command with <kbd>Tab</k
 
 **Make it yours:** open **Options → Typing Animation…** for a live preview. Adjust timing, intensity and easing, or toggle chat, other fields and multi-line input separately. [Mod Menu](https://modrinth.com/mod/modmenu) is optional on Fabric.
 
-**Source:** [GitHub — Typing Animation](https://github.com/AlexFirst404/typing-animation).
+**Author:** AlexFirst · **Source:** [GitHub — Typing Animation](https://github.com/AlexFirst404/typing-animation).
 
 <details>
 <summary>◇ Versions & compatibility</summary>
@@ -77,6 +77,6 @@ Syntax colours stay intact, including when completing a command with <kbd>Tab</k
 
 Версии перечислены в блоке **Versions & compatibility** выше. На NeoForge 1.20.1 используйте Forge-сборку. На Quilt проверены только отдельные сборки; для 26.3 нужна протестированная бета 0.31.0-beta.4. Таблички не анимируются, книги поддерживаются с 1.21.6; моды, заменяющие отрисовку поля ввода, могут конфликтовать.
 
-Конфиг: `config/typinganimation.json`. Лицензия **MIT**, можно включать в сборки.
+Автор: **AlexFirst**. Конфиг: `config/typinganimation.json`. Лицензия **MIT**, можно включать в сборки.
 
 </details>
