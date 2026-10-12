@@ -27,5 +27,8 @@ replay_*.log
 .research/
 # build outputs collected by scripts
 dist/
+# transient CurseForge upload journal locks and atomic writes
+curseforge/releases/*.json.lock
+curseforge/releases/*.json.*.tmp
 # showcase frames: scripts/make-gallery.sh writes them to the system temp dir; this only guards a SHOWCASE_OUT set inside the repo
 typinganimation-showcase/

@@ -2,7 +2,7 @@
 
 **RU** · [EN](#english)
 
-[Страница мода на Modrinth](https://modrinth.com/mod/typing-animation)
+[Modrinth](https://modrinth.com/mod/typing-animation) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/typing-animation)
 
 Клиентский мод для Minecraft, который делает набор текста плавным. Новые символы красиво появляются, удалённые исчезают, а текст и курсор движутся без рывков.
 Работает в чате, в командах и в большинстве других полей ввода: наковальня, поиск в творческом режиме, названия миров и серверов, командные блоки. Там, где версия позволяет, поддерживаются и многострочные поля (книги).
@@ -113,7 +113,7 @@ MIT.
 <a id="english"></a>
 # Typing Animation (English)
 
-[Modrinth project page](https://modrinth.com/mod/typing-animation)
+[Modrinth](https://modrinth.com/mod/typing-animation) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/typing-animation)
 
 A client-side Minecraft mod that makes typing feel smooth. New characters animate in, deleted ones animate out, and the text and caret glide instead of jumping.
 It works in chat, commands and most other text fields: anvil, creative search, world and server names, command blocks. Multi-line fields such as books are supported where the version allows it.

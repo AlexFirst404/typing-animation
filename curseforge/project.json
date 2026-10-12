@@ -1,0 +1,21 @@
+{
+  "project_id": 1741028,
+  "slug": "typing-animation",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/typing-animation",
+  "name": "Typing Animation",
+  "summary": "Smooth typing, animated letters and a gliding cursor for Minecraft chat and text fields. Client-side only.",
+  "source": {
+    "provider": "GitHub",
+    "url": "https://github.com/AlexFirst404/typing-animation"
+  },
+  "categories": {
+    "primary": "Cosmetic",
+    "additional": ["Utility & QoL"]
+  },
+  "author": "AlexFirst",
+  "license": "MIT",
+  "allow_comments": true,
+  "unlisted": false,
+  "description_file": "description.md",
+  "changelog_file": "changelog.md"
+}

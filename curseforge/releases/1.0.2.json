@@ -1,0 +1,297 @@
+{
+  "version": "1.0.2",
+  "projectId": "1741028",
+  "files": [
+    {
+      "filename": "typinganimation-1.0.2+1.20-1.20.1-fabric.jar",
+      "target": "1.20.1-fabric",
+      "sha512": "7dd973c72b90d897c96e72c7384f17dad4cd774db5149d1f60d139293b9360c67d60db4260db3fc16e9e93faa792906714c01e0384ab53478699ebfd193ee39f",
+      "metadataSha512": "9b47511408dcf8de6498dc21c74d84107ac74d14b28e1df53dce7fa1f5e6c899ad4658b8505ab728acaec167fd9c29edbf755bf76a1c733d7ddf1bbe9ca414e5",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:00:43.300Z",
+      "fileId": 9145023,
+      "uploadedAt": "2026-10-12T12:00:44.461Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.20-1.20.1-forge.jar",
+      "target": "1.20.1-forge",
+      "sha512": "d407552fbd72c3d9467e66106f8d2d55c14f0f2986ed4a7a66ad5ee9cba22bcbe4ff2c64341cc783413a2d9ffa5064dc0f6b9ae9e0efcfbb28ff7b1bea006d5c",
+      "metadataSha512": "af56047701478f3d9b8376ebb408038c6b41109855609e2f36942ca7b5779d4a8119b066c93bbd583f9ac69b550f016f57494527bb144214ac9b787d111f0593",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:39.054Z",
+      "fileId": 9145037,
+      "uploadedAt": "2026-10-12T12:02:39.914Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21-1.21.1-fabric.jar",
+      "target": "1.21.1-fabric",
+      "sha512": "aa1c00c7435e27b5544c01c9a5f87b5f3f2b8654e888eb2ad100bfded333942e142a9b59883fabdd15023d878f642773368f8f28a26fa1f04aef0643e08cbac2",
+      "metadataSha512": "ea2ab8d624db69c2320b8bf52681081edb10babb478f4b6f73c97f7054a2d3eb49310719e90b1065df615a150e0132073db0dc4704cbb64dd3bc04032341bf64",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:39.915Z",
+      "fileId": 9145038,
+      "uploadedAt": "2026-10-12T12:02:40.621Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21-1.21.1-forge.jar",
+      "target": "1.21.1-forge",
+      "sha512": "282937ba237124efe40d0b0cc6fb0d9e154dee159b2a9bb6090dd6ec8f95e79da576b3a1201bef5f7c8265416e0eff293ceebcdfa081d5a4d1ed2818b1b5c71d",
+      "metadataSha512": "7faae34190a8039100251aeec520815574bc9edbadd6040f0bb097f4eca07f385a3ceabfa1094a03bf072f34dabd72250080093d56f814f55e7599fe11023b99",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:40.622Z",
+      "fileId": 9145040,
+      "uploadedAt": "2026-10-12T12:02:41.374Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21-1.21.1-neoforge.jar",
+      "target": "1.21.1-neoforge",
+      "sha512": "c2fc5756dd4655c1d1048eb418d3e024b050f977f00ae4501ac23464abba916e4e7e753ac784fe6a5a786abea206437ee886622bffd4a8659339c5ffe7fd7d3c",
+      "metadataSha512": "309c000679312851a3b1f7ac7fc17656ff22010461cc16d677c0ca0be199872a54866049cfcc030631a11d6d131347bbfab96595d61c205558d2b898895fec94",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:41.375Z",
+      "fileId": 9145042,
+      "uploadedAt": "2026-10-12T12:02:41.937Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.4-fabric.jar",
+      "target": "1.21.4-fabric",
+      "sha512": "fbeabec264770528b62b728836acfb0e252155d07062dc1ef156748101fe693e54bca987a7d691f8b3f875a9564d52eaf6a389535bf5d25169a8e970c37dfefe",
+      "metadataSha512": "65cb8b79d4fea5e770c374974b90b89a20e91fc809f9acea9ce5e01a841d5d96a704be25275d9c98f40e12555277b4cb166ca373f39bac64434988f0a8a53281",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:41.938Z",
+      "fileId": 9145043,
+      "uploadedAt": "2026-10-12T12:02:42.504Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.4-forge.jar",
+      "target": "1.21.4-forge",
+      "sha512": "0300cac26eac1fe5c18c73635b007be7d059b0abffbd8a20e83e0484e311e8ae25e3c9ae5bd64c27d52eb22503fac446db85e5d7dda2b2494a10668dfe663836",
+      "metadataSha512": "6b028bd5b1405d6bcc21d7d2fedf750158f13e5aa2c5807e80a0c70a74556c05a22f63ba8f31b44b3aa0a842c56146df964ddfcc7ad741ba14a2fe649c2d0b5b",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:42.505Z",
+      "fileId": 9145044,
+      "uploadedAt": "2026-10-12T12:02:43.061Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.4-neoforge.jar",
+      "target": "1.21.4-neoforge",
+      "sha512": "f549f288498ce580b23be3c7ef045f3f6915e75c62b72035098925c9c23d333d64a1b2ecd0a48449b9845dd45a8db864d454d6c6de7cb6510866cd4167b5e1d0",
+      "metadataSha512": "f7d127f509daee84a24dcf4215ed7f8b1b7e54c0222c606a9442ebb7b9ef21e69386982cd481cf254bcf7b60d0582822d112855cc7e1271d0893db24d577cb07",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:43.063Z",
+      "fileId": 9145046,
+      "uploadedAt": "2026-10-12T12:02:43.589Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.5-fabric.jar",
+      "target": "1.21.5-fabric",
+      "sha512": "3efb68d8488cc92979ea323a15bd7ab53e72bb93c11c9321fd91c46a0b93dcb55715f58ae2b1889a832c10e1348b568932167e12b501d547617966d37256ee54",
+      "metadataSha512": "151fda51c67785f4d19f8f465c99c1463080a28100daae71d33810e89d5f367ace347457b6a5e57e23be7f7b1ffda4b3bced0c63876083fe581a8a11d195053e",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:43.590Z",
+      "fileId": 9145047,
+      "uploadedAt": "2026-10-12T12:02:44.275Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.5-forge.jar",
+      "target": "1.21.5-forge",
+      "sha512": "bf79002f1f36ae7c60ff5ab8a6227e9d705c6cf58d2ec620154145370533c9aa28033a51f1fb67351aed13f5337663d71ca2936539b3dfded89de3a12918954e",
+      "metadataSha512": "55054376719299b417d48351f55dce0e3ebe16612fd5ea502d9999e0bea3173a0876d2c9876a46ddbeb9bb1508d0d210c9613861e30c24381db9bb48aeece4a2",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:44.276Z",
+      "fileId": 9145049,
+      "uploadedAt": "2026-10-12T12:02:44.828Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.5-neoforge.jar",
+      "target": "1.21.5-neoforge",
+      "sha512": "ae7a5e6518fb869b1219f18b5773ebeedc35340c5408131e19ed1cc4ad0daec1ed6acca940d93b6ba4fc9c16ceb56ccc23a91eb643927114c6b34d123741bb5e",
+      "metadataSha512": "fe5bfbbc0ba815a4ed368aae6f74f83ffb9b9d9ef3bcba0e39c38494cfbeea66f3d3ab9438de730325aa9e543a7d14c48aa5e72219f2c6bc83fa49ceb175a48b",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:44.829Z",
+      "fileId": 9145050,
+      "uploadedAt": "2026-10-12T12:02:45.448Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.6-1.21.8-fabric.jar",
+      "target": "1.21.8-fabric",
+      "sha512": "c5cd79165dabf1880c1bf5584e274ac6fd682817074853d65ed24d90d40f314657a0c1549566d5e3a05143bb91013c937a30083c4fd51ac0cb522c532ecba369",
+      "metadataSha512": "9dc92220aef19ee32b420cedfad219d9de9a9bd640a700cf3c07b7e186429be52240078411342e090afd19f5fd78a64411b8240292eda169014019b1aada84e2",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:45.450Z",
+      "fileId": 9145051,
+      "uploadedAt": "2026-10-12T12:02:46.004Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.6-1.21.8-forge.jar",
+      "target": "1.21.8-forge",
+      "sha512": "b4a01514e521b7fa0b85b53250d04b05bb46a35ff0a95116b320fbc124cbcbc71ed8f18641fb4f0a90216bf9a72ab4260d99ce0596c2d46a5cf9b48cc59d3b0f",
+      "metadataSha512": "3da1d3f81c103c6ce310949ec08014aead167b0838460e20bdc0bb4c8e92fb9b5fbd90790ad23941ccf0afce8ec605e3074b8cfc7bbc8658d2bfbe4a3645d18d",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:46.006Z",
+      "fileId": 9145052,
+      "uploadedAt": "2026-10-12T12:02:46.813Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.6-1.21.8-neoforge.jar",
+      "target": "1.21.8-neoforge",
+      "sha512": "dc2878dbd1a75e44993203ed65a6cd1b9444d1539f2fbe95528f0d04f5850a27b6a0c253019ed975535efcaa773debe7d86690d31cb39a62802863e936ec614f",
+      "metadataSha512": "bc994f67b1320a1a89bdb6df35aa6afd02005353b8264056e5b33c482b57809d7c1220b753d61c6f8a024789a20d0a245690af30de295ddaf622785cc9e51405",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:46.814Z",
+      "fileId": 9145053,
+      "uploadedAt": "2026-10-12T12:02:47.370Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.9-1.21.10-fabric.jar",
+      "target": "1.21.10-fabric",
+      "sha512": "f2cfd5dbbe1470cbf390aa0de0b0e0611cc76ed0fc7f126a28028a9e28addd6e1191275cf4545cbed314a993de26112c9c86ccb8015ac01c1c24e27a9dc909b1",
+      "metadataSha512": "d5847f9e806e821e28f1b9f2a796836a518e3b09e791321ca92f4a983668265c261ab20f5ae2f25d1621564ea47f3fcae822e0622fb742142ee68d365df7a19e",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:47.372Z",
+      "fileId": 9145054,
+      "uploadedAt": "2026-10-12T12:02:47.973Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.9-1.21.10-forge.jar",
+      "target": "1.21.10-forge",
+      "sha512": "066977d8c4148b8f7194024ff51f977fd23baefab0a44b4c1b557d40caaeaadb739c62152809403c8a145a812cbe8329245428f16e296f89fc20cd583d3cc9aa",
+      "metadataSha512": "04a1af41303e7940f797de520fbc3a6559b92a29cbdd9780d1fc641ab240b010ad0ac737eb92877b09eb5c3e67dc984ee257c67f09c6e9b1d3e625327fd66702",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:47.975Z",
+      "fileId": 9145055,
+      "uploadedAt": "2026-10-12T12:02:48.542Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.9-1.21.10-neoforge.jar",
+      "target": "1.21.10-neoforge",
+      "sha512": "e40e99d1c695e720f25be876b68a21c9b3acfb8a6ec2435bdca43b08770de9087f8f3a366ea4f6d84180fe9c7a73e4f3435044c2e936328bcb69025557c7e6d8",
+      "metadataSha512": "018480ae3950f16adb3ee06524d9ca87494aa5ecb1ae9ad5bacd762fc8a33d9fcb915beac97d261fee44239e3cfb6340246da76098b917e899ddcc0f9768c863",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:48.543Z",
+      "fileId": 9145056,
+      "uploadedAt": "2026-10-12T12:02:49.061Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.11-fabric.jar",
+      "target": "1.21.11-fabric",
+      "sha512": "5781a43473104eafe3146cc9b7e01438080e13436f67e81ebcd34b44b9692f14da33de5eb119a12888f26389df2c27e40f4623fd04ce563bb4a871bbba00dc69",
+      "metadataSha512": "ddee225e442abee2d0b6d2ed6eee1f42e2ef828f29bc025eadf72cfc09c064249f0f4010e5bbc2158fdaf4a0710c9239e45979e0d5ad0307a52501560a75ea15",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:49.063Z",
+      "fileId": 9145057,
+      "uploadedAt": "2026-10-12T12:02:49.658Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.11-forge.jar",
+      "target": "1.21.11-forge",
+      "sha512": "12dfbf4a9197a3a9dd3b62908e05af541a59ae6ede4b8ae615b2793cfebd869821f6cbfd2c79963b51b012f68e8ba5e2e440984c77f7b21450ad14d18685276c",
+      "metadataSha512": "5ba0439024ff0b0962b2339058eeecd4ca264ee7fed7def1a7d5a7c0bfc227e9aa6bbae061d143189199b387b66ab267f7b8a6fa73980a629a474a7f3b117c8b",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:49.659Z",
+      "fileId": 9145058,
+      "uploadedAt": "2026-10-12T12:02:50.191Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+1.21.11-neoforge.jar",
+      "target": "1.21.11-neoforge",
+      "sha512": "4bbfaafba131629789f127164878caec3fc13ffcc5a7b415411244501bca91fa0c7a2b6bd61a027c7ac99e12417f0434bc244552f33d1449c76f4a3556ca2095",
+      "metadataSha512": "bcf24db3ec42d014903af3a925e6d1fb0137d4ec40ef5716733fe66935e13ff458a35ebb81c9ab42b4d7c689625254ad870a88bdaf8761c900decd5ccfe34bb7",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:50.193Z",
+      "fileId": 9145059,
+      "uploadedAt": "2026-10-12T12:02:50.717Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.1-26.1.2-fabric.jar",
+      "target": "26.1.2-fabric",
+      "sha512": "ee774982a279fcc68f303a702e2b30841547261ed9d64e2e5e1954bb8ef33b3d5e0c07dec852f97eed75bce4b20387740ee8bb1be6b0c3b7e8806f5504133970",
+      "metadataSha512": "8ac3fad5f826f83ef258afa7300a7ce5438f816fe5498915d471ddd4127c0f830c00c38183cfd198bbac2a90a2738688da42e5b66f843fafca23e0d8692b7a33",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:50.718Z",
+      "fileId": 9145060,
+      "uploadedAt": "2026-10-12T12:02:51.292Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.1-26.1.2-forge.jar",
+      "target": "26.1.2-forge",
+      "sha512": "f74b6156495df88318e147adf51771d8bb3501b58b0749d62badb55704620f3efcd3c870749f4023a65139fd81cf9498d864f6260d7c4ccff4f5bf87bd0f488d",
+      "metadataSha512": "8cf62cde3f9556150aaaa84053c1ff1ad8ebda8d493ec909d4428c5a4af62ec7a9725b70ee26fc963db27e912d8199d1233044206a6ba144d066026e77820a06",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:51.293Z",
+      "fileId": 9145061,
+      "uploadedAt": "2026-10-12T12:02:52.009Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.1-26.1.2-neoforge.jar",
+      "target": "26.1.2-neoforge",
+      "sha512": "1dba02292e0dbefec012f7fcedf4afaa0cd4e82e0188b556a12a3a1decfd64a8337fb6766d605f07b1723510d289389f5b4c6053acde1099dd97f88087a04f89",
+      "metadataSha512": "f967572da6dc9172324fe174674e747da60186c007a091d697d9a8be1bcd563416b2fa3e8f20ff8170c5f4d456ab7ed3076054843571bd853416eef54c208a5b",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:52.010Z",
+      "fileId": 9145062,
+      "uploadedAt": "2026-10-12T12:02:52.589Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.2-fabric.jar",
+      "target": "26.2-fabric",
+      "sha512": "ec44ed1a1fcbc4404c791b7c4c7fad14fcf7c8e1a6adfae09c92a4c12644575f15100fb068a4771867cbe56df2977ef8806a26069f01e187a3319a470692a66a",
+      "metadataSha512": "f2736b95b1373320c2dcd1d1905efc99bbbf38a7595dd8144d8870830d851924e855e7003f905585eaddee4c0878ca187a2602d973f98691ea7f63f5c87bb043",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:52.590Z",
+      "fileId": 9145063,
+      "uploadedAt": "2026-10-12T12:02:53.559Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.2-forge.jar",
+      "target": "26.2-forge",
+      "sha512": "a81b723a58ab8084e4f935bff98a8deaef2bb290b91f8b0661163812196fb28c72030d119537a83ee8cc17aed0c298441ed61e689c517d9f81661c77ae7cb28d",
+      "metadataSha512": "86eb2d83ae3be37beee0fa8e72cfb5dad747db971611c67aee60e6b60bb9dd5eac21a83f9b7d90344dea7c5900f398bb0db76d0c701a10c2e1fa5d6055970028",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:53.561Z",
+      "fileId": 9145064,
+      "uploadedAt": "2026-10-12T12:02:54.658Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.2-neoforge.jar",
+      "target": "26.2-neoforge",
+      "sha512": "cfd70e70a4f0c5a27246e0c076e3bf1502978b201c3d0744cab86e404a018c4c1ff4284abc62caa7f684c47cb917aa81925123cfb0b5bf990280e167ef2e648e",
+      "metadataSha512": "279844c86c3a40fa58b35623a7e251c3733fdf74bd86c620af06bfedf01b91275e2fb671d8581a59a2d4e26986a2a8c11835a76e2df066b79ef7f591d697fd5c",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:54.659Z",
+      "fileId": 9145065,
+      "uploadedAt": "2026-10-12T12:02:55.256Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.3-fabric.jar",
+      "target": "26.3-fabric",
+      "sha512": "7a7c202a62a245b38e303b9cfdc898f17cf22c90f8bab321e1e86cd148b28527f60f606da6bce36576ba6b210b2200e7926cc45108219ce8eda8d42c421624a1",
+      "metadataSha512": "72c19cd20e23d2d45ab45663904b9f145134c70e7b8b240863e5b31c831dee320f2f2bdf5977708a128fc5d364309afbf8b241b693433b8ec62619a339e11c6d",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:55.258Z",
+      "fileId": 9145066,
+      "uploadedAt": "2026-10-12T12:02:55.751Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.3-forge.jar",
+      "target": "26.3-forge",
+      "sha512": "23ce8b9b83700572ad001e0316c0060499d6e297e216c85f49ea25cf753cea9a70b2f435c492e17bdfdc07b5b5a61b6411e7a158710d2fd32630c5bab8c8de43",
+      "metadataSha512": "f2122066a3419ca32f0c346bd7bd1e859a45bab11bdc2b9cc3981794953d2dd049aee3729398a18cf62c1ff5fcf44dc022c5cf18fa9aa63def04b9e80467042a",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:55.752Z",
+      "fileId": 9145067,
+      "uploadedAt": "2026-10-12T12:02:56.338Z"
+    },
+    {
+      "filename": "typinganimation-1.0.2+26.3-neoforge.jar",
+      "target": "26.3-neoforge",
+      "sha512": "b9b107bb7f974a3a030d33d45b4e0402ccb02545998567cea7aac83e735bf51c4d64738ffba5f4d475430d60bdea0f8d84c54e3c6a70f1bf987828bc249db8d1",
+      "metadataSha512": "1ffe019357639c8744159accd6bf5b08123958dd1e0de11bfa99a17f6715b9269c9f1c91d3899cbf9b16dc2d6b43a1b82071dc2e3d4be240f18b39239452f88f",
+      "projectId": "1741028",
+      "startedAt": "2026-10-12T12:02:56.339Z",
+      "fileId": 9145068,
+      "uploadedAt": "2026-10-12T12:02:56.880Z"
+    }
+  ],
+  "pending": null
+}
