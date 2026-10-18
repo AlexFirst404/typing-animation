@@ -94,6 +94,10 @@ public final class SelfTest {
     private int otherScreenTicks;
     private Screen startScreen;
     private SelfTestScreen screen;
+    private Screen signScreen;
+    private CursorPixelProbe cursorProbe;
+    private TypingConfig beforeCursorTest;
+    private TypingConfig beforeSignTest;
     private OptionsScreen options;
     private ConfigScreen config;
     private TypingConfig original;
@@ -518,6 +522,173 @@ public final class SelfTest {
         act("compare translucent fidelity", this::compareTranslucentFidelity);
 
         // --- Options screen -> our button -> ConfigScreen
+        act( "prepare cursor pixel probes", () -> {
+            beforeCursorTest = ConfigManager.get().copy();
+            ConfigManager.get().copyFrom(TypingConfig.defaults());
+            ConfigManager.get().smoothCursor = false;
+            ConfigManager.get().durationMs = 0;
+            ConfigManager.get().removeDurationMs = 0;
+            screen.plain.setValue("");
+            screen.plain.setSuggestion(null);
+            screen.plain.setFocused(true);
+        });
+        act( "probe BAR cursor width 1", () -> {
+            ConfigManager.get().cursorStyle = dev.typinganimation.core.CursorStyle.BAR;
+            ConfigManager.get().cursorColor = dev.typinganimation.core.CursorColor.RED;
+            ConfigManager.get().cursorWidth = 1;
+            cursorProbe = new CursorPixelProbe(mc, screen.plain, ConfigManager.get().cursorStyle, 1);
+        });
+        waitTicks(3);
+        until("cursor geometry/color pixels", () -> cursorProbe.poll(), 200);
+        act( "probe BAR cursor width 3", () -> {
+            ConfigManager.get().cursorStyle = dev.typinganimation.core.CursorStyle.BAR;
+            ConfigManager.get().cursorColor = dev.typinganimation.core.CursorColor.RED;
+            ConfigManager.get().cursorWidth = 3;
+            cursorProbe = new CursorPixelProbe(mc, screen.plain, ConfigManager.get().cursorStyle, 3);
+        });
+        waitTicks(3);
+        until("cursor geometry/color pixels", () -> cursorProbe.poll(), 200);
+        act( "probe UNDERLINE cursor width 3", () -> {
+            ConfigManager.get().cursorStyle = dev.typinganimation.core.CursorStyle.UNDERLINE;
+            ConfigManager.get().cursorColor = dev.typinganimation.core.CursorColor.RED;
+            ConfigManager.get().cursorWidth = 3;
+            cursorProbe = new CursorPixelProbe(mc, screen.plain, ConfigManager.get().cursorStyle, 3);
+        });
+        waitTicks(3);
+        until("cursor geometry/color pixels", () -> cursorProbe.poll(), 200);
+        act( "probe BLOCK cursor width 3", () -> {
+            ConfigManager.get().cursorStyle = dev.typinganimation.core.CursorStyle.BLOCK;
+            ConfigManager.get().cursorColor = dev.typinganimation.core.CursorColor.RED;
+            ConfigManager.get().cursorWidth = 3;
+            cursorProbe = new CursorPixelProbe(mc, screen.plain, ConfigManager.get().cursorStyle, 3);
+        });
+        waitTicks(3);
+        until("cursor geometry/color pixels", () -> cursorProbe.poll(), 200);
+        act( "restore settings after cursor probes", () -> {
+            ConfigManager.get().copyFrom(beforeCursorTest);
+        });
+
+        act("prepare sign editing tests", () -> {
+            beforeSignTest = ConfigManager.get().copy();
+            ConfigManager.get().copyFrom(TypingConfig.defaults());
+            ConfigManager.get().durationMs = 500;
+            ConfigManager.get().removeDurationMs = 500;
+            ConfigManager.get().cursorGlideMs = 180;
+        });
+        act("open normal sign editor", () -> {
+            signScreen = SignSelfTest.create(false);
+            mc.gui.setScreen(signScreen);
+        });
+        until("sign editor rendered", () -> ((SignStateHolder) signScreen).typinganimation$signAnimation().frames >= 3, 200);
+        act("type sign S", () -> {
+            SignSelfTest.type(signScreen, 'S');
+        });
+        act("type sign I", () -> {
+            SignSelfTest.type(signScreen, 'I');
+        });
+        act("type sign G", () -> {
+            SignSelfTest.type(signScreen, 'G');
+        });
+        act("type sign N", () -> {
+            SignSelfTest.type(signScreen, 'N');
+        });
+        waitTicks(3);
+        act("move sign caret left", () -> {
+            SignSelfTest.left(signScreen);
+        });
+        waitTicks(3);
+        act("delete sign character", () -> {
+            SignSelfTest.backspace(signScreen);
+        });
+        waitTicks(3);
+        act("check sign deletion", () -> {
+            check("SIN".equals(((SignStateHolder) signScreen).typinganimation$signMessage(0)), "sign deletion changed the wrong text");
+        });
+        act("type sign line 1", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'B');
+        });
+        waitTicks(3);
+        act("type sign line 2", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'C');
+        });
+        waitTicks(3);
+        act("type sign line 3", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'D');
+        });
+        waitTicks(3);
+        act("verify normal sign animation", () -> {
+            SignStateHolder holder = (SignStateHolder) signScreen;
+            SignAnimation animation = holder.typinganimation$signAnimation();
+            check(holder.typinganimation$signLine() == 3, "sign caret did not reach the fourth line");
+            check("B".equals(holder.typinganimation$signMessage(1)) && "C".equals(holder.typinganimation$signMessage(2))
+                    && "D".equals(holder.typinganimation$signMessage(3)), "sign edits were applied to the wrong line");
+            check(animation.animatedFrames > 0, "sign characters did not animate");
+            check(animation.ghostFrames > 0, "sign deletion ghosts were never drawn");
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0, "sign caret did not glide between lines");
+            check(TypingRenderer.firstError == null, "sign animation render error");
+        });
+        act("open hanging sign editor", () -> {
+            signScreen = SignSelfTest.create(true);
+            mc.gui.setScreen(signScreen);
+        });
+        until("sign editor rendered", () -> ((SignStateHolder) signScreen).typinganimation$signAnimation().frames >= 3, 200);
+        act("type sign S", () -> {
+            SignSelfTest.type(signScreen, 'S');
+        });
+        act("type sign I", () -> {
+            SignSelfTest.type(signScreen, 'I');
+        });
+        act("type sign G", () -> {
+            SignSelfTest.type(signScreen, 'G');
+        });
+        act("type sign N", () -> {
+            SignSelfTest.type(signScreen, 'N');
+        });
+        waitTicks(3);
+        act("move sign caret left", () -> {
+            SignSelfTest.left(signScreen);
+        });
+        waitTicks(3);
+        act("delete sign character", () -> {
+            SignSelfTest.backspace(signScreen);
+        });
+        waitTicks(3);
+        act("check sign deletion", () -> {
+            check("SIN".equals(((SignStateHolder) signScreen).typinganimation$signMessage(0)), "sign deletion changed the wrong text");
+        });
+        act("type sign line 1", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'B');
+        });
+        waitTicks(3);
+        act("type sign line 2", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'C');
+        });
+        waitTicks(3);
+        act("type sign line 3", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'D');
+        });
+        waitTicks(3);
+        act("verify hanging sign animation", () -> {
+            SignStateHolder holder = (SignStateHolder) signScreen;
+            SignAnimation animation = holder.typinganimation$signAnimation();
+            check(holder.typinganimation$signLine() == 3, "sign caret did not reach the fourth line");
+            check("B".equals(holder.typinganimation$signMessage(1)) && "C".equals(holder.typinganimation$signMessage(2))
+                    && "D".equals(holder.typinganimation$signMessage(3)), "sign edits were applied to the wrong line");
+            check(animation.animatedFrames > 0, "sign characters did not animate");
+            check(animation.ghostFrames > 0, "sign deletion ghosts were never drawn");
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0, "sign caret did not glide between lines");
+            check(TypingRenderer.firstError == null, "sign animation render error");
+        });
+        act("restore settings after sign tests", () -> {
+            ConfigManager.get().copyFrom(beforeSignTest);
+        });
+
         act("open options", () -> {
             options = new OptionsScreen(startScreen, mc.options);
             mc.gui.setScreen(options);
@@ -553,14 +724,22 @@ public final class SelfTest {
         });
         screenshot("21-config-screen");
         act("config layout", () -> {
-            checkLayout(config, "ConfigScreen", true);
-            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 14 : 13),
+            for (int page = 0; page < 3; page++) {
+                config.showPage(page);
+                checkLayout(config, "ConfigScreen page " + page, true);
+            }
+            config.showPage(0);
+            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 23 : 22),
                     "unexpected option count " + config.options().size());
             int w = config.width;
             int h = config.height;
             config.resize(320, 240);
             try {
-                checkLayout(config, "ConfigScreen@320x240", true);
+                for (int page = 0; page < 3; page++) {
+                    config.showPage(page);
+                    checkLayout(config, "ConfigScreen@320x240 page " + page, true);
+                }
+                config.showPage(0);
             } finally {
                 config.resize(w, h);
             }
@@ -661,6 +840,7 @@ public final class SelfTest {
         act("options button off", () -> {
             click(options, findOptionsButton(options));
             config = (ConfigScreen) mc.gui.screen();
+            config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
             check(!cfg().optionsButton, "optionsButton toggle did not switch off");
             click(config, config.doneButton());
@@ -672,6 +852,7 @@ public final class SelfTest {
         act("options button on again", () -> {
             mc.gui.setScreen(new ConfigScreen(options));
             config = (ConfigScreen) mc.gui.screen();
+            config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
             check(cfg().optionsButton, "optionsButton toggle did not switch on");
             click(config, config.doneButton());
@@ -686,6 +867,7 @@ public final class SelfTest {
             check(optionsButtonOrNull(second) == null, "options button added although switched off");
             mc.gui.setScreen(new ConfigScreen(second));
             config = (ConfigScreen) mc.gui.screen();
+            config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
             click(config, config.doneButton());
             check(mc.gui.screen() == second, "Done did not return to the second Options screen");
@@ -870,6 +1052,7 @@ public final class SelfTest {
                 "net.minecraft.client.gui.components.MultilineTextField",
                 "net.minecraft.client.gui.components.MultilineTextField$StringView",
                 "net.minecraft.client.gui.screens.ChatScreen",
+                "net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen",
                 "net.minecraft.client.gui.screens.options.OptionsScreen",
                 "net.minecraft.client.StringSplitter",
                 "net.minecraft.client.resources.language.ClientLanguage",

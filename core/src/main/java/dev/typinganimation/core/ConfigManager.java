@@ -19,7 +19,8 @@ import static dev.typinganimation.core.TypingAnimationMod.LOGGER;
 /**
  * Loads/saves {@code <configDir>/typinganimation.json} (Gson, pretty printed). Keys are the field names of
  * {@link TypingConfig}, enums are written as lower-case names. Missing or invalid values fall back to defaults,
- * then {@link TypingConfig#clamp()} is applied. There is exactly one live {@link TypingConfig} instance
+ * then {@link TypingConfig#clamp()} is applied. Legacy files without independent removal strength or caret
+ * speed inherit those settings from their former shared controls. There is exactly one live {@link TypingConfig} instance
  * ({@link #get()}); loading and resetting update it in place, so references to it stay valid.
  * No method ever throws; IO problems are logged.
  */
@@ -158,20 +159,29 @@ public final class ConfigManager {
         o.addProperty("durationMs", c.durationMs);
         o.addProperty("removeDurationMs", c.removeDurationMs);
         o.addProperty("intensity", c.intensity);
+        o.addProperty("removeIntensity", c.removeIntensity);
         o.addProperty("staggerMs", c.staggerMs);
         o.addProperty("maxStaggerMs", c.maxStaggerMs);
         o.addProperty("smoothReflow", c.smoothReflow);
         o.addProperty("smoothCursor", c.smoothCursor);
         o.addProperty("glideMs", c.glideMs);
+        o.addProperty("cursorGlideMs", c.cursorGlideMs);
+        o.addProperty("cursorStyle", enumName(c.cursorStyle, CursorStyle.VANILLA));
+        o.addProperty("cursorColor", enumName(c.cursorColor, CursorColor.VANILLA));
+        o.addProperty("cursorWidth", c.cursorWidth);
         o.addProperty("animateChat", c.animateChat);
         o.addProperty("animateOtherFields", c.animateOtherFields);
         o.addProperty("animateMultiline", c.animateMultiline);
+        o.addProperty("animateSigns", c.animateSigns);
         o.addProperty("onlyWhenFocused", c.onlyWhenFocused);
         o.addProperty("optionsButton", c.optionsButton);
         return GSON.toJson(o) + System.lineSeparator();
     }
 
-    /** Reads every known key of {@code o} into {@code c}; missing/invalid entries keep the value already in c. */
+    /**
+     * Reads known keys into {@code c}; invalid entries keep the current value. Missing entries keep the
+     * current value except legacy shared intensity/glide settings, which seed their new independent controls.
+     */
     static void readInto(JsonObject o, TypingConfig c) {
         c.enabled = readBool(o, "enabled", c.enabled);
         c.appearStyle = readEnum(o, "appearStyle", AppearStyle.class, c.appearStyle);
@@ -180,14 +190,22 @@ public final class ConfigManager {
         c.durationMs = readInt(o, "durationMs", c.durationMs);
         c.removeDurationMs = readInt(o, "removeDurationMs", c.removeDurationMs);
         c.intensity = readFloat(o, "intensity", c.intensity);
+        // Old configs used one intensity for entry and removal; preserve their tuned strength on upgrade.
+        c.removeIntensity = readFloat(o, "removeIntensity", o.has("removeIntensity") ? c.removeIntensity : c.intensity);
         c.staggerMs = readInt(o, "staggerMs", c.staggerMs);
         c.maxStaggerMs = readInt(o, "maxStaggerMs", c.maxStaggerMs);
         c.smoothReflow = readBool(o, "smoothReflow", c.smoothReflow);
         c.smoothCursor = readBool(o, "smoothCursor", c.smoothCursor);
         c.glideMs = readInt(o, "glideMs", c.glideMs);
+        // Before independent caret speed, glideMs controlled both text and caret.
+        c.cursorGlideMs = readInt(o, "cursorGlideMs", o.has("cursorGlideMs") ? c.cursorGlideMs : c.glideMs);
+        c.cursorStyle = readEnum(o, "cursorStyle", CursorStyle.class, c.cursorStyle);
+        c.cursorColor = readEnum(o, "cursorColor", CursorColor.class, c.cursorColor);
+        c.cursorWidth = readInt(o, "cursorWidth", c.cursorWidth);
         c.animateChat = readBool(o, "animateChat", c.animateChat);
         c.animateOtherFields = readBool(o, "animateOtherFields", c.animateOtherFields);
         c.animateMultiline = readBool(o, "animateMultiline", c.animateMultiline);
+        c.animateSigns = readBool(o, "animateSigns", c.animateSigns);
         c.onlyWhenFocused = readBool(o, "onlyWhenFocused", c.onlyWhenFocused);
         c.optionsButton = readBool(o, "optionsButton", c.optionsButton);
     }

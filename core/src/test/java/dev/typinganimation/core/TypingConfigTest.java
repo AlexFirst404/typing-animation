@@ -16,14 +16,20 @@ class TypingConfigTest {
         assertEquals(220, c.durationMs);
         assertEquals(160, c.removeDurationMs);
         assertEquals(1.0f, c.intensity);
+        assertEquals(1.0f, c.removeIntensity);
         assertEquals(14, c.staggerMs);
         assertEquals(350, c.maxStaggerMs);
         assertTrue(c.smoothReflow);
         assertTrue(c.smoothCursor);
         assertEquals(55, c.glideMs);
+        assertEquals(55, c.cursorGlideMs);
+        assertEquals(CursorStyle.VANILLA, c.cursorStyle);
+        assertEquals(CursorColor.VANILLA, c.cursorColor);
+        assertEquals(1, c.cursorWidth);
         assertTrue(c.animateChat);
         assertTrue(c.animateOtherFields);
         assertTrue(c.animateMultiline);
+        assertTrue(c.animateSigns);
         assertTrue(c.onlyWhenFocused);
         assertTrue(c.optionsButton);
         TypingConfig clamped = c.copy();
@@ -40,6 +46,11 @@ class TypingConfigTest {
         c.staggerMs = -3;
         c.maxStaggerMs = 5000;
         c.glideMs = 301;
+        c.cursorGlideMs = 501;
+        c.cursorWidth = 5;
+        c.removeIntensity = Float.NaN;
+        c.cursorStyle = null;
+        c.cursorColor = null;
         c.appearStyle = null;
         c.removeStyle = null;
         c.easing = null;
@@ -50,6 +61,11 @@ class TypingConfigTest {
         assertEquals(0, c.staggerMs);
         assertEquals(2000, c.maxStaggerMs);
         assertEquals(300, c.glideMs);
+        assertEquals(500, c.cursorGlideMs);
+        assertEquals(4, c.cursorWidth);
+        assertEquals(1f, c.removeIntensity);
+        assertEquals(CursorStyle.VANILLA, c.cursorStyle);
+        assertEquals(CursorColor.VANILLA, c.cursorColor);
         assertEquals(AppearStyle.SLIDE_UP, c.appearStyle);
         assertEquals(RemoveStyle.FADE, c.removeStyle);
         assertEquals(Easing.AUTO, c.easing);
@@ -58,6 +74,9 @@ class TypingConfigTest {
         c.staggerMs = 61;
         c.maxStaggerMs = -1;
         c.glideMs = -1;
+        c.cursorGlideMs = -1;
+        c.cursorWidth = -1;
+        c.removeIntensity = Float.NEGATIVE_INFINITY;
         c.durationMs = Integer.MAX_VALUE;
         c.removeDurationMs = Integer.MIN_VALUE;
         c.clamp();
@@ -65,6 +84,9 @@ class TypingConfigTest {
         assertEquals(60, c.staggerMs);
         assertEquals(0, c.maxStaggerMs);
         assertEquals(0, c.glideMs);
+        assertEquals(0, c.cursorGlideMs);
+        assertEquals(1, c.cursorWidth);
+        assertEquals(0.25f, c.removeIntensity);
         assertEquals(1000, c.durationMs);
         assertEquals(40, c.removeDurationMs);
 
@@ -72,8 +94,10 @@ class TypingConfigTest {
         c.clamp();
         assertEquals(1f, c.intensity);
         c.intensity = Float.POSITIVE_INFINITY;
+        c.removeIntensity = Float.POSITIVE_INFINITY;
         c.clamp();
         assertEquals(3f, c.intensity);
+        assertEquals(3f, c.removeIntensity);
         c.intensity = Float.NEGATIVE_INFINITY;
         c.clamp();
         assertEquals(0.25f, c.intensity);
@@ -134,6 +158,10 @@ class TypingConfigTest {
         assertTrue(FieldKind.isAnimated(FieldKind.OTHER, c));
 
         c.animateMultiline = true;
+        c.animateSigns = false;
+        assertFalse(FieldKind.isAnimated(FieldKind.SIGN, c));
+        assertTrue(FieldKind.isAnimated(FieldKind.MULTILINE, c));
+        c.animateSigns = true;
         c.enabled = false;
         for (FieldKind k : FieldKind.values()) {
             assertFalse(FieldKind.isAnimated(k, c));

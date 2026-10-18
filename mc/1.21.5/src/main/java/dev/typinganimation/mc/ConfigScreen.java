@@ -2,6 +2,8 @@ package dev.typinganimation.mc;
 
 import dev.typinganimation.core.AppearStyle;
 import dev.typinganimation.core.ConfigManager;
+import dev.typinganimation.core.CursorColor;
+import dev.typinganimation.core.CursorStyle;
 import dev.typinganimation.core.Easing;
 import dev.typinganimation.core.RemoveStyle;
 import dev.typinganimation.core.TypingConfig;
@@ -18,13 +20,18 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 
 /**
- * Settings screen (docs/SPEC.md section 6): title, live preview field + Demo, a two-column grid of every option
- * (150 px wide, 22 px row step), Reset + Done. Changes apply to the live config immediately and are saved when the
- * screen closes. Fits a 240 px tall GUI.
+ * Three compact settings pages with a persistent live preview. Each option has a tooltip, changes apply
+ * immediately, and Reset / Done stay in the same place. The layout fits a 320 x 240 scaled screen.
  */
 public class ConfigScreen extends Screen {
     private static final int COL_W = 150;
@@ -38,8 +45,12 @@ public class ConfigScreen extends Screen {
     private TypingConfig savedSnapshot;
     private String previewText = "";
     private int titleY;
-    /** Every option except "enabled" and "optionsButton": only meaningful while animations are enabled. */
-    private final List<AbstractWidget> styleOptions = new ArrayList<>();
+    private final Map<String, AbstractWidget> options = new LinkedHashMap<>();
+    private final Map<AbstractWidget, Integer> optionPages = new LinkedHashMap<>();
+    private final List<Button> pageButtons = new ArrayList<>();
+    private int selectedPage;
+    private int accentX;
+    private int accentY;
 
     // package-private for the self-test
     EditBox preview;
@@ -59,19 +70,24 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        options.clear();
+        optionPages.clear();
+        pageButtons.clear();
         final TypingConfig cfg = ConfigManager.get();
         if (savedSnapshot == null) {
             savedSnapshot = cfg.copy();
         }
         final int total = COL_W * 2 + COL_GAP;
         final int left = (this.width - total) / 2;
-        final int rows = 7;
-        final int blockH = 13 + 26 + rows * ROW_STEP + 4 + ROW_H;
-        final int top = Math.max(4, (this.height - blockH) / 2);
+        final int right = left + COL_W + COL_GAP;
+        final int top = Math.max(4, (this.height - 230) / 2);
         titleY = top;
         final int previewY = top + 13;
-        final int gridY = previewY + 26;
-        final int bottomY = gridY + rows * ROW_STEP + 4;
+        final int tabsY = top + 39;
+        final int gridY = top + 65;
+        final int bottomY = top + 205;
+        accentX = left;
+        accentY = tabsY + ROW_H;
 
         preview = new EditBox(this.font, left, previewY, total - DEMO_W - 4, ROW_H,
                 Component.translatable("typinganimation.config.preview.hint"));
@@ -91,61 +107,63 @@ public class ConfigScreen extends Screen {
         demoButton = addRenderableWidget(Button.builder(demoLabel(), b -> toggleDemo())
                 .bounds(left + total - DEMO_W, previewY, DEMO_W, ROW_H).build());
 
-        List<AbstractWidget> grid = new ArrayList<>();
+        String[] pageNames = {"animations", "cursor", "behaviour"};
+        int tabWidth = (total - 8) / 3;
+        for (int i = 0; i < pageNames.length; i++) {
+            final int page = i;
+            pageButtons.add(addRenderableWidget(Button.builder(label("page." + pageNames[i]), b -> showPage(page))
+                    .bounds(left + i * (tabWidth + 4), tabsY, tabWidth, ROW_H).build()));
+        }
+
+        List<AbstractWidget> animations = new ArrayList<>();
         enabledButton = onOff("enabled", cfg.enabled, v -> {
             cfg.enabled = v;
             refreshActive();
         });
-        grid.add(enabledButton);
-        appearButton = CycleButton.<AppearStyle>builder(s -> Component.translatable(s.translationKey()))
-                .withValues(AppearStyle.values())
-                .withInitialValue(cfg.appearStyle)
-                .withTooltip(v -> tooltip("appearStyle"))
-                .create(0, 0, COL_W, ROW_H, label("appearStyle"), (b, v) -> cfg.appearStyle = v);
-        grid.add(appearButton);
-        grid.add(CycleButton.<RemoveStyle>builder(s -> Component.translatable(s.translationKey()))
-                .withValues(RemoveStyle.values())
-                .withInitialValue(cfg.removeStyle)
-                .withTooltip(v -> tooltip("removeStyle"))
-                .create(0, 0, COL_W, ROW_H, label("removeStyle"), (b, v) -> cfg.removeStyle = v));
-        grid.add(CycleButton.<Easing>builder(s -> Component.translatable(s.translationKey()))
-                .withValues(Easing.values())
-                .withInitialValue(cfg.easing)
-                .withTooltip(v -> tooltip("easing"))
-                .create(0, 0, COL_W, ROW_H, label("easing"), (b, v) -> cfg.easing = v));
-        durationSlider = new ConfigSlider(0, 0, COL_W, ROW_H, key("durationMs"),
-                TypingConfig.DURATION_MIN_MS, TypingConfig.DURATION_MAX_MS, 10,
+        animations.add(enabledButton);
+        animations.add(cycle("easing", Easing.values(), cfg.easing, Easing::translationKey, v -> cfg.easing = v));
+        appearButton = cycle("appearStyle", AppearStyle.values(), cfg.appearStyle, AppearStyle::translationKey, v -> cfg.appearStyle = v);
+        animations.add(appearButton);
+        animations.add(cycle("removeStyle", RemoveStyle.values(), cfg.removeStyle, RemoveStyle::translationKey, v -> cfg.removeStyle = v));
+        durationSlider = slider("durationMs", TypingConfig.DURATION_MIN_MS, TypingConfig.DURATION_MAX_MS, 10,
                 () -> cfg.durationMs, v -> cfg.durationMs = (int) Math.round(v), ConfigScreen::ms);
-        grid.add(durationSlider);
-        grid.add(new ConfigSlider(0, 0, COL_W, ROW_H, key("intensity"),
-                TypingConfig.INTENSITY_MIN, TypingConfig.INTENSITY_MAX, 0.05,
+        animations.add(durationSlider);
+        animations.add(slider("removeDurationMs", TypingConfig.DURATION_MIN_MS, TypingConfig.DURATION_MAX_MS, 10,
+                () -> cfg.removeDurationMs, v -> cfg.removeDurationMs = (int) Math.round(v), ConfigScreen::ms));
+        animations.add(slider("intensity", TypingConfig.INTENSITY_MIN, TypingConfig.INTENSITY_MAX, 0.05,
                 () -> cfg.intensity, v -> cfg.intensity = (float) v, ConfigScreen::multiplier));
-        grid.add(new ConfigSlider(0, 0, COL_W, ROW_H, key("staggerMs"),
-                TypingConfig.STAGGER_MIN_MS, TypingConfig.STAGGER_MAX_MS, 1,
-                () -> cfg.staggerMs, v -> cfg.staggerMs = (int) Math.round(v),
-                v -> Component.translatable("typinganimation.config.ms_per_char", (int) Math.round(v))));
-        grid.add(new ConfigSlider(0, 0, COL_W, ROW_H, key("glideMs"),
-                TypingConfig.GLIDE_MIN_MS, TypingConfig.GLIDE_MAX_MS, 5,
-                () -> cfg.glideMs, v -> cfg.glideMs = (int) Math.round(v), ConfigScreen::ms));
-        grid.add(onOff("smoothReflow", cfg.smoothReflow, v -> cfg.smoothReflow = v));
+        animations.add(slider("removeIntensity", TypingConfig.INTENSITY_MIN, TypingConfig.INTENSITY_MAX, 0.05,
+                () -> cfg.removeIntensity, v -> cfg.removeIntensity = (float) v, ConfigScreen::multiplier));
+        animations.add(slider("staggerMs", TypingConfig.STAGGER_MIN_MS, TypingConfig.STAGGER_MAX_MS, 1,
+                () -> cfg.staggerMs, v -> cfg.staggerMs = (int) Math.round(v), v -> Component.translatable("typinganimation.config.ms_per_char", (int) Math.round(v))));
+        animations.add(slider("maxStaggerMs", TypingConfig.MAX_STAGGER_MIN_MS, TypingConfig.MAX_STAGGER_MAX_MS, 25,
+                () -> cfg.maxStaggerMs, v -> cfg.maxStaggerMs = (int) Math.round(v), ConfigScreen::ms));
+        addPage(animations, 0, left, right, gridY);
+
+        List<AbstractWidget> cursor = new ArrayList<>();
         smoothCursorButton = onOff("smoothCursor", cfg.smoothCursor, v -> cfg.smoothCursor = v);
-        grid.add(smoothCursorButton);
-        grid.add(onOff("animateChat", cfg.animateChat, v -> cfg.animateChat = v));
-        grid.add(onOff("animateOtherFields", cfg.animateOtherFields, v -> cfg.animateOtherFields = v));
-        grid.add(onOff("animateMultiline", cfg.animateMultiline, v -> cfg.animateMultiline = v));
+        cursor.add(smoothCursorButton);
+        cursor.add(slider("cursorGlideMs", TypingConfig.CURSOR_GLIDE_MIN_MS, TypingConfig.CURSOR_GLIDE_MAX_MS, 5,
+                () -> cfg.cursorGlideMs, v -> cfg.cursorGlideMs = (int) Math.round(v), ConfigScreen::ms));
+        cursor.add(cycle("cursorStyle", CursorStyle.values(), cfg.cursorStyle, CursorStyle::translationKey, v -> cfg.cursorStyle = v));
+        cursor.add(cycle("cursorColor", CursorColor.values(), cfg.cursorColor, CursorColor::translationKey, v -> cfg.cursorColor = v));
+        cursor.add(slider("cursorWidth", TypingConfig.CURSOR_WIDTH_MIN, TypingConfig.CURSOR_WIDTH_MAX, 1,
+                () -> cfg.cursorWidth, v -> cfg.cursorWidth = (int) Math.round(v), v -> Component.translatable("typinganimation.config.pixels", (int) Math.round(v))));
+        cursor.add(onOff("smoothReflow", cfg.smoothReflow, v -> cfg.smoothReflow = v));
+        cursor.add(slider("glideMs", TypingConfig.GLIDE_MIN_MS, TypingConfig.GLIDE_MAX_MS, 5,
+                () -> cfg.glideMs, v -> cfg.glideMs = (int) Math.round(v), ConfigScreen::ms));
+        addPage(cursor, 1, left, right, gridY);
+
+        List<AbstractWidget> behaviour = new ArrayList<>();
+        behaviour.add(onOff("animateChat", cfg.animateChat, v -> cfg.animateChat = v));
+        behaviour.add(onOff("animateOtherFields", cfg.animateOtherFields, v -> cfg.animateOtherFields = v));
+        behaviour.add(onOff("animateSigns", cfg.animateSigns, v -> cfg.animateSigns = v));
+        behaviour.add(onOff("animateMultiline", cfg.animateMultiline, v -> cfg.animateMultiline = v));
+        behaviour.add(onOff("onlyWhenFocused", cfg.onlyWhenFocused, v -> cfg.onlyWhenFocused = v));
         optionsButtonToggle = onOff("optionsButton", cfg.optionsButton, v -> cfg.optionsButton = v);
-        grid.add(optionsButtonToggle);
-        for (int i = 0; i < grid.size(); i++) {
-            AbstractWidget w = grid.get(i);
-            w.setPosition(left + (i % 2) * (COL_W + COL_GAP), gridY + (i / 2) * ROW_STEP);
-            addRenderableWidget(w);
-        }
-        styleOptions.clear();
-        for (AbstractWidget w : grid) {
-            if (w != enabledButton && w != optionsButtonToggle) {
-                styleOptions.add(w);
-            }
-        }
+        behaviour.add(optionsButtonToggle);
+        addPage(behaviour, 2, left, right, gridY);
+        showPage(selectedPage);
         refreshActive();
 
         resetButton = addRenderableWidget(Button.builder(Component.translatable("typinganimation.config.reset"),
@@ -159,15 +177,71 @@ public class ConfigScreen extends Screen {
     /** Style options only matter while animations are enabled. */
     private void refreshActive() {
         boolean enabled = ConfigManager.get().enabled;
-        for (AbstractWidget w : styleOptions) {
-            w.active = enabled;
+        for (Map.Entry<String, AbstractWidget> entry : options.entrySet()) {
+            if (!entry.getKey().equals("enabled") && !entry.getKey().equals("optionsButton")) {
+                entry.getValue().active = enabled;
+            }
+        }
+    }
+
+    /** Changes pages without rebuilding the preview, so a running demo keeps its animation state. */
+    void showPage(int page) {
+        selectedPage = Math.max(0, Math.min(2, page));
+        for (Map.Entry<AbstractWidget, Integer> entry : optionPages.entrySet()) {
+            entry.getKey().visible = entry.getValue() == selectedPage;
+        }
+        for (int i = 0; i < pageButtons.size(); i++) {
+            pageButtons.get(i).active = i != selectedPage;
+        }
+        if (preview != null) {
+            setFocused(preview);
+        }
+    }
+
+    /** Self-test and keyboard navigation helper: reveal the page containing an option. */
+    void showOption(String key) {
+        AbstractWidget widget = options.get(key);
+        Integer page = optionPages.get(widget);
+        if (page != null) {
+            showPage(page);
+        }
+    }
+
+    private void addPage(List<AbstractWidget> widgets, int page, int left, int right, int gridY) {
+        for (int i = 0; i < widgets.size(); i++) {
+            AbstractWidget widget = widgets.get(i);
+            widget.setPosition(i % 2 == 0 ? left : right, gridY + (i / 2) * ROW_STEP);
+            optionPages.put(widget, page);
+            addRenderableWidget(widget);
         }
     }
 
     private CycleButton<Boolean> onOff(String field, boolean initial, Consumer<Boolean> setter) {
-        return CycleButton.onOffBuilder(initial)
+        CycleButton<Boolean> widget = CycleButton.onOffBuilder(initial)
                 .withTooltip(v -> tooltip(field))
                 .create(0, 0, COL_W, ROW_H, label(field), (b, v) -> setter.accept(v));
+        options.put(field, widget);
+        return widget;
+    }
+
+    private <E> CycleButton<E> cycle(String field, E[] values, E initial, Function<E, String> translation,
+                                     Consumer<E> setter) {
+        CycleButton<E> widget = CycleButton.<E>builder(v -> Component.translatable(translation.apply(v)))
+                .withValues(values).withInitialValue(initial).withTooltip(v -> tooltip(field))
+                .create(0, 0, COL_W, ROW_H, label(field), (b, v) -> setter.accept(v));
+        options.put(field, widget);
+        return widget;
+    }
+
+    private ConfigSlider slider(String field, double min, double max, double step, DoubleSupplier getter,
+                                DoubleConsumer setter, DoubleFunction<Component> format) {
+        ConfigSlider widget = new ConfigSlider(0, 0, COL_W, ROW_H, key(field), min, max, step, getter, setter, format);
+        options.put(field, widget);
+        return widget;
+    }
+
+    Map<String, AbstractWidget> options() {
+        return options;
     }
 
     private static String key(String field) {
@@ -239,6 +313,9 @@ public class ConfigScreen extends Screen {
         demo.update(preview, Util.getMillis());
         super.render(gg, mouseX, mouseY, partialTick);
         gg.drawCenteredString(this.font, this.title, this.width / 2, titleY, 0xFFFFFF);
+        int tabWidth = (COL_W * 2 + COL_GAP - 8) / 3;
+        int tabX = accentX + selectedPage * (tabWidth + 4);
+        gg.fill(tabX, accentY, tabX + tabWidth, accentY + 2, 0xFFB39DFF);
     }
 
     @Override

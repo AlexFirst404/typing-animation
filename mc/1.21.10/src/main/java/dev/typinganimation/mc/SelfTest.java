@@ -94,6 +94,8 @@ public final class SelfTest {
     private int otherScreenTicks;
     private Screen startScreen;
     private SelfTestScreen screen;
+    private Screen signScreen;
+    private TypingConfig beforeSignTest;
     private OptionsScreen options;
     private ConfigScreen config;
     private TypingConfig original;
@@ -518,6 +520,127 @@ public final class SelfTest {
         act("compare translucent fidelity", this::compareTranslucentFidelity);
 
         // --- Options screen -> our button -> ConfigScreen
+        act("prepare sign editing tests", () -> {
+            beforeSignTest = ConfigManager.get().copy();
+            ConfigManager.get().copyFrom(TypingConfig.defaults());
+            ConfigManager.get().durationMs = 500;
+            ConfigManager.get().removeDurationMs = 500;
+            ConfigManager.get().cursorGlideMs = 180;
+        });
+        act("open normal sign editor", () -> {
+            signScreen = SignSelfTest.create(false);
+            mc.setScreen(signScreen);
+        });
+        until("sign editor rendered", () -> ((SignStateHolder) signScreen).typinganimation$signAnimation().frames >= 3, 200);
+        act("type sign S", () -> {
+            SignSelfTest.type(signScreen, 'S');
+        });
+        act("type sign I", () -> {
+            SignSelfTest.type(signScreen, 'I');
+        });
+        act("type sign G", () -> {
+            SignSelfTest.type(signScreen, 'G');
+        });
+        act("type sign N", () -> {
+            SignSelfTest.type(signScreen, 'N');
+        });
+        waitTicks(3);
+        act("move sign caret left", () -> {
+            SignSelfTest.left(signScreen);
+        });
+        waitTicks(3);
+        act("delete sign character", () -> {
+            SignSelfTest.backspace(signScreen);
+        });
+        waitTicks(3);
+        act("check sign deletion", () -> {
+            check("SIN".equals(((SignStateHolder) signScreen).typinganimation$signMessage(0)), "sign deletion changed the wrong text");
+        });
+        act("type sign line 1", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'B');
+        });
+        waitTicks(3);
+        act("type sign line 2", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'C');
+        });
+        waitTicks(3);
+        act("type sign line 3", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'D');
+        });
+        waitTicks(3);
+        act("verify normal sign animation", () -> {
+            SignStateHolder holder = (SignStateHolder) signScreen;
+            SignAnimation animation = holder.typinganimation$signAnimation();
+            check(holder.typinganimation$signLine() == 3, "sign caret did not reach the fourth line");
+            check("B".equals(holder.typinganimation$signMessage(1)) && "C".equals(holder.typinganimation$signMessage(2))
+                    && "D".equals(holder.typinganimation$signMessage(3)), "sign edits were applied to the wrong line");
+            check(animation.animatedFrames > 0, "sign characters did not animate");
+            check(animation.ghostFrames > 0, "sign deletion ghosts were never drawn");
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0, "sign caret did not glide between lines");
+            check(TypingRenderer.firstError == null, "sign animation render error");
+        });
+        act("open hanging sign editor", () -> {
+            signScreen = SignSelfTest.create(true);
+            mc.setScreen(signScreen);
+        });
+        until("sign editor rendered", () -> ((SignStateHolder) signScreen).typinganimation$signAnimation().frames >= 3, 200);
+        act("type sign S", () -> {
+            SignSelfTest.type(signScreen, 'S');
+        });
+        act("type sign I", () -> {
+            SignSelfTest.type(signScreen, 'I');
+        });
+        act("type sign G", () -> {
+            SignSelfTest.type(signScreen, 'G');
+        });
+        act("type sign N", () -> {
+            SignSelfTest.type(signScreen, 'N');
+        });
+        waitTicks(3);
+        act("move sign caret left", () -> {
+            SignSelfTest.left(signScreen);
+        });
+        waitTicks(3);
+        act("delete sign character", () -> {
+            SignSelfTest.backspace(signScreen);
+        });
+        waitTicks(3);
+        act("check sign deletion", () -> {
+            check("SIN".equals(((SignStateHolder) signScreen).typinganimation$signMessage(0)), "sign deletion changed the wrong text");
+        });
+        act("type sign line 1", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'B');
+        });
+        waitTicks(3);
+        act("type sign line 2", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'C');
+        });
+        waitTicks(3);
+        act("type sign line 3", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'D');
+        });
+        waitTicks(3);
+        act("verify hanging sign animation", () -> {
+            SignStateHolder holder = (SignStateHolder) signScreen;
+            SignAnimation animation = holder.typinganimation$signAnimation();
+            check(holder.typinganimation$signLine() == 3, "sign caret did not reach the fourth line");
+            check("B".equals(holder.typinganimation$signMessage(1)) && "C".equals(holder.typinganimation$signMessage(2))
+                    && "D".equals(holder.typinganimation$signMessage(3)), "sign edits were applied to the wrong line");
+            check(animation.animatedFrames > 0, "sign characters did not animate");
+            check(animation.ghostFrames > 0, "sign deletion ghosts were never drawn");
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0, "sign caret did not glide between lines");
+            check(TypingRenderer.firstError == null, "sign animation render error");
+        });
+        act("restore settings after sign tests", () -> {
+            ConfigManager.get().copyFrom(beforeSignTest);
+        });
+
         act("open options", () -> {
             options = new OptionsScreen(startScreen, mc.options);
             mc.setScreen(options);
@@ -553,14 +676,22 @@ public final class SelfTest {
         });
         screenshot("21-config-screen");
         act("config layout", () -> {
-            checkLayout(config, "ConfigScreen", true);
-            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 14 : 13),
+            for (int page = 0; page < 3; page++) {
+                config.showPage(page);
+                checkLayout(config, "ConfigScreen page " + page, true);
+            }
+            config.showPage(0);
+            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 23 : 22),
                     "unexpected option count " + config.options().size());
             int w = config.width;
             int h = config.height;
             config.resize(mc, 320, 240);
             try {
-                checkLayout(config, "ConfigScreen@320x240", true);
+                for (int page = 0; page < 3; page++) {
+                    config.showPage(page);
+                    checkLayout(config, "ConfigScreen@320x240 page " + page, true);
+                }
+                config.showPage(0);
             } finally {
                 config.resize(mc, w, h);
             }
@@ -661,6 +792,7 @@ public final class SelfTest {
         act("options button off", () -> {
             click(options, findOptionsButton(options));
             config = (ConfigScreen) mc.screen;
+            config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
             check(!cfg().optionsButton, "optionsButton toggle did not switch off");
             click(config, config.doneButton());
@@ -672,6 +804,7 @@ public final class SelfTest {
         act("options button on again", () -> {
             mc.setScreen(new ConfigScreen(options));
             config = (ConfigScreen) mc.screen;
+            config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
             check(cfg().optionsButton, "optionsButton toggle did not switch on");
             click(config, config.doneButton());
@@ -686,6 +819,7 @@ public final class SelfTest {
             check(optionsButtonOrNull(second) == null, "options button added although switched off");
             mc.setScreen(new ConfigScreen(second));
             config = (ConfigScreen) mc.screen;
+            config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
             click(config, config.doneButton());
             check(mc.screen == second, "Done did not return to the second Options screen");
@@ -892,6 +1026,7 @@ public final class SelfTest {
                 MultilineTextField.class,
                 stringViewClass(),
                 net.minecraft.client.gui.screens.ChatScreen.class,
+                net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen.class,
                 OptionsScreen.class,
                 StringSplitter.class,
                 net.minecraft.client.resources.language.ClientLanguage.class,

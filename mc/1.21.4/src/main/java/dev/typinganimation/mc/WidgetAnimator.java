@@ -75,8 +75,8 @@ public final class WidgetAnimator {
     int caretIndex = -1;
     boolean hasCaretCandidate;
     int caretCandidateX, caretCandidateY;
-    /** Line (y) the caret was last drawn on; a change of line snaps the caret glide. */
-    int lastCaretY = Integer.MIN_VALUE;
+    /** Vertical glide offset of the first caret drawn this frame; duplicate wrap carets remain native. */
+    float caretOffsetY;
 
     public WidgetAnimator(FieldKind kind) {
         this.kind = kind == null ? FieldKind.OTHER : kind;
@@ -117,7 +117,7 @@ public final class WidgetAnimator {
         active = false;
         if (!clean) {
             clean = true;
-            lastCaretY = Integer.MIN_VALUE;
+            caretOffsetY = 0f;
             lastValue = null;
             lastDisplayPos = -1;
             lastFrameMs = 0L;
@@ -133,6 +133,19 @@ public final class WidgetAnimator {
         clipY0 = y0;
         clipX1 = x1;
         clipY1 = y1;
+    }
+
+    /** Width of the character under a custom cursor, without allocating a substring per frame. */
+    int cursorCellWidth(int index) {
+        if (font == null) return 6;
+        if (lastValue != null && index >= 0 && index < lastValue.length()) {
+            int cp = lastValue.codePointAt(index);
+            if (cp != '\n' && cp != '\r') {
+                return Math.max(1, (int) Math.ceil(GlyphDrawer.widthProvider(font)
+                        .getWidth(cp, net.minecraft.network.chat.Style.EMPTY)));
+            }
+        }
+        return Math.max(1, font.width("_"));
     }
 
     /** Records the caret x (the per-char loop reached the caret index) for frames that do not draw the caret. */

@@ -72,6 +72,8 @@ public abstract class EditBoxMixin implements TypingStateHolder, EditBoxAccess {
     @Shadow @Final private Font font;
     @Shadow private String value;
     @Shadow private int displayPos;
+    @Shadow private int maxLength;
+    @Shadow private int highlightPos;
     @Shadow private boolean textShadow;
     @Shadow private boolean isEditable;
     @Shadow private int textColor;
@@ -94,6 +96,12 @@ public abstract class EditBoxMixin implements TypingStateHolder, EditBoxAccess {
         }
         return a;
     }
+
+    @Override
+    public int typinganimation$maxLength() { return maxLength; }
+
+    @Override
+    public int typinganimation$highlightPos() { return highlightPos; }
 
     @Override
     public FormattedCharSequence typinganimation$format(String text, int offset) {

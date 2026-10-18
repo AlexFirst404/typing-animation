@@ -2,7 +2,7 @@ package dev.typinganimation.core;
 
 /** Kind of text widget; decides which per-kind toggle of {@link TypingConfig} applies. */
 public enum FieldKind {
-    CHAT, OTHER, MULTILINE;
+    CHAT, OTHER, MULTILINE, SIGN;
 
     /** {@code cfg.enabled} and the per-kind toggle. A null kind counts as OTHER; a null config gives false. */
     public static boolean isAnimated(FieldKind kind, TypingConfig cfg) {
@@ -14,6 +14,9 @@ public enum FieldKind {
         }
         if (kind == MULTILINE) {
             return cfg.animateMultiline;
+        }
+        if (kind == SIGN) {
+            return cfg.animateSigns;
         }
         return cfg.animateOtherFields;
     }

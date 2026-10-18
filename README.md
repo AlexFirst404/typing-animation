@@ -1,155 +1,115 @@
 # Typing Animation
 
-**RU** · [EN](#english)
+**A little motion in every keystroke.**
 
-[Modrinth](https://modrinth.com/mod/typing-animation) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/typing-animation)
+![Client only](https://img.shields.io/badge/CLIENT-ONLY-AE72FF?style=for-the-badge&labelColor=25174A) ![17 appearance styles](https://img.shields.io/badge/17-APPEAR_STYLES-E860AD?style=for-the-badge&labelColor=572544) ![10 removal styles](https://img.shields.io/badge/10-REMOVE_STYLES-39C9DD?style=for-the-badge&labelColor=174A5A)
 
-Клиентский мод для Minecraft, который делает набор текста плавным. Новые символы красиво появляются, удалённые исчезают, а текст и курсор движутся без рывков.
-Работает в чате, в командах и в большинстве других полей ввода: наковальня, поиск в творческом режиме, названия миров и серверов, командные блоки. Там, где версия позволяет, поддерживаются и многострочные поля (книги).
+Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and the cursor follows smoothly — in chat, commands, search fields, **signs and hanging signs**. Once letters settle, their vanilla appearance returns.
 
-- **Только клиент.** На сервер ставить не нужно, мод никак не влияет на игру по сети.
-- **Автор:** AlexFirst.
-- **Не нужен Fabric API.** На Fabric достаточно Fabric Loader, Mod Menu поддерживается по желанию.
-- **В покое текст выглядит точно как в ванилле.** Автотест проверяет это попиксельно для каждой сборки.
+**Fabric · Forge · NeoForge · English & Russian · No Fabric API required**
 
-## Возможности
+## ▸ Type. Edit. Enjoy.
 
-- **Появление символов**, 11 стилей: Проявление, Сдвиг вверх, Сдвиг вниз, Сдвиг влево, Выпрыгивание, Рост, Растяжение, Падение, Вращение, Волна, Расшифровка (или без анимации).
-- **Удаление символов**, 5 стилей: Растворение, Падение, Сжатие, Взлёт, Разлёт. Удалённый символ исчезает из того положения, в котором был нарисован.
-- **Плавный сдвиг.** Когда правишь текст в середине строки или поле прокручивается, символы скользят на новое место, а не прыгают.
-- **Плавный курсор.** Курсор скользит к новой позиции, в том числе при Home/End и кликах мышью.
-- **Печать по символу.** Вставленный текст, история чата и автодополнение печатаются по одному символу.
-- **10 кривых анимации и режим «Авто»:** линейная, синусоидальная, квадратичная, кубическая, 4-й степени, экспоненциальная, с перелётом, упругая, с отскоком, S-образная.
-- **Настройки** длительности, интенсивности, задержки между символами и скорости скольжения. Анимацию можно отдельно включать для чата, других полей и многострочных полей.
-- **Цвета подсветки команд** в чате сохраняются во время анимации.
+Insert a word, erase a sentence or paste a message. Text shifts smoothly, while pasted text and autocomplete unfold letter by letter.
 
-## Настройки
+![Typing, editing and pasting in Minecraft chat](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/chat-typing.gif)
 
-- **Где найти:** «Настройки → Анимация ввода...». В NeoForge и Forge ещё кнопка «Настройки» в списке модов, в Fabric — [Mod Menu](https://modrinth.com/mod/modmenu).
-- **Экран настроек** содержит поле живого предпросмотра и кнопку «Демо», которая сама печатает фразу. Изменения видны сразу.
-- **Файл конфигурации:** `config/typinganimation.json`. Кнопку в «Настройках» можно скрыть там же.
+## ✦ Find your favourite motion
 
-## Поддерживаемые версии
+| Appearance | Removal | Timing |
+|:---:|:---:|:---:|
+| **17 effects** + Off | **10 effects** + Off | **10 easing curves** + Auto |
+| Pop, Wave, Scramble, Flip, Swing, Roll, Spiral and more | Fade, Fall, Scatter, Spin, Squash and more | Separate duration and intensity; adjustable stagger and text glide |
 
-| Minecraft | NeoForge | Forge | Fabric |
-|---|---|---|---|
-| 26.3 | ✅ | ✅ | ✅ |
-| 26.2 | ✅ | ✅ | ✅ |
-| 26.1 – 26.1.2 | ✅ | ✅ | ✅ |
-| 1.21.11 | ✅ | ✅ | ✅ |
-| 1.21.9 – 1.21.10 | ✅ | ✅ | ✅ |
-| 1.21.6 – 1.21.8 | ✅ | ✅ | ✅ |
-| 1.21.5 | ✅ | ✅ | ✅ |
-| 1.21.4 | ✅ | ✅ | ✅ |
-| 1.21 – 1.21.1 | ✅ | ✅ | ✅ |
-| 1.20 – 1.20.1 | через Forge-сборку | ✅ | ✅ |
+![Pop, Scramble, Wave and Drop paired with removal effects](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/styles.gif)
 
-Имена файлов: `typinganimation-1.0.2+<версии>-<загрузчик>.jar`, например `typinganimation-1.0.2+26.3-neoforge.jar`.
-Forge-сборку для 1.20.1 можно ставить и на NeoForge 1.20.1 (проверено на NeoForge 47.1.106).
+**New in 1.1:** Slide Right, Zoom Out, Flip, Swing, Roll and Spiral — with five new ways for letters to disappear.
 
-**Quilt.** На Quilt Loader проверены только некоторые Fabric-сборки:
-- 1.20.1, 1.21.1, 1.21.11 и 26.2 работают на Quilt Loader 0.30.1;
-- 26.3 работает на Quilt Loader 0.31.0-beta.4, а стабильный Quilt Loader 0.30.1 её не загружает;
-- остальные версии на Quilt не проверялись.
+![New animation styles in Typing Animation 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/new-styles.gif)
 
-## Установка
+## │ A cursor that follows you
 
-1. Установите загрузчик: NeoForge, Forge или Fabric (для Fabric API не нужен).
-2. Положите jar для своей версии и загрузчика в папку `mods`.
-3. Запустите игру.
+Smooth horizontal **and vertical** movement, with its own speed setting. Keep the vanilla cursor or choose a **bar, underline or translucent block**; pick a colour and thickness to match your style.
 
-## Сборка из исходников
+![Smooth caret movement with custom shapes and colours](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/smooth-cursor.gif)
 
-Каждая пара «версия + загрузчик» — отдельный Gradle-проект в `targets/<версия>-<загрузчик>/` со своим wrapper-ом.
+## ▣ Leave a sign
 
-- **JDK:** нужны 17, 21 и 25.
-  - JDK 21 запускает Gradle у NeoForge и Forge.
-  - JDK 25 запускает Gradle у Fabric (этого требует Loom 1.18).
-  - Версию Java для компиляции Gradle выбирает сам через toolchains.
-- **Команды:**
+The same animations now work while editing **ordinary and hanging signs**, across all four lines. Text colours, glowing text and normal editing controls stay intact.
 
-```bash
-bash scripts/build-all.sh
-```
+![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/signs.gif)
 
-```bash
-bash scripts/run-target.sh 26.3-neoforge build
-```
+## ⚙ Make it yours
 
-- **Без bash:** `powershell -ExecutionPolicy Bypass -File scripts\build-all.ps1`.
-- **Результат:** готовые jar складываются в `dist/`.
-- **Пути к JDK:** скрипты сами находят JDK в обычных местах установки. Если ваши JDK лежат в другом месте, задайте пути через `JDK17_HOME`, `JDK21_HOME` и `JDK25_HOME`.
+Three tidy settings tabs: **Animations · Cursor · Where to animate**. Tune appearance and removal separately, cap paste delays, choose where animations run, and try everything in the **live preview** with **Demo**.
 
-**Автотест в игре.** Команда `bash scripts/run-target.sh <цель> selftest` запускает dev-клиент в режиме `TYPINGANIMATION_SELFTEST=1`. Тест проверяет:
-- что все mixin-ы применились;
-- набор, вставку, удаление, прокрутку и все стили анимации;
-- что текст в покое попиксельно совпадает с ванильным;
-- кнопку в «Настройках» и экран настроек.
+![Settings tabs and live animation preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/settings-tabs.gif)
 
-По ходу он сохраняет скриншоты, в конце пишет `SELFTEST PASS` или `SELFTEST FAIL` и закрывает игру.
+Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Changes apply immediately. Settings are saved in `config/typinganimation.json`.
 
-**Медиа для Modrinth.** Команда `bash scripts/make-gallery.sh` запускает клиент 26.3 (NeoForge) в режиме `TYPINGANIMATION_SHOWCASE=1`: он создаёт плоский мир, печатает в настоящий чат, записывает кадры во временную папку и проверяет, что анимация работала именно в чате. Затем `tools/MakeGif.java` собирает из кадров GIF, и всё складывается в `modrinth/gallery/`. Только проверить чат, без медиа: `bash scripts/run-target.sh 26.3-fabric showcase`.
+## / Commands keep their colours
 
-**Публикация на Modrinth.** Всё для страницы мода лежит в `modrinth/`, пошаговая инструкция — в `modrinth/README.md`. Проверка всех jar и файлов страницы, без отправки на Modrinth: `node scripts/modrinth-publish.mjs`.
+Syntax highlighting stays intact while typing and completing commands with **Tab**.
 
-### Структура
-
-```
-core/            чистая Java без Minecraft: стили, кривые, состояние анимации, конфиг, тесты JUnit
-common-resources/ переводы (en_us, ru_ru) и иконка
-mc/<версия>/     код для Minecraft (mixin-ы, рендер, экран настроек, автотест), общий для всех загрузчиков этой версии
-targets/<версия>-<загрузчик>/  тонкая обвязка загрузчика и сборка
-docs/SPEC.md     техническая спецификация
-tools/MakeGif.java  сборка GIF из кадров (для галереи Modrinth)
-modrinth/        страница мода на Modrinth, галерея и инструкция по публикации (modrinth/README.md)
-```
-
-## Лицензия
-
-MIT.
+![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
 
 ---
 
-<a id="english"></a>
-# Typing Animation (English)
+### Install & recommended companion
 
-[Modrinth](https://modrinth.com/mod/typing-animation) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/typing-animation)
+Download the JAR for your **Minecraft version and loader**, then put it in `mods`. Install on your client; the server does not need the mod. **Fabric API is not required.**
 
-A client-side Minecraft mod that makes typing feel smooth. New characters animate in, deleted ones animate out, and the text and caret glide instead of jumping.
-It works in chat, commands and most other text fields: anvil, creative search, world and server names, command blocks. Multi-line fields such as books are supported where the version allows it.
+**Recommended for Fabric/Quilt: Mod Menu** — opens the settings directly from your mod list. It is an **optional dependency**: [Modrinth](https://modrinth.com/mod/modmenu) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/modmenu).
 
-- **Client only.** Nothing is needed on the server.
-- **Author:** AlexFirst.
-- **No Fabric API needed.** Mod Menu is supported but optional.
-- **Text at rest is pixel-identical to vanilla.** This is verified for every build by an in-game self-test.
+**Minecraft:** 1.20–1.20.1 · 1.21–1.21.1 · 1.21.4 · 1.21.5 · 1.21.6–1.21.8 · 1.21.9–1.21.10 · 1.21.11 · 26.1–26.1.2 · 26.2 · 26.3.
 
-**Features:**
-- 11 appear styles: Fade, Slide Up, Slide Down, Slide Left, Pop, Grow, Stretch, Drop, Spin, Wave, Scramble.
-- 5 remove styles: Fade, Fall, Shrink, Fly Up, Scatter.
-- Smooth reflow and scrolling, and a smooth caret.
-- Pasted text, chat history and completions are typed out one character at a time.
-- 10 easing curves plus Auto, and adjustable duration, intensity, stagger and glide.
-- Per-context toggles for chat, other fields and multi-line fields.
-- Chat command colouring is preserved while animating.
+Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. Book input is supported from Minecraft 1.21.6. Mods replacing the standard text renderer may conflict.
 
-**Settings:**
-- Open them from *Options → Typing Animation...*, from the mod list's Config button (NeoForge/Forge), or through Mod Menu (Fabric).
-- The settings screen has a live preview field and a Demo button, and changes apply immediately.
-- The config file is `config/typinganimation.json`.
+**Made by AlexFirst** · [Source code on GitHub](https://github.com/AlexFirst404/typing-animation) · **MIT** · Modpacks welcome.
 
-**Supported versions:** see the table above. That covers 1.20–1.20.1, 1.21–1.21.1, 1.21.4, 1.21.5, 1.21.6–1.21.8, 1.21.9–1.21.10, 1.21.11, 26.1–26.1.2, 26.2 and 26.3 on NeoForge, Forge and Fabric. On NeoForge 1.20.1 use the Forge jar (tested with NeoForge 47.1.106).
+### 🇷🇺 Коротко на русском
 
-**Quilt:** only some Fabric jars have been tested on Quilt Loader:
-- 1.20.1, 1.21.1, 1.21.11 and 26.2 work on Quilt Loader 0.30.1;
-- 26.3 works on Quilt Loader 0.31.0-beta.4, and the stable Quilt Loader 0.30.1 refuses to load it;
-- other versions have not been tested on Quilt.
+Плавный набор в чате, командах, поиске и **обычных и подвесных табличках**. **17 эффектов появления, 10 эффектов удаления**, отдельные длительность и интенсивность, 10 кривых плавности и «Авто».
 
-**Building:**
-- Run `bash scripts/build-all.sh`, or `scripts\build-all.ps1` in PowerShell. Jars are collected in `dist/`.
-- JDK 17, 21 and 25 are required: JDK 21 runs Gradle for NeoForge and Forge, and JDK 25 runs it for Fabric.
-- The scripts find the JDKs in the usual install locations. Set `JDK17_HOME`, `JDK21_HOME` and `JDK25_HOME` if yours are elsewhere.
-- `bash scripts/run-target.sh <target> selftest` runs the in-game self-test.
-- `modrinth/` holds the Modrinth page, gallery and project data; `node scripts/modrinth-publish.mjs` checks the release kit and all jars without sending anything, and `modrinth/README.md` (in Russian) describes the publishing steps.
-- `bash scripts/make-gallery.sh` records the Modrinth gallery media in a 26.3 world through the real chat and builds `modrinth/gallery/` (GIFs by `tools/MakeGif.java`); `bash scripts/run-target.sh 26.3-<loader> showcase` runs only that in-world chat check.
+Курсор плавно движется по горизонтали и между строками. Настраиваются его скорость, цвет, толщина и форма: обычный, палка, подчёркивание или полупрозрачный блок. Три вкладки настроек, живой предпросмотр и «Демо» помогают подобрать свой вариант.
 
-**License:** MIT.
+**Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются, книги поддерживаются с 1.21.6. Автор — **AlexFirst**.
+
+---
+
+## Build & contribute
+
+Each `targets/<Minecraft>-<loader>/` directory is an independent Gradle project. Shared animation code lives in `core/`, Minecraft integrations in `mc/<version>/`, and translations and the pixel logo in `common-resources/`.
+
+Install JDK **17, 21 and 25**. Build scripts discover them automatically; use `JDK17_HOME`, `JDK21_HOME` and `JDK25_HOME` for custom locations. Gradle runs on JDK 21 for Forge/NeoForge and JDK 25 for Fabric; toolchains select the compilation version.
+
+```bash
+bash scripts/build-all.sh
+# Windows without Bash:
+powershell -ExecutionPolicy Bypass -File scripts/build-all.ps1
+
+# One target / an actual in-game test:
+bash scripts/run-target.sh 26.3-neoforge build
+bash scripts/run-target.sh 26.3-neoforge selftest
+```
+
+Release JARs are collected in `dist/`. Always use `--no-daemon` for direct Gradle commands. The standalone `core` Gradle project contains the JUnit tests.
+
+In-game self-tests exercise mixin application, typing, deletion, selections, scrolling, animation styles, both sign editors and all settings tabs. They compare settled text against vanilla pixels, save screenshots, report `SELFTEST PASS` or `SELFTEST FAIL`, then close the client.
+
+```bash
+# Record actual Minecraft UI and build GIFs/screenshots:
+bash scripts/make-gallery.sh
+# Regenerate the two identical platform descriptions and this README:
+node scripts/sync-description.mjs
+node scripts/sync-description.mjs --check
+# Validate release kits without uploading:
+node scripts/modrinth-publish.mjs
+node scripts/curseforge-publish.mjs
+```
+
+The media recorder creates a disposable showcase world and saves frames in the system temporary directory. `tools/MakeGif.java` produces the GIFs in `modrinth/gallery/`. The same media are used on all three platforms.
+
+**Documentation:** [Engineering spec](docs/SPEC.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
+
+**По-русски:** для сборки нужны JDK 17, 21 и 25; готовые JAR находятся в `dist/`. Команда `selftest` запускает проверку в настоящем клиенте Minecraft. Общее описание для Modrinth, CurseForge и GitHub редактируется в `docs/project-description.md` и переносится командой `node scripts/sync-description.mjs`.

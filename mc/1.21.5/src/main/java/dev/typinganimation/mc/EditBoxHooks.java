@@ -99,7 +99,7 @@ public final class EditBoxHooks {
             cx1 = bx + bw - 1;
             cy1 = by + bh - 1;
         } else {
-            final int pad = (int) Math.ceil(GlyphDrawer.LINE_HEIGHT * cfg.intensity) + 2;
+            final int pad = (int) Math.ceil(GlyphDrawer.LINE_HEIGHT * Math.max(cfg.intensity, cfg.removeIntensity)) + 2;
             cx0 = bx;
             cx1 = bx + bw;
             cy0 = Math.min(by, y0) - pad;
@@ -186,37 +186,52 @@ public final class EditBoxHooks {
         return sixArg ? gg.drawString(font, text, x, y, color, shadow) : gg.drawString(font, text, x, y, color);
     }
 
-    /** Replacement of the append-mode caret {@code drawString(font, "_", ...)}: drawn at the smoothed x. */
+    /** Replacement of the append-mode caret: preserve native blinking and the vanilla draw at default settings. */
     public static int drawCaretString(EditBox box, WidgetAnimator a, GuiGraphics gg, Font font, String text, int x,
                                       int y, int color, boolean shadow, boolean sixArg) {
         final float dx = caretDx(box, a, x);
-        if (dx == 0f) {
+        final TypingConfig cfg = ConfigManager.get();
+        final boolean custom = a.active && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+        if (dx == 0f && !custom) {
             return sixArg ? gg.drawString(font, text, x, y, color, shadow) : gg.drawString(font, text, x, y, color);
         }
-        TypingRenderer.STATS.caretGlides++;
+        if (dx != 0f) TypingRenderer.STATS.caretGlides++;
         PoseStack pose = gg.pose();
         pose.pushPose();
         try {
             pose.translate(dx, 0f, 0f);
+            if (custom) {
+                if (CursorAppearance.draw(gg, cfg, x, y - 1, 10, Math.max(1, font.width(text)), color, false)) {
+                    return x + font.width(text) + (shadow ? 1 : 0);
+                }
+                color = CursorAppearance.color(cfg, color);
+            }
             return sixArg ? gg.drawString(font, text, x, y, color, shadow) : gg.drawString(font, text, x, y, color);
         } finally {
             pose.popPose();
         }
     }
 
-    /** Replacement of the insert-mode caret {@code fill(RenderType.guiOverlay(), ...)}: drawn at the smoothed x. */
+    /** Replacement of the insert-mode caret: shape, thickness and color are independent of glide speed. */
     public static void fillCaret(EditBox box, WidgetAnimator a, GuiGraphics gg, RenderType type, int x1, int y1,
                                  int x2, int y2, int color) {
         final float dx = caretDx(box, a, x1);
-        if (dx == 0f) {
+        final TypingConfig cfg = ConfigManager.get();
+        final boolean custom = a.active && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+        if (dx == 0f && !custom) {
             gg.fill(type, x1, y1, x2, y2, color);
             return;
         }
-        TypingRenderer.STATS.caretGlides++;
+        if (dx != 0f) TypingRenderer.STATS.caretGlides++;
         PoseStack pose = gg.pose();
         pose.pushPose();
         try {
             pose.translate(dx, 0f, 0f);
+            if (custom) {
+                if (CursorAppearance.draw(gg, cfg, x1, Math.min(y1, y2), Math.abs(y2 - y1),
+                        a.cursorCellWidth(a.cursorPos), color, true)) return;
+                color = CursorAppearance.color(cfg, color);
+            }
             gg.fill(type, x1, y1, x2, y2, color);
         } finally {
             pose.popPose();

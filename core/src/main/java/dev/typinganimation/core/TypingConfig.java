@@ -10,6 +10,8 @@ public final class TypingConfig {
     public static final int STAGGER_MIN_MS = 0, STAGGER_MAX_MS = 60;
     public static final int MAX_STAGGER_MIN_MS = 0, MAX_STAGGER_MAX_MS = 2000;
     public static final int GLIDE_MIN_MS = 0, GLIDE_MAX_MS = 300;
+    public static final int CURSOR_GLIDE_MIN_MS = 0, CURSOR_GLIDE_MAX_MS = 500;
+    public static final int CURSOR_WIDTH_MIN = 1, CURSOR_WIDTH_MAX = 4;
 
     public boolean enabled = true;
     public AppearStyle appearStyle = AppearStyle.SLIDE_UP;
@@ -21,9 +23,11 @@ public final class TypingConfig {
     public int removeDurationMs = 160;
     /** [0.25, 3.0] */
     public float intensity = 1.0f;
+    /** [0.25, 3.0] strength of removal effects, independently of appearance. */
+    public float removeIntensity = 1.0f;
     /** [0, 60] per-char delay when several chars are inserted at once (paste, history). */
     public int staggerMs = 14;
-    /** [0, 2000] cap on total stagger spread (json only). */
+    /** [0, 2000] cap on total stagger spread. */
     public int maxStaggerMs = 350;
     /** Chars glide to new x when text shifts / scrolls. */
     public boolean smoothReflow = true;
@@ -31,10 +35,17 @@ public final class TypingConfig {
     public boolean smoothCursor = true;
     /** [0, 300] time constant of glide smoothing. */
     public int glideMs = 55;
+    /** [0, 500] time constant of horizontal and vertical caret smoothing. */
+    public int cursorGlideMs = 55;
+    public CursorStyle cursorStyle = CursorStyle.VANILLA;
+    public CursorColor cursorColor = CursorColor.VANILLA;
+    /** [1, 4] bar width / underline thickness in GUI pixels. */
+    public int cursorWidth = 1;
     public boolean animateChat = true;
     public boolean animateOtherFields = true;
     public boolean animateMultiline = true;
-    /** Unfocused fields change instantly (json only). */
+    public boolean animateSigns = true;
+    /** Unfocused fields change instantly. */
     public boolean onlyWhenFocused = true;
     /** Show button in vanilla Options screen. */
     public boolean optionsButton = true;
@@ -61,14 +72,20 @@ public final class TypingConfig {
         durationMs = o.durationMs;
         removeDurationMs = o.removeDurationMs;
         intensity = o.intensity;
+        removeIntensity = o.removeIntensity;
         staggerMs = o.staggerMs;
         maxStaggerMs = o.maxStaggerMs;
         smoothReflow = o.smoothReflow;
         smoothCursor = o.smoothCursor;
         glideMs = o.glideMs;
+        cursorGlideMs = o.cursorGlideMs;
+        cursorStyle = o.cursorStyle;
+        cursorColor = o.cursorColor;
+        cursorWidth = o.cursorWidth;
         animateChat = o.animateChat;
         animateOtherFields = o.animateOtherFields;
         animateMultiline = o.animateMultiline;
+        animateSigns = o.animateSigns;
         onlyWhenFocused = o.onlyWhenFocused;
         optionsButton = o.optionsButton;
     }
@@ -78,13 +95,19 @@ public final class TypingConfig {
         if (appearStyle == null) appearStyle = AppearStyle.SLIDE_UP;
         if (removeStyle == null) removeStyle = RemoveStyle.FADE;
         if (easing == null) easing = Easing.AUTO;
+        if (cursorStyle == null) cursorStyle = CursorStyle.VANILLA;
+        if (cursorColor == null) cursorColor = CursorColor.VANILLA;
         durationMs = clampInt(durationMs, DURATION_MIN_MS, DURATION_MAX_MS);
         removeDurationMs = clampInt(removeDurationMs, DURATION_MIN_MS, DURATION_MAX_MS);
         if (Float.isNaN(intensity)) intensity = 1.0f;
         intensity = Math.max(INTENSITY_MIN, Math.min(INTENSITY_MAX, intensity));
+        if (Float.isNaN(removeIntensity)) removeIntensity = 1.0f;
+        removeIntensity = Math.max(INTENSITY_MIN, Math.min(INTENSITY_MAX, removeIntensity));
         staggerMs = clampInt(staggerMs, STAGGER_MIN_MS, STAGGER_MAX_MS);
         maxStaggerMs = clampInt(maxStaggerMs, MAX_STAGGER_MIN_MS, MAX_STAGGER_MAX_MS);
         glideMs = clampInt(glideMs, GLIDE_MIN_MS, GLIDE_MAX_MS);
+        cursorGlideMs = clampInt(cursorGlideMs, CURSOR_GLIDE_MIN_MS, CURSOR_GLIDE_MAX_MS);
+        cursorWidth = clampInt(cursorWidth, CURSOR_WIDTH_MIN, CURSOR_WIDTH_MAX);
     }
 
     private static int clampInt(int v, int min, int max) {
@@ -99,27 +122,36 @@ public final class TypingConfig {
         return enabled == o.enabled && appearStyle == o.appearStyle && removeStyle == o.removeStyle
                 && easing == o.easing && durationMs == o.durationMs && removeDurationMs == o.removeDurationMs
                 && Float.compare(intensity, o.intensity) == 0 && staggerMs == o.staggerMs
+                && Float.compare(removeIntensity, o.removeIntensity) == 0
                 && maxStaggerMs == o.maxStaggerMs && smoothReflow == o.smoothReflow
                 && smoothCursor == o.smoothCursor && glideMs == o.glideMs && animateChat == o.animateChat
+                && cursorGlideMs == o.cursorGlideMs && cursorStyle == o.cursorStyle
+                && cursorColor == o.cursorColor && cursorWidth == o.cursorWidth
                 && animateOtherFields == o.animateOtherFields && animateMultiline == o.animateMultiline
+                && animateSigns == o.animateSigns
                 && onlyWhenFocused == o.onlyWhenFocused && optionsButton == o.optionsButton;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(enabled, appearStyle, removeStyle, easing, durationMs, removeDurationMs, intensity,
-                staggerMs, maxStaggerMs, smoothReflow, smoothCursor, glideMs, animateChat, animateOtherFields,
-                animateMultiline, onlyWhenFocused, optionsButton);
+                removeIntensity, staggerMs, maxStaggerMs, smoothReflow, smoothCursor, glideMs, cursorGlideMs,
+                cursorStyle, cursorColor, cursorWidth, animateChat, animateOtherFields,
+                animateMultiline, animateSigns, onlyWhenFocused, optionsButton);
     }
 
     @Override
     public String toString() {
         return "TypingConfig{enabled=" + enabled + ", appearStyle=" + appearStyle + ", removeStyle=" + removeStyle
                 + ", easing=" + easing + ", durationMs=" + durationMs + ", removeDurationMs=" + removeDurationMs
-                + ", intensity=" + intensity + ", staggerMs=" + staggerMs + ", maxStaggerMs=" + maxStaggerMs
+                + ", intensity=" + intensity + ", removeIntensity=" + removeIntensity
+                + ", staggerMs=" + staggerMs + ", maxStaggerMs=" + maxStaggerMs
                 + ", smoothReflow=" + smoothReflow + ", smoothCursor=" + smoothCursor + ", glideMs=" + glideMs
+                + ", cursorGlideMs=" + cursorGlideMs + ", cursorStyle=" + cursorStyle
+                + ", cursorColor=" + cursorColor + ", cursorWidth=" + cursorWidth
                 + ", animateChat=" + animateChat + ", animateOtherFields=" + animateOtherFields
-                + ", animateMultiline=" + animateMultiline + ", onlyWhenFocused=" + onlyWhenFocused
+                + ", animateMultiline=" + animateMultiline + ", animateSigns=" + animateSigns
+                + ", onlyWhenFocused=" + onlyWhenFocused
                 + ", optionsButton=" + optionsButton + '}';
     }
 }

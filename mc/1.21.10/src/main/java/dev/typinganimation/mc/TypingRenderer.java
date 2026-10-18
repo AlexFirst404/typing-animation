@@ -156,6 +156,13 @@ public final class TypingRenderer {
             anim.scrollPx = scrollPx;
             anim.windowEnd = displayPos;
             anim.windowEndX = textX;
+            EditBoxAccess access = (EditBoxAccess) box;
+            anim.caretIndex = box.getCursorPosition();
+            anim.caretSelection = anim.caretIndex != access.typinganimation$highlightPos();
+            anim.caretInsert = anim.caretIndex < value.length() || value.length() >= access.typinganimation$maxLength();
+            anim.caretCandidateX = textX - (anim.caretInsert ? 1 : 0);
+            anim.caretCandidateValid = anim.caretIndex == displayPos && displayPos == value.length();
+            anim.caretCellWidth = caretCellWidth(font, value, anim.caretIndex);
 
             float shift = scrollShift(anim, cfg, scrollPx, textX, textY, innerWidth);
             anim.shift = shift;
@@ -192,6 +199,8 @@ public final class TypingRenderer {
             TypingConfig cfg = ConfigManager.get();
             if (active(anim, cfg)) {
                 beginFrame(anim, cfg, graphics, innerLeft, innerTop, (int) Math.round(scroll), value, focused);
+                anim.textX = innerLeft;
+                anim.textY = innerTop;
             }
         } catch (Throwable t) {
             fail(anim, widget, t);
@@ -235,6 +244,10 @@ public final class TypingRenderer {
         anim.clip = false;
         anim.caretMode = WidgetAnimation.CARET_NONE;
         anim.caretArgFont = null;
+        anim.caretSampled = false;
+        anim.caretSelection = false;
+        anim.caretDx = 0f;
+        anim.caretDy = 0f;
         anim.segmentText[0] = null;
         anim.segmentText[1] = null;
         anim.graphics = graphics;
@@ -328,6 +341,12 @@ public final class TypingRenderer {
         }
         int start = anim.segmentStart[slot];
         int r = segment(anim, widget, font, seq, text, start, x, y, color, shadow, false, true);
+        if (slot == 0 && start + text.length() == anim.caretIndex) {
+            // Reuse the laid-out advance: vanilla rounds this sum, then applies its one-pixel insert offset.
+            int width = r == FALLBACK ? font.width(seq) : (int) Math.ceil(SINK.endX - x);
+            anim.caretCandidateX = x + width + 1 - (anim.caretInsert ? 1 : 0);
+            anim.caretCandidateValid = true;
+        }
         if (r == FALLBACK) {
             // vanilla draws this segment at its own position: never displace the text of this widget again
             anim.scrollGlideOff = true;
@@ -427,6 +446,55 @@ public final class TypingRenderer {
 
     // =================================================================== caret
 
+    /** Samples the caret even while vanilla's blink hides it; the cached width avoids steady-frame allocations. */
+    public static void trackMultilineCaret(WidgetAnimation anim, Object widget, Font font, String value,
+                                           int cursor, int lineBegin, int lineIndex, boolean selection) {
+        if (!anim.frameActive) return;
+        try {
+            int end = Math.min(Math.max(cursor, 0), value.length());
+            int begin = Math.min(Math.max(lineBegin, 0), end);
+            if (anim.caretWidthValue != value || anim.caretWidthCursor != end || anim.caretWidthBegin != begin
+                    || anim.caretWidthFont != font) {
+                anim.caretLineWidth = font.width(value.substring(begin, end));
+                anim.caretWidthValue = value;
+                anim.caretWidthCursor = end;
+                anim.caretWidthBegin = begin;
+                anim.caretWidthFont = font;
+            }
+            anim.caretSelection = selection;
+            anim.caretCellWidth = caretCellWidth(font, value, end);
+            sampleCaret(anim, anim.textX + anim.caretLineWidth, anim.textY + 9 * lineIndex, false);
+        } catch (Throwable t) {
+            fail(anim, widget, t);
+        }
+    }
+
+    private static int caretCellWidth(Font font, String value, int cursor) {
+        return cursor >= 0 && cursor < value.length()
+                ? Math.max(1, (int) Math.ceil(widthProvider(font).getWidth(value.codePointAt(cursor), Style.EMPTY))) : 6;
+    }
+
+    /** One update per widget frame; X and Y share a stable widget origin, including across line changes. */
+    private static void sampleCaret(WidgetAnimation anim, float x, float lineY, boolean editBox) {
+        if (anim.caretSampled) return;
+        TypingConfig cfg = ConfigManager.get();
+        FieldAnimationState cs = anim.caretState();
+        float target = editBox ? x + anim.scrollPx : x;
+        if (editBox && (!anim.caretTargetValid
+                || Math.abs(target - anim.caretTarget) > 2f * Math.max(anim.innerWidth, 1))) {
+            cs.reset(); // Long jumps should not sweep through thousands of off-screen pixels.
+        }
+        anim.caretTarget = target;
+        anim.caretTargetValid = true;
+        cs.beginFrame(anim.nowMs, anim.textX, anim.textY, 0);
+        cs.sync("", anim.animate && !anim.caretSelection, cfg);
+        anim.caretDx = cs.caretX(target, cfg) - target + (editBox ? anim.shift : 0f);
+        anim.caretDy = cs.caretY(lineY, cfg) - lineY;
+        cs.endFrame();
+        anim.caretSampled = true;
+    }
+
+
     /*
      * In this version vanilla draws the caret itself: the insert caret is GuiGraphics#fill(x0, y0, x1, y1, colour)
      * (a 1 px bar from textY - 1 to textY + 10) and the append caret is drawString(font, "_", x, y, colour, shadow).
@@ -464,19 +532,8 @@ public final class TypingRenderer {
             // The caret is smoothed in content coordinates (x + scrolled px), by a state whose origin is the widget:
             // scrolling does not move the target, so the caret glide goes on across scrolls (and across frames in
             // which the blinking caret is hidden); it is drawn displaced by the scroll glide offset like the text.
-            TypingConfig cfg = ConfigManager.get();
-            FieldAnimationState cs = anim.caretState();
-            float target = x + anim.scrollPx;
-            if (Math.abs(target - anim.caretTarget) > 2f * Math.max(anim.innerWidth, 1) || !anim.caretTargetValid) {
-                cs.reset(); // a jump across a long text: no glide over thousands of pixels
-            }
-            anim.caretTarget = target;
-            anim.caretTargetValid = true;
-            cs.beginFrame(anim.nowMs, anim.textX, anim.textY, 0);
-            cs.sync("", anim.animate, cfg);
-            float cx = cs.caretX(target, cfg);
-            cs.endFrame();
-            return (cx - target) + anim.shift;
+            sampleCaret(anim, x, anim.textY, true);
+            return anim.caretDx;
         } catch (Throwable t) {
             fail(anim, widget, t);
             return 0f;
@@ -504,20 +561,11 @@ public final class TypingRenderer {
         return moveCaret(anim, WidgetAnimation.CARET_APPEND, font, text, x, y, 0, 0, color, shadow, dx);
     }
 
-    /**
-     * Multi-line caret offset (see {@link #editBoxCaretDx}): the core state smooths x only, so a dedicated state
-     * whose origin is the caret line is used — a line change is an origin change and snaps the caret instead of
-     * sweeping it across the line.
-     */
+    /** Multi-line caret uses independent X/Y motion relative to the stable content origin. */
     private static float multilineCaretDx(WidgetAnimation anim, Object widget, int lineOriginX, int x, int lineY) {
         try {
-            TypingConfig cfg = ConfigManager.get();
-            FieldAnimationState cs = anim.caretState();
-            cs.beginFrame(anim.nowMs, lineOriginX, lineY, 0);
-            cs.sync("", anim.animate, cfg);
-            float cx = cs.caretX(x, cfg);
-            cs.endFrame();
-            return cx - x;
+            sampleCaret(anim, x, lineY, false);
+            return anim.caretDx;
         } catch (Throwable t) {
             fail(anim, widget, t);
             return 0f;
@@ -526,7 +574,9 @@ public final class TypingRenderer {
 
     private static int moveCaret(WidgetAnimation anim, int mode, Font font, String text, int x, int y, int x1, int y1,
                                  int color, boolean shadow, float dx) {
-        if (!anim.frameActive || dx == 0f || !Float.isFinite(dx) || (mode == WidgetAnimation.CARET_APPEND
+        if (!anim.frameActive || !Float.isFinite(dx) || !Float.isFinite(anim.caretDy)
+                || (dx == 0f && anim.caretDy == 0f && !CursorAppearance.custom(ConfigManager.get()))
+                || (mode == WidgetAnimation.CARET_APPEND
                 && (font == null || text == null))) {
             return color; // at rest (or after an error): vanilla draws the caret itself
         }
@@ -591,6 +641,9 @@ public final class TypingRenderer {
         GuiGraphics g = anim.graphics;
         try {
             TypingConfig cfg = ConfigManager.get();
+            if (editBox && !anim.caretSampled && anim.caretCandidateValid) {
+                sampleCaret(anim, anim.caretCandidateX, anim.textY, true);
+            }
             if (editBox && anim.shift != 0f) {
                 drawRevealed(anim, g, widget, font, cfg, shadow);
             }
@@ -1084,12 +1137,17 @@ public final class TypingRenderer {
             Matrix3x2fStack pose = g.pose();
             pose.pushMatrix();
             try {
-                pose.translate(anim.caretDx, 0f);
+                pose.translate(anim.caretDx, anim.caretDy);
+                TypingConfig cfg = ConfigManager.get();
+                boolean insert = mode == WidgetAnimation.CARET_INSERT;
+                int caretColor = CursorAppearance.color(cfg, anim.caretArgColor);
+                if (CursorAppearance.draw(g, cfg, anim.caretArgX, (insert ? anim.caretArgY : anim.caretArgY - 1),
+                        (insert ? anim.caretArgY1 - anim.caretArgY : 11), anim.caretCellWidth, anim.caretArgColor, insert)) return;
                 // the very call vanilla made (with its real colour), moved by the glide offset
                 if (mode == WidgetAnimation.CARET_INSERT) {
-                    g.fill(anim.caretArgX, anim.caretArgY, anim.caretArgX1, anim.caretArgY1, anim.caretArgColor);
+                    g.fill(anim.caretArgX, anim.caretArgY, anim.caretArgX1, anim.caretArgY1, caretColor);
                 } else if (font != null && text != null) {
-                    g.drawString(font, text, anim.caretArgX, anim.caretArgY, anim.caretArgColor,
+                    g.drawString(font, text, anim.caretArgX, anim.caretArgY, caretColor,
                             anim.caretArgShadow);
                 }
             } finally {

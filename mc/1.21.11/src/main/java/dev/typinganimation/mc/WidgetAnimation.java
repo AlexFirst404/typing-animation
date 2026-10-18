@@ -90,9 +90,14 @@ public final class WidgetAnimation {
     boolean caretArgShadow;
     Font caretArgFont;
     String caretArgText;
-    float caretDx;
+    float caretDx, caretDy;
+    boolean caretSampled, caretSelection, caretInsert, caretCandidateValid;
+    int caretIndex, caretCandidateX, caretCellWidth = 6;
+    String caretWidthValue;
+    Font caretWidthFont;
+    int caretWidthCursor = -1, caretWidthBegin = -1, caretLineWidth;
 
-    /** Multi-line widgets: separate state used only to smooth the caret (its origin is the caret line). */
+    /** Multi-line widgets: separate state used only to smooth the caret (both axes use the stable widget origin). */
     FieldAnimationState caretState;
 
     // ------------------------------------------------------------------ read-only info (self-test / debugging)
@@ -146,6 +151,9 @@ public final class WidgetAnimation {
         }
         scrollValid = false;
         caretTargetValid = false;
+        caretSampled = false;
+        caretWidthValue = null;
+        caretWidthFont = null;
         lastValue = null;
         dirty = false;
     }

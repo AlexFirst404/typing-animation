@@ -36,7 +36,7 @@ public final class TypingRenderer {
     private static final Set<String> LOGGED = ConcurrentHashMap.newKeySet();
     private static final Collector COLLECTOR = new Collector();
     private static final CharTransform TF = new CharTransform();
-    /** Caret query that snaps (see {@link #caretOffset}); only enabled/smoothCursor/glideMs are read by the core. */
+    /** Caret query that snaps (see {@link #caretOffset}); only enabled/smoothCursor/cursorGlideMs are read by the core. */
     private static final TypingConfig CARET_SNAP = caretSnapConfig();
 
     private static TypingConfig caretSnapConfig() {
@@ -214,6 +214,13 @@ public final class TypingRenderer {
         a.caretQueried = true;
         float dx = x - targetX;
         return dx != 0f && Float.isFinite(dx) ? dx : 0f;
+    }
+
+    /** The vertical half of the same caret query; selection snaps both axes to the highlight edge. */
+    static float caretYOffset(WidgetAnimator a, int targetY, boolean snap) {
+        float y = a.state.caretY(targetY, snap ? CARET_SNAP : ConfigManager.get());
+        float dy = y - targetY;
+        return dy != 0f && Float.isFinite(dy) ? dy : 0f;
     }
 
     /** Ends the core frame (after the RETURN hooks); never throws. */

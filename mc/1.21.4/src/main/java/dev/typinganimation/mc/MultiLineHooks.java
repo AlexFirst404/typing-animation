@@ -36,6 +36,8 @@ public final class MultiLineHooks {
             }
             final long now = Util.getMillis();
             a.font = font;
+            a.lastValue = value;
+            a.caretOffsetY = 0f;
             a.shadow = true;
             a.originX = originX;
             a.originY = originY;
@@ -69,12 +71,21 @@ public final class MultiLineHooks {
         if (a.active && text != null) {
             if (color == CURSOR_COLOR && "_".equals(text)) {
                 float dx = caretDx(box, a, x, y);
-                if (dx != 0f) {
-                    TypingRenderer.STATS.caretGlides++;
+                float dy = a.caretOffsetY;
+                TypingConfig cfg = ConfigManager.get();
+                boolean custom = a.active && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+                if (dx != 0f || dy != 0f || custom) {
+                    if (dx != 0f || dy != 0f) TypingRenderer.STATS.caretGlides++;
                     PoseStack pose = gg.pose();
                     pose.pushPose();
                     try {
-                        pose.translate(dx, 0f, 0f);
+                        pose.translate(dx, dy, 0f);
+                        if (custom) {
+                            if (CursorAppearance.draw(gg, cfg, x, y - 1, 11, Math.max(1, font.width(text)), color, false)) {
+                                return x + font.width(text) + 1;
+                            }
+                            color = CursorAppearance.color(cfg, color);
+                        }
                         return gg.drawString(font, text, x, y, color);
                     } finally {
                         pose.popPose();
@@ -98,19 +109,28 @@ public final class MultiLineHooks {
 
     public static void fill(MultiLineEditBox box, WidgetAnimator a, GuiGraphics gg, int x1, int y1, int x2, int y2,
                             int color) {
-        float dx = 0f;
-        if (a.active && color == CURSOR_COLOR) {
+        float dx = 0f, dy = 0f;
+        TypingConfig cfg = ConfigManager.get();
+        boolean cursor = a.active && color == CURSOR_COLOR;
+        boolean custom = cursor && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+        if (cursor) {
             dx = caretDx(box, a, x1, y1 + 1);
+            dy = a.caretOffsetY;
         }
-        if (dx == 0f) {
+        if (dx == 0f && dy == 0f && !custom) {
             gg.fill(x1, y1, x2, y2, color);
             return;
         }
-        TypingRenderer.STATS.caretGlides++;
+        if (dx != 0f || dy != 0f) TypingRenderer.STATS.caretGlides++;
         PoseStack pose = gg.pose();
         pose.pushPose();
         try {
-            pose.translate(dx, 0f, 0f);
+            pose.translate(dx, dy, 0f);
+            if (custom) {
+                if (CursorAppearance.draw(gg, cfg, x1, Math.min(y1, y2), Math.abs(y2 - y1),
+                        a.cursorCellWidth(a.caretIndex), color, true)) return;
+                color = CursorAppearance.color(cfg, color);
+            }
             gg.fill(x1, y1, x2, y2, color);
         } finally {
             pose.popPose();
@@ -135,24 +155,23 @@ public final class MultiLineHooks {
     }
 
     /**
-     * Caret offset for this frame. The glide is horizontal only: when the caret changes line, the glide snaps to its
-     * new target for that frame and glides normally from there. With a selection the caret stays on its target (the
-     * vanilla highlight uses the unsmoothed x). Only the first caret of a frame is queried: on a mid-word wrap (end of
-     * one line == start of the next) vanilla draws the caret on both lines, and the second one stays on its target.
+     * Smooth both coordinates when changing lines. A selection stays aligned to vanilla's highlight; the second
+     * caret at a mid-word wrap remains at its native position, and must not replace the first query's target.
      */
     private static float caretDx(MultiLineEditBox box, WidgetAnimator a, int targetX, int lineY) {
+        a.caretOffsetY = 0f;
         if (a.caretQueried) {
             return 0f;
         }
         try {
-            final boolean lineChange = a.lastCaretY != Integer.MIN_VALUE && lineY != a.lastCaretY;
-            a.lastCaretY = lineY;
-            final float dx = TypingRenderer.caretOffset(a, targetX, lineChange || a.selection);
-            if (dx != 0f) {
+            final float dx = TypingRenderer.caretOffset(a, targetX, a.selection);
+            a.caretOffsetY = TypingRenderer.caretYOffset(a, lineY, a.selection);
+            if (dx != 0f || a.caretOffsetY != 0f) {
                 TypingRenderer.STATS.multilineCaretGlides++;
             }
             return dx;
         } catch (Throwable t) {
+            a.caretOffsetY = 0f;
             TypingRenderer.fail(a, box, t);
             return 0f;
         }

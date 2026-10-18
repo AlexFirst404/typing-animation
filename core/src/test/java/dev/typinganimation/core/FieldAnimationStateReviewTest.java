@@ -338,7 +338,7 @@ class FieldAnimationStateReviewTest {
     void caretGlideDoesNotStallAboveSnapEpsilonAtHighFrameRate() {
         FieldAnimationState st = new FieldAnimationState();
         TypingConfig cfg = TypingConfig.defaults();
-        cfg.glideMs = TypingConfig.GLIDE_MAX_MS;
+        cfg.cursorGlideMs = TypingConfig.CURSOR_GLIDE_MAX_MS;
         long now = 1_000;
         st.beginFrame(now, 4f, 8f, 0);
         st.sync("", true, cfg);

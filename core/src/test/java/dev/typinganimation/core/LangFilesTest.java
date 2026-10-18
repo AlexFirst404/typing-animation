@@ -23,7 +23,8 @@ class LangFilesTest {
     private static final Path LANG = Path.of("..", "common-resources", "assets", "typinganimation", "lang");
     private static final String[] UI_FIELDS = {"enabled", "appearStyle", "removeStyle", "easing", "durationMs",
             "intensity", "staggerMs", "glideMs", "smoothReflow", "smoothCursor", "animateChat", "animateOtherFields",
-            "animateMultiline", "optionsButton"};
+            "animateMultiline", "optionsButton", "removeDurationMs", "removeIntensity", "maxStaggerMs",
+            "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth", "animateSigns", "onlyWhenFocused"};
 
     private static List<String> requiredKeys() {
         List<String> keys = new ArrayList<>(List.of("typinganimation.title", "typinganimation.description",
@@ -31,7 +32,9 @@ class LangFilesTest {
                 "typinganimation.config.demo", "typinganimation.config.demo.stop",
                 "typinganimation.config.demo.text", "typinganimation.config.reset", "typinganimation.config.done",
                 "typinganimation.config.ms", "typinganimation.config.ms_per_char",
-                "typinganimation.config.multiplier"));
+                "typinganimation.config.multiplier", "typinganimation.config.pixels",
+                "typinganimation.config.page.animations", "typinganimation.config.page.cursor",
+                "typinganimation.config.page.behaviour"));
         for (String f : UI_FIELDS) {
             keys.add("typinganimation.config." + f);
             keys.add("typinganimation.config." + f + ".tooltip");
@@ -39,6 +42,8 @@ class LangFilesTest {
         for (AppearStyle s : AppearStyle.values()) keys.add(s.translationKey());
         for (RemoveStyle s : RemoveStyle.values()) keys.add(s.translationKey());
         for (Easing e : Easing.values()) keys.add(e.translationKey());
+        for (CursorStyle s : CursorStyle.values()) keys.add(s.translationKey());
+        for (CursorColor c : CursorColor.values()) keys.add(c.translationKey());
         return keys;
     }
 

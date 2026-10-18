@@ -435,7 +435,7 @@ class FieldAnimationStateTest {
             s.frame("hell");
             assertTrue(s.st.ghostTransform(g, s.cfg, s.tf), rs.name());
             CharTransform exit = new CharTransform();
-            rs.apply(0.5f, (s.cfg.easing.resolve(rs.defaultEasing())).apply(0.5f), s.cfg.intensity, g.seed, exit);
+            rs.apply(0.5f, (s.cfg.easing.resolve(rs.defaultEasing())).apply(0.5f), s.cfg.removeIntensity, g.seed, exit);
             assertEquals(exit.alpha * drawn.alpha, s.tf.alpha, 1e-5f, rs.name());
             assertTrue(s.tf.alpha < drawn.alpha, rs.name());
         }
@@ -1040,10 +1040,10 @@ class FieldAnimationStateTest {
         s.cfg.smoothCursor = false;
         assertEquals(40f, s.st.caretX(40f, s.cfg));
         s.cfg.smoothCursor = true;
-        s.cfg.glideMs = 0;
+        s.cfg.cursorGlideMs = 0;
         s.tick("a");
         assertEquals(50f, s.st.caretX(50f, s.cfg));
-        s.cfg.glideMs = 55;
+        s.cfg.cursorGlideMs = 55;
         s.tick("a");
         assertNotEquals(60f, s.st.caretX(60f, s.cfg));
         s.ox = 99f; // origin change

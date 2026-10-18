@@ -20,7 +20,13 @@ public enum AppearStyle {
     DROP(Easing.BOUNCE_OUT),
     SPIN(Easing.CUBIC_OUT),
     WAVE(Easing.QUAD_OUT),
-    SCRAMBLE(Easing.LINEAR);
+    SCRAMBLE(Easing.LINEAR),
+    SLIDE_RIGHT(Easing.CUBIC_OUT),
+    ZOOM_OUT(Easing.CUBIC_OUT),
+    FLIP(Easing.CUBIC_OUT),
+    SWING(Easing.SINE_IN_OUT),
+    ROLL(Easing.CUBIC_OUT),
+    SPIRAL(Easing.CUBIC_OUT);
 
     /** Linear progress from which SCRAMBLE shows the real glyph. */
     public static final float SCRAMBLE_REVEAL_T = 0.65f;
@@ -79,6 +85,42 @@ public enum AppearStyle {
                 out.dx = inv * 8f * k;
                 out.alpha = fadeIn;
                 break;
+            case SLIDE_RIGHT:
+                out.dx = -inv * 8f * k;
+                out.alpha = fadeIn;
+                break;
+            case ZOOM_OUT:
+                out.scaleX = Math.max(0f, 1f + inv * 1.4f * k);
+                out.scaleY = out.scaleX;
+                out.alpha = fadeIn;
+                break;
+            case FLIP:
+                // A two-dimensional flip: the cell narrows edge-on halfway through the turn.
+                out.scaleX = 1f - (1f - Math.abs((float) Math.cos(inv * Math.PI))) * Math.min(k, 1f);
+                out.scaleY = Math.max(0f, 1f + inv * 0.15f * k);
+                out.alpha = fadeIn;
+                break;
+            case SWING:
+                out.rotation = (float) Math.sin(t * Math.PI * 3.0) * inv * 0.8f * k;
+                out.pivotY = 0f;
+                out.alpha = fadeIn;
+                break;
+            case ROLL:
+                out.dx = -inv * 10f * k;
+                out.rotation = -inv * (float) Math.PI * k;
+                out.alpha = fadeIn;
+                break;
+            case SPIRAL: {
+                double angle = inv * Math.PI * 2.0;
+                float radius = inv * 7f * k;
+                out.dx = (float) Math.cos(angle) * radius;
+                out.dy = (float) Math.sin(angle) * radius;
+                out.rotation = inv * HALF_PI * k;
+                out.scaleX = scale(e, k);
+                out.scaleY = out.scaleX;
+                out.alpha = fadeIn;
+                break;
+            }
             case POP: {
                 float s = scale(e, k);
                 out.scaleX = s;

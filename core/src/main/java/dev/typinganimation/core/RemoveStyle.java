@@ -12,7 +12,12 @@ public enum RemoveStyle {
     FALL(Easing.SINE_IN_OUT),
     SHRINK(Easing.CUBIC_OUT),
     FLY_UP(Easing.CUBIC_OUT),
-    SCATTER(Easing.QUAD_OUT);
+    SCATTER(Easing.QUAD_OUT),
+    SLIDE_LEFT(Easing.CUBIC_OUT),
+    SLIDE_RIGHT(Easing.CUBIC_OUT),
+    SPIN(Easing.CUBIC_OUT),
+    SQUASH(Easing.CUBIC_OUT),
+    SPIRAL(Easing.QUAD_OUT);
 
     private static final double TWO_PI = 2.0 * Math.PI;
 
@@ -71,6 +76,34 @@ public enum RemoveStyle {
                 out.dy = -e * 9f * k;
                 out.alpha = fadeOut;
                 break;
+            case SLIDE_LEFT:
+                out.dx = -e * 9f * k;
+                out.alpha = fadeOut;
+                break;
+            case SLIDE_RIGHT:
+                out.dx = e * 9f * k;
+                out.alpha = fadeOut;
+                break;
+            case SPIN:
+                out.rotation = e * (float) Math.PI * k;
+                out.scaleX = Math.max(0f, 1f - e * Math.min(k, 1f));
+                out.scaleY = out.scaleX;
+                out.alpha = fadeOut;
+                break;
+            case SQUASH:
+                out.scaleX = Math.max(0f, 1f + e * 0.65f * k);
+                out.scaleY = Math.max(0f, 1f - e * Math.min(k, 1f));
+                out.alpha = fadeOut;
+                break;
+            case SPIRAL: {
+                double angle = e * TWO_PI;
+                float radius = e * 8f * k;
+                out.dx = (float) Math.cos(angle) * radius;
+                out.dy = (float) Math.sin(angle) * radius;
+                out.rotation = e * (float) Math.PI * k;
+                out.alpha = fadeOut;
+                break;
+            }
             case SCATTER: {
                 double angle = ((h >>> 8) & 0xFFFF) / 65536.0 * TWO_PI;
                 float dist = e * 6f * k;

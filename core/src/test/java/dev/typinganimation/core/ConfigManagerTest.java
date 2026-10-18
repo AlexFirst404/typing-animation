@@ -69,10 +69,11 @@ class ConfigManagerTest {
         for (String key : new String[]{"enabled", "appearStyle", "removeStyle", "easing", "durationMs",
                 "removeDurationMs", "intensity", "staggerMs", "maxStaggerMs", "smoothReflow", "smoothCursor",
                 "glideMs", "animateChat", "animateOtherFields", "animateMultiline", "onlyWhenFocused",
-                "optionsButton"}) {
+                "optionsButton", "removeIntensity", "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth",
+                "animateSigns"}) {
             assertTrue(o.has(key), key);
         }
-        assertEquals(17, o.size());
+        assertEquals(23, o.size());
     }
 
     @Test
@@ -86,14 +87,20 @@ class ConfigManagerTest {
         c.durationMs = 777;
         c.removeDurationMs = 41;
         c.intensity = 2.75f;
+        c.removeIntensity = 0.5f;
         c.staggerMs = 3;
         c.maxStaggerMs = 1999;
         c.smoothReflow = false;
         c.smoothCursor = false;
         c.glideMs = 0;
+        c.cursorGlideMs = 440;
+        c.cursorStyle = CursorStyle.BLOCK;
+        c.cursorColor = CursorColor.MINT;
+        c.cursorWidth = 4;
         c.animateChat = false;
         c.animateOtherFields = false;
         c.animateMultiline = false;
+        c.animateSigns = false;
         c.onlyWhenFocused = false;
         c.optionsButton = false;
         TypingConfig expected = c.copy();
@@ -118,6 +125,16 @@ class ConfigManagerTest {
             ConfigManager.save();
             assertEquals(s, reinit(dir).removeStyle);
         }
+        for (CursorStyle s : CursorStyle.values()) {
+            loaded.cursorStyle = s;
+            ConfigManager.save();
+            assertEquals(s, reinit(dir).cursorStyle);
+        }
+        for (CursorColor c1 : CursorColor.values()) {
+            loaded.cursorColor = c1;
+            ConfigManager.save();
+            assertEquals(c1, reinit(dir).cursorColor);
+        }
     }
 
     @Test
@@ -141,7 +158,7 @@ class ConfigManagerTest {
         assertEquals(expected, c);
         // normalised file now has every key
         JsonObject o = JsonParser.parseString(readFile()).getAsJsonObject();
-        assertEquals(17, o.size());
+        assertEquals(23, o.size());
         assertEquals(500, o.get("durationMs").getAsInt());
         assertEquals("pop", o.get("appearStyle").getAsString());
     }
@@ -320,5 +337,35 @@ class ConfigManagerTest {
         TypingConfig back = TypingConfig.defaults();
         ConfigManager.readInto(JsonParser.parseString(ConfigManager.toJson(c)).getAsJsonObject(), back);
         assertEquals(c, back);
+    }
+
+    @Test
+    void oldConfigsPreserveSharedSpeedsAndIntensitiesOnUpgrade() throws IOException {
+        writeFile("{\"glideMs\":140,\"intensity\":2.25}");
+        TypingConfig migrated = reinit(dir);
+        assertEquals(140, migrated.cursorGlideMs);
+        assertEquals(2.25f, migrated.removeIntensity);
+        assertEquals(CursorStyle.VANILLA, migrated.cursorStyle);
+        assertEquals(CursorColor.VANILLA, migrated.cursorColor);
+        assertTrue(migrated.animateSigns);
+        // Once saved, edits to the old controls no longer affect the independent new ones.
+        migrated.glideMs = 20;
+        migrated.intensity = 0.5f;
+        ConfigManager.save();
+        assertEquals(140, reinit(dir).cursorGlideMs);
+        assertEquals(2.25f, ConfigManager.get().removeIntensity);
+    }
+
+    @Test
+    void invalidNewOptionsFallBackAndNumbersClamp() throws IOException {
+        writeFile("{\"cursorStyle\":\"triangle\",\"cursorColor\":false,\"cursorGlideMs\":9999,"
+                + "\"cursorWidth\":0,\"removeIntensity\":-3,\"animateSigns\":\"false\"}");
+        TypingConfig c = reinit(dir);
+        assertEquals(CursorStyle.VANILLA, c.cursorStyle);
+        assertEquals(CursorColor.VANILLA, c.cursorColor);
+        assertEquals(500, c.cursorGlideMs);
+        assertEquals(1, c.cursorWidth);
+        assertEquals(0.25f, c.removeIntensity);
+        assertFalse(c.animateSigns);
     }
 }

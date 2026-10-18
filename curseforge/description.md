@@ -2,57 +2,75 @@
 
 **A little motion in every keystroke.**
 
-Make Minecraft chat, commands, search boxes and other text fields feel smoother. Letters animate in and out, edits flow into place, and the cursor glides. Once the animation settles, text looks exactly like vanilla.
+![Client only](https://img.shields.io/badge/CLIENT-ONLY-AE72FF?style=for-the-badge&labelColor=25174A) ![17 appearance styles](https://img.shields.io/badge/17-APPEAR_STYLES-E860AD?style=for-the-badge&labelColor=572544) ![10 removal styles](https://img.shields.io/badge/10-REMOVE_STYLES-39C9DD?style=for-the-badge&labelColor=174A5A)
 
-**Client only · Fabric, Forge and NeoForge · No Fabric API required**
+Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and the cursor follows smoothly — in chat, commands, search fields, **signs and hanging signs**. Once letters settle, their vanilla appearance returns.
 
-- **Find your style:** 11 appearance styles, including Fade, Pop, Wave and Scramble, plus 5 removal styles.
-- **Smooth editing:** animated cursor movement, scrolling and text shifts. Pasted text, chat history and autocomplete appear letter by letter.
-- **Keep command colours:** syntax highlighting stays intact during animations and Tab completion.
-- **Make it yours:** 10 easing curves plus Auto, adjustable timing and intensity, and separate toggles for chat, other fields and multi-line input.
+**Fabric · Forge · NeoForge · English & Russian · No Fabric API required**
 
-### Type, edit, delete and paste
+## ▸ Type. Edit. Enjoy.
 
-![Animated typing and editing in the Minecraft chat](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/chat-typing.gif)
+Insert a word, erase a sentence or paste a message. Text shifts smoothly, while pasted text and autocomplete unfold letter by letter.
 
-### Choose your style
+![Typing, editing and pasting in Minecraft chat](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/chat-typing.gif)
 
-![Pop, Scramble, Wave and Drop with different removal effects](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/styles.gif)
+## ✦ Find your favourite motion
 
-### Commands keep their colours
+| Appearance | Removal | Timing |
+|:---:|:---:|:---:|
+| **17 effects** + Off | **10 effects** + Off | **10 easing curves** + Auto |
+| Pop, Wave, Scramble, Flip, Swing, Roll, Spiral and more | Fade, Fall, Scatter, Spin, Squash and more | Separate duration and intensity; adjustable stagger and text glide |
 
-![Command syntax highlighting and Tab completion during typing animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
+![Pop, Scramble, Wave and Drop paired with removal effects](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/styles.gif)
 
-### Get started
+**New in 1.1:** Slide Right, Zoom Out, Flip, Swing, Roll and Spiral — with five new ways for letters to disappear.
 
-Download the file for your Minecraft version and loader from **Files**, then put it in your `mods` folder. Install it on your client; the server does not need the mod. Fabric API is not required. [Mod Menu](https://www.curseforge.com/minecraft/mc-mods/modmenu) is optional on Fabric.
+![New animation styles in Typing Animation 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/new-styles.gif)
 
-Open **Options → Typing Animation…** for a live preview and a **Demo** button. Forge and NeoForge also provide a Config button in the mods list; Fabric supports Mod Menu. Settings apply immediately and are saved in `config/typinganimation.json`. The interface is available in English and Russian.
+## │ A cursor that follows you
 
-### Versions and compatibility
+Smooth horizontal **and vertical** movement, with its own speed setting. Keep the vanilla cursor or choose a **bar, underline or translucent block**; pick a colour and thickness to match your style.
 
-**Minecraft:** 1.20–1.20.1 · 1.21–1.21.1 · 1.21.4 · 1.21.5 · 1.21.6–1.21.8 · 1.21.9–1.21.10 · 1.21.11 · 26.1–26.1.2 · 26.2 · 26.3.
+![Smooth caret movement with custom shapes and colours](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/smooth-cursor.gif)
 
-- **Fabric and Forge:** builds for every range listed above. **NeoForge:** builds from 1.21 onwards; on NeoForge 1.20.1, use the Forge file (tested with NeoForge 47.1.106).
-- **Quilt:** the Fabric files for 1.20.1, 1.21.1, 1.21.11 and 26.2 were tested on Quilt Loader 0.30.1. The 26.3 file was tested on 0.31.0-beta.4; stable 0.30.1 cannot load it. Other versions are untested on Quilt.
-- **Text fields:** signs are not animated. Book input is supported from Minecraft 1.21.6. Mods that replace the standard text field renderer may conflict.
+## ▣ Leave a sign
 
-**Author:** AlexFirst · **Source:** [GitHub — Typing Animation](https://github.com/AlexFirst404/typing-animation) · **License:** MIT. Modpacks are welcome.
+The same animations now work while editing **ordinary and hanging signs**, across all four lines. Text colours, glowing text and normal editing controls stay intact.
+
+![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/signs.gif)
+
+## ⚙ Make it yours
+
+Three tidy settings tabs: **Animations · Cursor · Where to animate**. Tune appearance and removal separately, cap paste delays, choose where animations run, and try everything in the **live preview** with **Demo**.
+
+![Settings tabs and live animation preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/settings-tabs.gif)
+
+Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Changes apply immediately. Settings are saved in `config/typinganimation.json`.
+
+## / Commands keep their colours
+
+Syntax highlighting stays intact while typing and completing commands with **Tab**.
+
+![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
 
 ---
 
-## Описание на русском
+### Install & recommended companion
 
-**Чуть больше движения в каждом нажатии.** Плавный набор в чате, командах, поиске и других полях Minecraft. Символы появляются и исчезают с анимацией, текст и курсор скользят, а в покое всё выглядит как в ванилле. GIF выше показывают мод в настоящем игровом чате.
+Download the JAR for your **Minecraft version and loader**, then put it in `mods`. Install on your client; the server does not need the mod. **Fabric API is not required.**
 
-- **11 стилей появления и 5 стилей удаления:** от «Проявления» и «Выпрыгивания» до «Волны» и «Расшифровки».
-- Плавные правки, прокрутка и курсор; посимвольная вставка, история чата и автодополнение. Цвета команд сохраняются.
-- **10 кривых плавности и режим «Авто»**, настройка времени и интенсивности. Чат, остальные поля и многострочный ввод включаются отдельно.
+**Recommended for Fabric/Quilt: Mod Menu** — opens the settings directly from your mod list. It is an **optional dependency**: [Modrinth](https://modrinth.com/mod/modmenu) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/modmenu).
 
-**Установка:** выберите во вкладке **Files** файл под свою версию игры и загрузчик, положите его в `mods`. Мод только клиентский — на сервер устанавливать не нужно. Fabric API не требуется, [Mod Menu](https://www.curseforge.com/minecraft/mc-mods/modmenu) — по желанию.
+**Minecraft:** 1.20–1.20.1 · 1.21–1.21.1 · 1.21.4 · 1.21.5 · 1.21.6–1.21.8 · 1.21.9–1.21.10 · 1.21.11 · 26.1–26.1.2 · 26.2 · 26.3.
 
-**Настройки → Анимация ввода…** открывает живой предпросмотр и кнопку **«Демо»**. Настройки также доступны из списка модов Forge/NeoForge или через Mod Menu на Fabric. Изменения применяются сразу; конфиг — `config/typinganimation.json`. Интерфейс переведён на русский и английский.
+Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. Book input is supported from Minecraft 1.21.6. Mods replacing the standard text renderer may conflict.
 
-**Совместимость:** версии перечислены выше. На NeoForge 1.20.1 используйте Forge-файл, проверенный с NeoForge 47.1.106. На Quilt 0.30.1 проверены Fabric-файлы для 1.20.1, 1.21.1, 1.21.11 и 26.2; для 26.3 проверена бета 0.31.0-beta.4, стабильная 0.30.1 её не загружает. Остальные версии на Quilt не проверялись. Таблички не анимируются, книги поддерживаются с 1.21.6; моды, заменяющие отрисовку поля ввода, могут конфликтовать.
+**Made by AlexFirst** · [Source code on GitHub](https://github.com/AlexFirst404/typing-animation) · **MIT** · Modpacks welcome.
 
-**Автор:** AlexFirst · **Исходный код:** [GitHub](https://github.com/AlexFirst404/typing-animation) · **Лицензия:** MIT. Можно включать в сборки.
+### 🇷🇺 Коротко на русском
+
+Плавный набор в чате, командах, поиске и **обычных и подвесных табличках**. **17 эффектов появления, 10 эффектов удаления**, отдельные длительность и интенсивность, 10 кривых плавности и «Авто».
+
+Курсор плавно движется по горизонтали и между строками. Настраиваются его скорость, цвет, толщина и форма: обычный, палка, подчёркивание или полупрозрачный блок. Три вкладки настроек, живой предпросмотр и «Демо» помогают подобрать свой вариант.
+
+**Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются, книги поддерживаются с 1.21.6. Автор — **AlexFirst**.

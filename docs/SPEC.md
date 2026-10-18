@@ -1,13 +1,13 @@
 # Typing Animation — engineering spec (source of truth for all contributors/agents)
 
 Client-side Minecraft mod: characters typed into any text field (chat, commands, anvil, search,
-world/server names, sign-less `EditBox` fields, and multi-line fields where feasible) appear with a
+world/server names, ordinary and hanging sign editors, and multi-line fields where feasible) appear with a
 smooth animation; deleted characters animate out; text re-flows and the caret glide smoothly.
 All code, texts and media of this project are original. Another mod with a similar idea, "Animated Typing"
 (Modrinth), is *All Rights Reserved*: never copy, paraphrase or port its code, names of its classes, its texts or
 its assets, and never describe this mod by comparison to it (Modrinth page, README, changelog).
 
-- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.0.2` · License: MIT
+- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.1.0` · License: MIT
 - Java package root: `dev.typinganimation`
 - Client only. Must never be required on servers; must never crash the game (see "Safety").
 - No dependency on Fabric API. Mod Menu integration on Fabric is optional (compileOnly).
@@ -119,7 +119,7 @@ unobfuscated 26.x), NeoForge/Forge use official names natively.
   `compileClasspath` in `scripts/target-common.gradle`) while the dev client runs the loader's own Mixin, so every
   injector `at`/`slice` is written in the single-value form that all Mixin and MixinExtras versions read (see the
   Fabric loader floors in section 1).
-- Output jar name: `typinganimation-1.0.2+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
+- Output jar name: `typinganimation-1.1.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
   (the only jar in `build/libs`; Fabric's remapJar, Forge 1.20.1's reobfJar and the plain jar task all produce it).
 - Mod metadata: id/name/version/license MIT/authors `AlexFirst`/description (see lang `typinganimation.description`
   in English)/icon `assets/typinganimation/icon.png`; client-only markers where the loader supports them
@@ -151,7 +151,8 @@ public enum Easing {                               // apply(0)==0 and apply(1)==
 }
 
 public enum AppearStyle {                          // how a newly typed char enters
-  NONE, FADE, SLIDE_UP, SLIDE_DOWN, SLIDE_LEFT, POP, GROW, STRETCH, DROP, SPIN, WAVE, SCRAMBLE;
+  NONE, FADE, SLIDE_UP, SLIDE_DOWN, SLIDE_LEFT, POP, GROW, STRETCH, DROP, SPIN, WAVE, SCRAMBLE,
+  SLIDE_RIGHT, ZOOM_OUT, FLIP, SWING, ROLL, SPIRAL;
   public Easing defaultEasing();
   /** t = linear progress (may be <0 for not-yet-revealed staggered chars -> fully hidden, alpha 0 unless NONE),
    *  e = eased progress, intensity = config multiplier, seed = per-char seed, nowMs for SCRAMBLE glyph cycling.
@@ -161,7 +162,7 @@ public enum AppearStyle {                          // how a newly typed char ent
 }
 
 public enum RemoveStyle {                          // how a deleted char leaves (ghost)
-  NONE, FADE, FALL, SHRINK, FLY_UP, SCATTER;
+  NONE, FADE, FALL, SHRINK, FLY_UP, SCATTER, SLIDE_LEFT, SLIDE_RIGHT, SPIN, SQUASH, SPIRAL;
   public Easing defaultEasing();
   /** t = linear progress 0..1 of the exit; at t>=1 the ghost is gone (alpha 0). */
   public void apply(float t, float e, float intensity, int seed, CharTransform out);
@@ -189,6 +190,10 @@ and are fully hidden (alpha 0) while t<0.
 Remove: FADE alpha=1-e · FALL dy=e*9, slight rotation, fade · SHRINK scale=1-e centre, fade ·
 FLY_UP dy=-e*9, fade · SCATTER dx/dy random direction from seed *6, rotation, fade.
 
+Version 1.1 adds appearance styles SLIDE_RIGHT, ZOOM_OUT, FLIP, SWING, ROLL and SPIRAL (17 active styles),
+and removal styles SLIDE_LEFT, SLIDE_RIGHT, SPIN, SQUASH and SPIRAL (10 active styles). Both enums retain NONE.
+Removal transforms use `removeIntensity`, independently of appearance `intensity`.
+
 ```java
 public final class TypingConfig {                  // plain mutable fields + defaults; clamp() enforces ranges
   public boolean enabled = true;
@@ -198,15 +203,21 @@ public final class TypingConfig {                  // plain mutable fields + def
   public int durationMs = 220;          // [40, 1000]
   public int removeDurationMs = 160;    // [40, 1000]
   public float intensity = 1.0f;        // [0.25, 3.0]
+  public float removeIntensity = 1.0f;  // [0.25, 3.0]
   public int staggerMs = 14;            // [0, 60]  per-char delay when several chars are inserted at once (paste, history)
-  public int maxStaggerMs = 350;        // [0, 2000] cap on total stagger spread (json only)
+  public int maxStaggerMs = 350;        // [0, 2000] cap on total stagger spread
   public boolean smoothReflow = true;   // chars glide to new x when text shifts / scrolls
   public boolean smoothCursor = true;   // caret glides
   public int glideMs = 55;              // [0, 300] time constant of glide smoothing
+  public int cursorGlideMs = 55;        // [0, 500] independent horizontal/vertical caret smoothing
+  public CursorStyle cursorStyle = CursorStyle.VANILLA; // VANILLA, BAR, UNDERLINE, BLOCK
+  public CursorColor cursorColor = CursorColor.VANILLA; // VANILLA, WHITE, LAVENDER, MINT, GOLD, AQUA, RED
+  public int cursorWidth = 1;           // [1, 4] bar width or underline thickness in GUI pixels
   public boolean animateChat = true;
   public boolean animateOtherFields = true;
   public boolean animateMultiline = true;
-  public boolean onlyWhenFocused = true;   // unfocused fields change instantly (json only)
+  public boolean animateSigns = true;
+  public boolean onlyWhenFocused = true;   // unfocused fields change instantly
   public boolean optionsButton = true;     // show button in vanilla Options screen
   public TypingConfig copy(); public void clamp(); public static TypingConfig defaults();
 }
@@ -220,9 +231,11 @@ public final class ConfigManager {                 // file: <configDir>/typingan
 }
 ```
 JSON: keys = field names, enums as lower-case names, missing/invalid values -> defaults, then clamp.
+Migration: a missing `removeIntensity` inherits the old `intensity`; a missing `cursorGlideMs` inherits
+the old `glideMs`. Existing tuning is preserved when upgrading.
 
 ```java
-public enum FieldKind { CHAT, OTHER, MULTILINE }
+public enum FieldKind { CHAT, OTHER, MULTILINE, SIGN }
   // helper: public static boolean isAnimated(FieldKind, TypingConfig)  (enabled && per-kind toggle)
 
 public final class FieldAnimationState {           // one per text widget instance
@@ -240,9 +253,9 @@ public final class FieldAnimationState {           // one per text widget instan
   public int ghostCount(); public Ghost ghost(int i);
   public boolean ghostTransform(Ghost g, TypingConfig cfg, CharTransform out);       // false => expired/invisible
   public float caretX(float targetX, TypingConfig cfg);   // smoothed caret x
-      // CALL ORDER per frame: beginFrame -> sync -> caretX (whenever the caret target is known, i.e. caret visible)
-      // -> isIdle -> layoutChar... -> ghosts -> endFrame. The caret must go through caretX on EVERY frame it is
-      // shown (idle or not); the idle fast path covers the text only.
+  public float caretY(float targetY, TypingConfig cfg);   // independently smoothed caret y
+      // Sample both axes every frame, including blink-off frames, using a stable editor/content origin.
+      // The idle text fast path must not skip caret updates. Selection snaps the caret to its native position.
   public boolean isIdle(TypingConfig cfg);
       // true when nothing animates: no active births, no ghosts, all laid-out chars settled, caret settled,
       // text/scrollKey/origin unchanged this frame. Renderers may then draw the vanilla way (layoutChar calls on
@@ -280,14 +293,19 @@ Hook the text drawing of `EditBox` (and `MultiLineEditBox`/`MultilineTextField` 
    and suggestion placement) so vanilla caret/selection/suggestion logic stays correct.
 4. Draw ghosts (`ghostTransform`) at their recorded positions, clipped to the widget's inner area where
    the version makes that easy.
-5. Caret: offset vanilla caret drawing by `state.caretX(target) - target` when `smoothCursor`.
+5. Caret: offset vanilla drawing by `state.caretX(targetX, cfg) - targetX` horizontally and
+   `state.caretY(targetY, cfg) - targetY` vertically. Both use `cursorGlideMs` when `smoothCursor` is enabled.
+   Sample both axes during blink-off frames, keep the editor/content origin stable across line changes,
+   and snap to the native selection edge while selecting. Custom shape, colour and thickness also apply at rest.
 6. When `state.isIdle(cfg)` the renderer may call the vanilla draw (still call `layoutChar` for every visible
    char so ghost positions are known). At rest the per-char output must be pixel-identical to vanilla.
 7. Alpha: never pass an alpha that the version's `Font` would treat as "opaque" by mistake (pre-1.21.6 `Font`
    forces alpha<4/255 to opaque) — skip drawing chars whose alpha < ~0.02 instead.
 8. Batch where cheap (e.g. 1.20.x `GuiGraphics#drawManaged`) — per-char `flush` storms must be avoided.
 9. Field kind: chat input is `FieldKind.CHAT` (mark it from a `ChatScreen` mixin), multi-line = `MULTILINE`,
-   everything else `OTHER`. State lives on the widget via a duck interface `dev.typinganimation.mc.TypingStateHolder`.
+   ordinary/hanging sign editors = `SIGN`, everything else = `OTHER`. Widget state uses the duck interface
+   `dev.typinganimation.mc.TypingStateHolder`; sign editors use `SignStateHolder`, with one text state per line
+   and a separate two-dimensional caret state.
 
 Mixins: **plain Mixin only** (`@Inject`, `@Redirect`, `@ModifyArg`, `@ModifyVariable`, `@Shadow`, `@Accessor`,
 `@Invoker`, `@Unique`) in every group — Forge 1.20.1 and 1.21.1–1.21.9 do not bundle MixinExtras, and one uniform
@@ -337,10 +355,12 @@ Both are exact at rest; the self-test of the render-state groups additionally tr
   (focused, hint text; vanilla draws a hint only in unfocused boxes, so the hint is the grey suggestion while the
   preview is empty, and clicking a button or releasing a slider gives the focus back to the preview) + "Demo"
   button that auto-types a localized sample phrase with human-like timing then erases part of it (loops until
-  pressed again); two-column grid (150 px buttons, 22 px row step) with:
-  `enabled`, `appearStyle`, `removeStyle`, `easing`, `durationMs` (slider), `intensity` (slider),
-  `staggerMs` (slider), `glideMs` (slider), `smoothReflow`, `smoothCursor`, `animateChat`,
-  `animateOtherFields`, `animateMultiline` (only if multi-line is supported in this group), `optionsButton`;
+  pressed again); three tabs with a two-column grid (150 px buttons, 22 px row step):
+  Animations: `enabled`, `appearStyle`, `removeStyle`, `easing`, `durationMs`, `removeDurationMs`,
+  `intensity`, `removeIntensity`, `staggerMs`, `maxStaggerMs`;
+  Cursor: `smoothCursor`, `cursorGlideMs`, `cursorStyle`, `cursorColor`, `cursorWidth`, `smoothReflow`, `glideMs`;
+  Where to animate: `animateChat`, `animateOtherFields`, `animateMultiline` (only where supported),
+  `animateSigns`, `onlyWhenFocused`, `optionsButton`;
   tooltips for each; bottom row "Reset" + "Done". Changes apply live; saved on Done/close. While `enabled` is
   off every other option except `optionsButton` is greyed out. Slider labels: "220 ms", "14 ms/char", intensity
   "1x" / "1.5x" / "1.25x" (no trailing zeros); arrow keys move a slider by exactly one step.
@@ -353,7 +373,7 @@ Both are exact at rest; the self-test of the render-state groups additionally tr
 - **Mods list**: NeoForge/Forge register the config screen factory; Fabric provides a Mod Menu entrypoint
   (compileOnly Mod Menu matching the MC version; skip if none exists for that version).
 
-Lang keys (en_us + ru_ru, both complete, and nothing else: the json-only config fields have no translations;
+Lang keys (en_us + ru_ru, both complete, and nothing else;
 core's LangFilesTest fails on missing and on unused keys):
 ```
 typinganimation.title, typinganimation.description, typinganimation.options.button,
@@ -361,7 +381,8 @@ typinganimation.config.preview.hint, typinganimation.config.demo, typinganimatio
 typinganimation.config.demo.text, typinganimation.config.reset, typinganimation.config.done,
 typinganimation.config.<field> and typinganimation.config.<field>.tooltip for every UI field above
 typinganimation.config.ms (format "%s ms"), typinganimation.config.ms_per_char ("%s ms/char"),
-typinganimation.config.multiplier ("%sx"), typinganimation.appear.*, typinganimation.remove.*, typinganimation.easing.*
+typinganimation.config.multiplier ("%sx"), typinganimation.appear.*, typinganimation.remove.*, typinganimation.easing.*,
+typinganimation.config.page.*, typinganimation.cursor.style.*, typinganimation.cursor.color.*
 ```
 
 ## 7. `target.properties`

@@ -1,0 +1,36 @@
+## Build & contribute
+
+Each `targets/<Minecraft>-<loader>/` directory is an independent Gradle project. Shared animation code lives in `core/`, Minecraft integrations in `mc/<version>/`, and translations and the pixel logo in `common-resources/`.
+
+Install JDK **17, 21 and 25**. Build scripts discover them automatically; use `JDK17_HOME`, `JDK21_HOME` and `JDK25_HOME` for custom locations. Gradle runs on JDK 21 for Forge/NeoForge and JDK 25 for Fabric; toolchains select the compilation version.
+
+```bash
+bash scripts/build-all.sh
+# Windows without Bash:
+powershell -ExecutionPolicy Bypass -File scripts/build-all.ps1
+
+# One target / an actual in-game test:
+bash scripts/run-target.sh 26.3-neoforge build
+bash scripts/run-target.sh 26.3-neoforge selftest
+```
+
+Release JARs are collected in `dist/`. Always use `--no-daemon` for direct Gradle commands. The standalone `core` Gradle project contains the JUnit tests.
+
+In-game self-tests exercise mixin application, typing, deletion, selections, scrolling, animation styles, both sign editors and all settings tabs. They compare settled text against vanilla pixels, save screenshots, report `SELFTEST PASS` or `SELFTEST FAIL`, then close the client.
+
+```bash
+# Record actual Minecraft UI and build GIFs/screenshots:
+bash scripts/make-gallery.sh
+# Regenerate the two identical platform descriptions and this README:
+node scripts/sync-description.mjs
+node scripts/sync-description.mjs --check
+# Validate release kits without uploading:
+node scripts/modrinth-publish.mjs
+node scripts/curseforge-publish.mjs
+```
+
+The media recorder creates a disposable showcase world and saves frames in the system temporary directory. `tools/MakeGif.java` produces the GIFs in `modrinth/gallery/`. The same media are used on all three platforms.
+
+**Documentation:** [Engineering spec](docs/SPEC.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
+
+**По-русски:** для сборки нужны JDK 17, 21 и 25; готовые JAR находятся в `dist/`. Команда `selftest` запускает проверку в настоящем клиенте Minecraft. Общее описание для Modrinth, CurseForge и GitHub редактируется в `docs/project-description.md` и переносится командой `node scripts/sync-description.mjs`.

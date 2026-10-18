@@ -6,20 +6,21 @@ import java.util.Arrays;
  * Animation state of one text widget instance. Per frame the renderer calls, in this order:
  * <ol>
  *   <li>{@link #beginFrame}, {@link #sync};</li>
- *   <li>{@link #caretX} with this frame's caret target, as soon as that target is known — preferably here,
+ *   <li>{@link #caretX} and (for multi-line renderers) {@link #caretY} with this frame's caret targets,
+ *       as soon as those targets are known — preferably here,
  *       before {@link #isIdle}, so that {@code isIdle} also sees a caret move that starts in this frame;</li>
  *   <li>optionally {@link #isIdle};</li>
  *   <li>{@link #layoutChar} for every visible character with {@link #appearTransform}, the ghosts
  *       ({@link #ghostCount}/{@link #ghost}/{@link #ghostTransform});</li>
- *   <li>{@link #caretX}, if it was not called before {@code isIdle};</li>
+ *   <li>{@link #caretX} / {@link #caretY}, if not called before {@code isIdle};</li>
  *   <li>{@link #endFrame}.</li>
  * </ol>
  * The idle fast path ({@code isIdle} true: the text may be drawn the vanilla way) covers the <em>text only</em>.
- * The caret must go through {@link #caretX} on every frame in which the field shows a caret, idle or not.
- * {@code isIdle} judges the caret by the most recent {@code caretX} call. When {@code caretX} comes after
+ * The caret must go through its axis methods on every frame in which the field shows a caret, idle or not.
+ * {@code isIdle} judges each caret axis by its most recent call. When a caret axis is updated after
  * {@code isIdle}, a caret-only move (arrow keys, Home/End, click) that starts in this frame is visible to
  * {@code isIdle} only from the next frame on. That is harmless because the settled text is pixel-identical on
- * both paths, but the caret itself must still be drawn at {@code caretX}'s result.
+ * both paths, but the caret itself must still be drawn at the smoothed axis results.
  *
  * <p>Per-character data is kept in parallel arrays indexed by UTF-16 index of the current value; an edit is
  * detected as common prefix + common suffix (never splitting a surrogate pair) and the arrays are shifted so
@@ -107,11 +108,8 @@ public final class FieldAnimationState {
     private final CharTransform scratch = new CharTransform();
 
     // ------------------------------------------------ caret
-    private boolean caretValid;
-    private float caretSmooth;
-    private long caretLastMs;
-    private long caretFrame = -1;
-    private boolean caretUnsettled;
+    private final CaretAxis caretHorizontal = new CaretAxis();
+    private final CaretAxis caretVertical = new CaretAxis();
 
     /**
      * Starts a frame. dt since the previous frame is clamped to 0..100 ms. The first frame and any change of the
@@ -410,7 +408,7 @@ public final class FieldAnimationState {
         }
         final Easing easing = cfg.easing == null ? Easing.AUTO : cfg.easing;
         final float e = easing.resolve(style.defaultEasing()).apply(t);
-        style.apply(t, e, cfg.intensity, g.seed, out);
+        style.apply(t, e, cfg.removeIntensity, g.seed, out);
         if (g.hasStartPose) {
             // every RemoveStyle pivots around the cell centre, like the stored start pose
             out.dx += g.startDx;
@@ -429,42 +427,56 @@ public final class FieldAnimationState {
 
     /**
      * Smoothed caret x (exponential smoothing with the caret's own dt, clamped to 0..100 ms). Returns
-     * {@code targetX} when smoothCursor is off, glideMs is 0, the field is not animated this frame, on the first
+     * {@code targetX} when smoothCursor is off, cursorGlideMs is 0, the field is not animated this frame, on the first
      * call and on snap frames. Call it after {@link #sync} on every frame in which the field shows a caret,
      * including idle frames (see the class comment): preferably before {@link #isIdle}, so that a caret move
      * starting this frame makes the frame non-idle. Idle frames do not snap the caret. Further calls in the same
      * frame do not advance the glide.
      */
     public float caretX(float targetX, TypingConfig cfg) {
+        return caretAxis(targetX, cfg, caretHorizontal);
+    }
+
+    /**
+     * Smoothed caret y, independent of {@link #caretX}. Pass both targets in the same coordinate space as
+     * {@link #layoutChar} and keep the widget's {@link #beginFrame} origin stable when only the caret changes
+     * line. Each axis advances at most once per frame; X and Y may be called in either order. The first call
+     * to each axis snaps, including when a single-line renderer starts using vertical caret animation later.
+     */
+    public float caretY(float targetY, TypingConfig cfg) {
+        return caretAxis(targetY, cfg, caretVertical);
+    }
+
+    private float caretAxis(float target, TypingConfig cfg, CaretAxis axis) {
         if (cfg == null) cfg = FALLBACK;
         float x;
-        final boolean smooth = cfg.enabled && cfg.smoothCursor && cfg.glideMs > 0 && animateThisFrame && caretValid
-                && !snapThisFrame && Float.isFinite(targetX) && Float.isFinite(caretSmooth);
+        final boolean smooth = cfg.enabled && cfg.smoothCursor && cfg.cursorGlideMs > 0 && animateThisFrame && axis.valid
+                && !snapThisFrame && Float.isFinite(target) && Float.isFinite(axis.smooth);
         if (!smooth) {
-            x = targetX;
-        } else if (caretFrame == frameId) {
-            x = caretSmooth;
-            if (!(Math.abs(targetX - x) >= SNAP_EPSILON)) x = targetX;
+            x = target;
+        } else if (axis.frame == frameId) {
+            x = axis.smooth;
+            if (!(Math.abs(target - x) >= SNAP_EPSILON)) x = target;
         } else {
-            long d = nowMs - caretLastMs;
+            long d = nowMs - axis.lastMs;
             float dt = d <= 0L ? 0f : (float) Math.min(d, MAX_DT_MS);
-            float a = (float) (1.0 - Math.exp(-dt / (double) cfg.glideMs));
-            x = caretSmooth + (targetX - caretSmooth) * a;
+            float a = (float) (1.0 - Math.exp(-dt / (double) cfg.cursorGlideMs));
+            x = axis.smooth + (target - axis.smooth) * a;
             // no progress = the float increment rounded away: stop instead of stalling off target (see layoutChar)
-            if (!(Math.abs(targetX - x) >= SNAP_EPSILON) || (a > 0f && x == caretSmooth)) x = targetX;
+            if (!(Math.abs(target - x) >= SNAP_EPSILON) || (a > 0f && x == axis.smooth)) x = target;
         }
-        caretSmooth = x;
-        caretValid = true;
-        caretLastMs = nowMs;
-        caretFrame = frameId;
-        caretUnsettled = x != targetX && Float.isFinite(targetX);
+        axis.smooth = x;
+        axis.valid = true;
+        axis.lastMs = nowMs;
+        axis.frame = frameId;
+        axis.unsettled = x != target && Float.isFinite(target);
         return x;
     }
 
     /**
      * True when the <em>text</em> does not animate: no active births, no live ghosts, all chars laid out last
      * frame (and so far this frame) settled, and text, scrollKey and origin unchanged this frame; also the caret
-     * as far as known: the most recent {@link #caretX} call left it settled (a caret not queried this or last
+     * as far as known: the most recent {@link #caretX}/{@link #caretY} calls left both axes settled (an axis not queried this or last
      * frame counts as settled). Always true when {@code cfg.enabled} is false. When true, this frame's
      * {@link #layoutChar} calls snap to their targets and the renderer may draw the text the vanilla way.
      *
@@ -480,7 +492,7 @@ public final class FieldAnimationState {
             idle = true;
         } else {
             // a caret that was not queried this or last frame is not drawn (unfocused/blink) -> not animating
-            boolean caretBusy = caretUnsettled && caretFrame >= frameId - 1;
+            boolean caretBusy = caretHorizontal.busy(frameId) || caretVertical.busy(frameId);
             idle = frameId > 0 && !snapThisFrame && !scrollChangedThisFrame && textChangedFrame != frameId
                     && !unsettledLastFrame && !unsettledThisFrame && !caretBusy
                     && !birthsActive(cfg) && !ghostsActive(cfg);
@@ -522,14 +534,31 @@ public final class FieldAnimationState {
         unsettledThisFrame = false;
         unsettledLastFrame = false;
         latestBirth = NO_BIRTH;
-        caretValid = false;
-        caretUnsettled = false;
-        caretFrame = -1;
+        caretHorizontal.reset();
+        caretVertical.reset();
         animateThisFrame = true;
         alphaFrame = -1;
     }
 
     // ------------------------------------------------------------------ internals
+
+    /** Reused axis state; caret-only animation allocates nothing per frame. */
+    private static final class CaretAxis {
+        boolean valid, unsettled;
+        float smooth;
+        long lastMs;
+        long frame = -1;
+
+        boolean busy(long frameId) {
+            return unsettled && frame >= frameId - 1;
+        }
+
+        void reset() {
+            valid = false;
+            unsettled = false;
+            frame = -1;
+        }
+    }
 
     private boolean birthsActive(TypingConfig cfg) {
         if (latestBirth == NO_BIRTH || cfg.appearStyle == null || cfg.appearStyle == AppearStyle.NONE) {

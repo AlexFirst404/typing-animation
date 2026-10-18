@@ -10,4 +10,8 @@ import net.minecraft.util.FormattedCharSequence;
 public interface EditBoxAccess {
     /** The widget's formatted form of {@code text}, which starts at index {@code offset} of the value. */
     FormattedCharSequence typinganimation$format(String text, int offset);
+
+    int typinganimation$maxLength();
+
+    int typinganimation$highlightPos();
 }

@@ -59,6 +59,14 @@ public abstract class MultiLineEditBoxMixin extends AbstractTextAreaWidget imple
     private void typinganimation$begin(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         TypingRenderer.beginMultiline(typinganimation$animation(), this, graphics, getInnerLeft(), getInnerTop(),
                 scrollAmount(), textField.value(), isFocused());
+        List<?> lines = ((MultilineTextFieldAccessor) (Object) textField).typinganimation$displayLines();
+        if (!lines.isEmpty()) {
+            int line = textField.cursor() >= textField.value().length() ? lines.size() - 1
+                    : Math.max(0, Math.min(lines.size() - 1, textField.getLineAtCursor()));
+            int begin = ((StringViewAccessor) lines.get(line)).typinganimation$beginIndex();
+            TypingRenderer.trackMultilineCaret(typinganimation$animation(), this, font, textField.value(),
+                    textField.cursor(), begin, line, textField.hasSelection());
+        }
     }
 
     /** Absolute index of the first char of the line drawn at {@code y}, or -1 when it can not be determined. */

@@ -40,6 +40,7 @@ class AllocationTest {
             }
         }
         sink += st.caretX(caretTarget, cfg);
+        sink += st.caretY(caretTarget % 18f, cfg);
         st.endFrame();
     }
 

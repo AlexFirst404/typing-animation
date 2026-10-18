@@ -3,6 +3,8 @@ package dev.typinganimation.mc;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.typinganimation.core.AppearStyle;
 import dev.typinganimation.core.ConfigManager;
+import dev.typinganimation.core.CursorColor;
+import dev.typinganimation.core.CursorStyle;
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.core.RemoveStyle;
 import dev.typinganimation.core.TypingAnimationMod;
@@ -59,9 +61,9 @@ import java.util.function.BooleanSupplier;
  * world, builds a small scene, and then uses the real chat through the real input path - the chat key opens the
  * {@link ChatScreen}, text arrives through {@code KeyboardHandler#charTyped} and editing keys through
  * {@code KeyboardHandler#keyPress} with SDL key codes - while {@link ShowcaseRecorder} saves every frame of a clip
- * with a deterministic animation clock. Clips: chat typing (reflow, deletion, paste wave, sending), command typing
- * with highlighting and a completion, several appear styles; stills: the options button and the settings screen in
- * English and Russian. It asserts that the real chat input is {@link FieldKind#CHAT}, that animated glyphs were drawn
+ * with a deterministic animation clock. Clips cover chat typing, commands, appearance/removal styles, a customized
+ * gliding caret, both vanilla sign editors and the three live settings pages. Stills include the world, sign editors,
+ * Options and settings in English/Russian. It asserts that the real chat input is {@link FieldKind#CHAT}, animated glyphs were drawn
  * in the chat screen and that the renderer never fell back, then logs {@code SHOWCASE DONE} or
  * {@code SHOWCASE FAIL: ...} and stops the client. Frames go to {@code TYPINGANIMATION_SHOWCASE_OUT} (default: the
  * system temp directory), see scripts/make-gallery.sh.
@@ -88,6 +90,14 @@ public final class Showcase {
             {AppearStyle.SCRAMBLE, RemoveStyle.FLY_UP, "Scramble decodes text"},
             {AppearStyle.WAVE, RemoveStyle.SCATTER, "Wave makes it ripple"},
             {AppearStyle.DROP, RemoveStyle.FALL, "Drop lands softly"},
+    };
+    private static final Object[][] NEW_STYLES = {
+            {AppearStyle.SLIDE_RIGHT, RemoveStyle.SLIDE_LEFT, "Slide right into place"},
+            {AppearStyle.ZOOM_OUT, RemoveStyle.SQUASH, "Zoom out, settle in"},
+            {AppearStyle.FLIP, RemoveStyle.SPIN, "Flip each new letter"},
+            {AppearStyle.SWING, RemoveStyle.SLIDE_RIGHT, "Swing into the chat"},
+            {AppearStyle.ROLL, RemoveStyle.SPIRAL, "Roll along the line"},
+            {AppearStyle.SPIRAL, RemoveStyle.SPIRAL, "Spiral into your words"},
     };
     private static final long START_TIMEOUT_MS = 300_000L;
     private static final long RUN_TIMEOUT_MS = 1_200_000L;
@@ -400,14 +410,41 @@ public final class Showcase {
         endClip();
         waitMs(500);
 
-        // --- clip "styles" (1280x720, the GIF is a close-up of the input): other appear and remove styles,
-        //     switched in the config between the phrases (the chat lines, wider than the close-up, are hidden)
+        // --- close-ups of the real chat: established effects, the new styles, and the customizable caret.
         act("hide the chat lines", () -> chat().clearMessages(false));
-        startClip("styles");
+        styleShowcase("styles", STYLES);
+        styleShowcase("new-styles", NEW_STYLES);
+        cursorShowcase();
+        signShowcase();
+
+        // --- stills: the Options button and the settings screen (English, Russian)
+        act("settings and UI scale", () -> {
+            cfg().copyFrom(TypingConfig.defaults());
+            configureCursor();
+            setGuiScale(UI_GUI_SCALE);
+        });
+        settingsStills("en_us", "config-screen-en", true);
+        act("Russian", () -> setLanguage("ru_ru"));
+        settingsStills("ru_ru", "config-screen-ru", false);
+        act("English", () -> setLanguage("en_us"));
+        settingsShowcase();
+
+        // --- checks, cleanup
+        act("final checks", this::finalChecks);
+        until("frames written", () -> rec.pending() == 0, 60_000);
+        act("write the manifest", this::writeManifest);
+        act("restore settings", this::restoreSettings);
+        act("leave the world", () -> mc.disconnectFromWorld(Component.literal("Showcase done")));
+        until("back on the title screen", () -> mc.level == null && mc.gui.screen() instanceof TitleScreen, 120_000);
+    }
+
+    /** Phrases stay inside the close-up; the settings genuinely change between samples. */
+    private void styleShowcase(String name, Object[][] styles) {
+        startClip(name);
         waitMs(400);
         openChat();
         waitMs(400);
-        for (Object[] s : STYLES) {
+        for (Object[] s : styles) {
             AppearStyle appear = (AppearStyle) s[0];
             RemoveStyle remove = (RemoveStyle) s[1];
             String phrase = (String) s[2];
@@ -416,6 +453,8 @@ public final class Showcase {
                         + phrase + " (" + mc.font.width(phrase) + " px)");
                 cfg().appearStyle = appear;
                 cfg().removeStyle = remove;
+                cfg().durationMs = 320;
+                cfg().removeDurationMs = 260;
             });
             type(phrase, -1);
             waitMs(650);
@@ -427,24 +466,134 @@ public final class Showcase {
         press("close the chat", InputConstants.KEY_ESCAPE, KEYCODE_ESCAPE, 0);
         until("chat closed", () -> mc.gui.screen() == null, 3000);
         endClip();
+    }
 
-        // --- stills: the Options button and the settings screen (English, Russian)
-        act("default settings, UI scale", () -> {
+    /** The caret travels under real editing keys; the lavender bar is drawn by the mod, not an overlay. */
+    private void cursorShowcase() {
+        long[] before = new long[1];
+        act("cursor appearance", () -> {
             cfg().copyFrom(TypingConfig.defaults());
-            setGuiScale(UI_GUI_SCALE);
+            configureCursor();
+            before[0] = TypingRenderer.statCaretOffsets;
         });
-        settingsStills("en_us", "config-screen-en", true);
-        act("Russian", () -> setLanguage("ru_ru"));
-        settingsStills("ru_ru", "config-screen-ru", false);
-        act("English", () -> setLanguage("en_us"));
+        startClip("smooth-cursor");
+        openChat();
+        waitMs(400);
+        type("A cursor that follows you", -1);
+        waitMs(500);
+        press("cursor Home", InputConstants.KEY_HOME, InputConstants.KEYCODE_HOME, 0);
+        waitMs(650);
+        press("cursor End", InputConstants.KEY_END, InputConstants.KEYCODE_END, 0);
+        waitMs(650);
+        pressRepeated("cursor left", 11, InputConstants.KEY_LEFT, InputConstants.KEYCODE_LEFT, 0);
+        waitMs(450);
+        type("gently ", -1);
+        waitMs(600);
+        press("cursor End again", InputConstants.KEY_END, InputConstants.KEYCODE_END, 0);
+        waitMs(650);
+        act("cursor moved smoothly", () -> {
+            check(TypingRenderer.statCaretOffsets > before[0], "no smooth caret movement in the cursor clip");
+            check("A cursor that gently follows you".equals(chatInput().getValue()), "unexpected cursor demo text");
+        });
+        endClip();
+        press("close the chat", InputConstants.KEY_ESCAPE, KEYCODE_ESCAPE, 0);
+        until("chat closed", () -> mc.gui.screen() == null, 3000);
+    }
 
-        // --- checks, cleanup
-        act("final checks", this::finalChecks);
-        until("frames written", () -> rec.pending() == 0, 60_000);
-        act("write the manifest", this::writeManifest);
-        act("restore settings", this::restoreSettings);
-        act("leave the world", () -> mc.disconnectFromWorld(Component.literal("Showcase done")));
-        until("back on the title screen", () -> mc.level == null && mc.gui.screen() instanceof TitleScreen, 120_000);
+    /** Both vanilla sign editors, including normal dye and hanging glow text, use real keyboard input/rendering. */
+    private void signShowcase() {
+        act("sign settings", () -> {
+            cfg().copyFrom(TypingConfig.defaults());
+            configureCursor();
+            cfg().appearStyle = AppearStyle.SWING;
+            cfg().removeStyle = RemoveStyle.SPIRAL;
+            cfg().durationMs = 320;
+            cfg().removeDurationMs = 280;
+        });
+        startClip("signs");
+        signSample(false, new String[]{"Welcome home", "AlexFirst", "Type with style"}, "normal-sign");
+        signSample(true, new String[]{"Hello there", "AlexFirst", "Smooth type", "Enjoy!"}, "hanging-sign");
+        endClip();
+        act("leave sign editor", () -> mc.gui.setScreen(null));
+    }
+
+    private void signSample(boolean hanging, String[] lines, String still) {
+        Screen[] sign = new Screen[1];
+        act("open " + still, () -> {
+            sign[0] = SignSelfTest.create(hanging);
+            mc.gui.setScreen(sign[0]);
+        });
+        waitMs(450);
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                press("next sign line", InputConstants.KEY_DOWN, InputConstants.KEYCODE_DOWN, 0);
+                waitMs(300);
+            }
+            type(lines[i], -1);
+            waitMs(300);
+        }
+        waitMs(350);
+        act("sign still " + still, () -> rec.markStill(still));
+        waitMs(300);
+        pressRepeated("backspace on sign", 3, InputConstants.KEY_BACKSPACE, InputConstants.KEYCODE_BACKSPACE, 0);
+        waitMs(400);
+        type(lines[lines.length - 1].substring(lines[lines.length - 1].length() - 3), -1);
+        press("sign Home", InputConstants.KEY_HOME, InputConstants.KEYCODE_HOME, 0);
+        waitMs(450);
+        press("sign End", InputConstants.KEY_END, InputConstants.KEYCODE_END, 0);
+        waitMs(450);
+        press("previous sign line", InputConstants.KEY_UP, InputConstants.KEYCODE_UP, 0);
+        waitMs(450);
+        act("check " + still, () -> {
+            SignStateHolder state = (SignStateHolder) sign[0];
+            for (int i = 0; i < lines.length; i++) {
+                check(lines[i].equals(state.typinganimation$signMessage(i)), "unexpected text on " + still + " line " + i);
+            }
+            SignAnimation animation = state.typinganimation$signAnimation();
+            check(animation.animatedFrames > 0 && animation.ghostFrames > 0,
+                    "no typing/deletion animation in " + still);
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0,
+                    "no two-dimensional cursor glide in " + still);
+        });
+        waitMs(400);
+    }
+
+    /** An 800x480 full interface clip keeps every label readable without resampling. */
+    private void settingsShowcase() {
+        ConfigScreen[] config = new ConfigScreen[1];
+        act("compact settings window", () -> {
+            mc.getWindow().setWindowed(SMALL_WIDTH, SMALL_HEIGHT);
+            setGuiScale(WORLD_GUI_SCALE);
+            cfg().copyFrom(TypingConfig.defaults());
+            configureCursor();
+            cfg().appearStyle = AppearStyle.SPIRAL;
+            cfg().removeStyle = RemoveStyle.SPIN;
+        });
+        waitMs(1200);
+        act("check settings frame", () -> checkFrameSize(SMALL_WIDTH, SMALL_HEIGHT, WORLD_GUI_SCALE));
+        act("open settings for preview", () -> {
+            config[0] = new ConfigScreen(new PauseScreen(true));
+            mc.gui.setScreen(config[0]);
+        });
+        startClip("settings-tabs");
+        waitMs(350);
+        act("settings live demo", () -> click(config[0], config[0].demoButton()));
+        waitMs(2200);
+        act("cursor settings tab", () -> config[0].showPage(1));
+        waitMs(2200);
+        act("behaviour settings tab", () -> config[0].showPage(2));
+        waitMs(1800);
+        act("animations settings tab", () -> config[0].showPage(0));
+        waitMs(1800);
+        endClip();
+        act("close settings", () -> mc.gui.setScreen(null));
+    }
+
+    private static void configureCursor() {
+        cfg().cursorStyle = CursorStyle.BAR;
+        cfg().cursorColor = CursorColor.LAVENDER;
+        cfg().cursorWidth = 2;
+        cfg().cursorGlideMs = 120;
     }
 
     /** Options screen (still "options-button" when {@code optionsStill}), our button, the settings demo mid-typing. */
@@ -484,6 +633,16 @@ public final class Showcase {
         waitMs(Math.round(2 * ShowcaseRecorder.FRAME_MS));
         act("settings still", () -> rec.markStill(still));
         waitMs(300);
+        if (optionsStill) {
+            act("cursor settings", () -> config[0].showPage(1));
+            waitMs(450);
+            act("cursor settings still", () -> rec.markStill("cursor-settings"));
+            waitMs(350);
+            act("behaviour settings", () -> config[0].showPage(2));
+            waitMs(450);
+            act("behaviour settings still", () -> rec.markStill("behaviour-settings"));
+            waitMs(350);
+        }
         act("done", () -> click(config[0], config[0].doneButton()));
         waitMs(200);
         act("back to the game", () -> mc.gui.setScreen(null));

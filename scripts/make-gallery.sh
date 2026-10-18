@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Regenerates the Modrinth gallery media in modrinth/gallery/ from the dev showcase of the 26.3 client.
-#   bash scripts/make-gallery.sh           record (a Minecraft window opens for about 2 minutes), then build the media
+#   bash scripts/make-gallery.sh           record the game demonstrations, then build the media
 #   bash scripts/make-gallery.sh --reuse   only rebuild the media from the frames of the last recording
 # The showcase (mc/26.3 Showcase, TYPINGANIMATION_SHOWCASE=1) creates a superflat world, types into the real chat and
 # saves every frame of its clips as PNG to $SHOWCASE_OUT (default: <temp>/typinganimation-showcase, never inside the
 # repository); tools/MakeGif.java turns the clips into GIFs. The crops below assume the frame sizes the showcase
-# checks (800x480 for chat/command, 1280x720 for the rest; a HiDPI desktop scale would change them).
+# checks (800x480 for chat/command/settings, 1280x720 for the rest; a HiDPI desktop scale would change them).
 set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARGET="${SHOWCASE_TARGET:-26.3-neoforge}"
@@ -24,7 +24,7 @@ fi
 MANIFEST="$OUT/manifest.properties"
 [ -f "$MANIFEST" ] || { echo "no showcase recording in $OUT (run without --reuse)"; exit 1; }
 prop() { sed -n "s/^$1=//p" "$MANIFEST" | tr -d '\r'; }
-for clip in chat:800x480 command:800x480 world:1280x720 styles:1280x720; do
+for clip in chat:800x480 command:800x480 world:1280x720 styles:1280x720 new-styles:1280x720 smooth-cursor:1280x720 signs:1280x720 settings-tabs:800x480; do
   name="${clip%%:*}"; size="${clip#*:}"
   if [ "$(prop "clip.$name.size")" != "$size" ]; then
     echo "clip $name was recorded at '$(prop "clip.$name.size")', the crops expect $size"; exit 1
@@ -42,8 +42,14 @@ gif chat chat-typing.gif --crop 0,248,800,232 --hold-last 300
 gif command command-highlighting.gif --crop 0,200,800,280 --hold-last 300
 # close-up of the input line left of the hotbar (1280x720 frame, GUI scale 2), shown at 2x
 gif styles styles.gif --crop 0,620,400,100 --scale 2 --hold-last 300
+gif new-styles new-styles.gif --crop 0,620,400,100 --scale 2 --hold-last 300
+gif smooth-cursor smooth-cursor.gif --crop 0,620,400,100 --scale 2 --hold-last 500
+# Both vanilla sign editors and their titles; an integer close-up keeps the moving letters sharp.
+gif signs signs.gif --crop 440,70,400,280 --scale 2 --hold-last 500
+# The compact settings recording is already 800x480; every page and the running demo stay in view.
+gif settings-tabs settings-tabs.gif --hold-last 400
 
-for still in chat-in-world options-button config-screen-en config-screen-ru; do
+for still in chat-in-world options-button config-screen-en config-screen-ru normal-sign hanging-sign cursor-settings behaviour-settings; do
   cp "$OUT/stills/$still.png" "$GALLERY/$still.png"
 done
 ls -l "$GALLERY"

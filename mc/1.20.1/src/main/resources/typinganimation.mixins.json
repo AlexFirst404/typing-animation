@@ -4,6 +4,7 @@
   "package": "dev.typinganimation.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "AbstractSignEditScreenMixin",
     "ChatScreenMixin",
     "EditBoxMixin",
     "LanguageManagerMixin",

@@ -62,6 +62,8 @@ public final class SelfTest {
     private int stepIndex, stepTicks;
     private TypingConfig original;
     private SelfTestScreen screen;
+    private Screen signScreen;
+    private TypingConfig beforeSignTest;
     private String asyncFailure;
     private boolean asyncDone;
     private Button optionsButton;
@@ -376,6 +378,127 @@ public final class SelfTest {
         });
         waitFor(0, "fidelity screenshot", 40, () -> !screen.capturePending());
 
+        run(1, "prepare sign editing tests", () -> {
+            beforeSignTest = ConfigManager.get().copy();
+            ConfigManager.get().copyFrom(TypingConfig.defaults());
+            ConfigManager.get().durationMs = 500;
+            ConfigManager.get().removeDurationMs = 500;
+            ConfigManager.get().cursorGlideMs = 180;
+        });
+        run(1, "open normal sign editor", () -> {
+            signScreen = SignSelfTest.create(false);
+            mc.setScreen(signScreen);
+        });
+        waitFor(1, "sign editor rendered", 100, () -> ((SignStateHolder) signScreen).typinganimation$signAnimation().frames >= 3);
+        run(1, "type sign S", () -> {
+            SignSelfTest.type(signScreen, 'S');
+        });
+        run(1, "type sign I", () -> {
+            SignSelfTest.type(signScreen, 'I');
+        });
+        run(1, "type sign G", () -> {
+            SignSelfTest.type(signScreen, 'G');
+        });
+        run(1, "type sign N", () -> {
+            SignSelfTest.type(signScreen, 'N');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "move sign caret left", () -> {
+            SignSelfTest.left(signScreen);
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "delete sign character", () -> {
+            SignSelfTest.backspace(signScreen);
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "check sign deletion", () -> {
+            check("SIN".equals(((SignStateHolder) signScreen).typinganimation$signMessage(0)), "sign deletion changed the wrong text");
+        });
+        run(1, "type sign line 1", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'B');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "type sign line 2", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'C');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "type sign line 3", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'D');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "verify normal sign animation", () -> {
+            SignStateHolder holder = (SignStateHolder) signScreen;
+            SignAnimation animation = holder.typinganimation$signAnimation();
+            check(holder.typinganimation$signLine() == 3, "sign caret did not reach the fourth line");
+            check("B".equals(holder.typinganimation$signMessage(1)) && "C".equals(holder.typinganimation$signMessage(2))
+                    && "D".equals(holder.typinganimation$signMessage(3)), "sign edits were applied to the wrong line");
+            check(animation.animatedFrames > 0, "sign characters did not animate");
+            check(animation.ghostFrames > 0, "sign deletion ghosts were never drawn");
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0, "sign caret did not glide between lines");
+            check(TypingRenderer.firstError == null, "sign animation render error");
+        });
+        run(1, "open hanging sign editor", () -> {
+            signScreen = SignSelfTest.create(true);
+            mc.setScreen(signScreen);
+        });
+        waitFor(1, "sign editor rendered", 100, () -> ((SignStateHolder) signScreen).typinganimation$signAnimation().frames >= 3);
+        run(1, "type sign S", () -> {
+            SignSelfTest.type(signScreen, 'S');
+        });
+        run(1, "type sign I", () -> {
+            SignSelfTest.type(signScreen, 'I');
+        });
+        run(1, "type sign G", () -> {
+            SignSelfTest.type(signScreen, 'G');
+        });
+        run(1, "type sign N", () -> {
+            SignSelfTest.type(signScreen, 'N');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "move sign caret left", () -> {
+            SignSelfTest.left(signScreen);
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "delete sign character", () -> {
+            SignSelfTest.backspace(signScreen);
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "check sign deletion", () -> {
+            check("SIN".equals(((SignStateHolder) signScreen).typinganimation$signMessage(0)), "sign deletion changed the wrong text");
+        });
+        run(1, "type sign line 1", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'B');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "type sign line 2", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'C');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "type sign line 3", () -> {
+            SignSelfTest.down(signScreen);
+            SignSelfTest.type(signScreen, 'D');
+        });
+        run(3, "sign animation frames", () -> {});
+        run(1, "verify hanging sign animation", () -> {
+            SignStateHolder holder = (SignStateHolder) signScreen;
+            SignAnimation animation = holder.typinganimation$signAnimation();
+            check(holder.typinganimation$signLine() == 3, "sign caret did not reach the fourth line");
+            check("B".equals(holder.typinganimation$signMessage(1)) && "C".equals(holder.typinganimation$signMessage(2))
+                    && "D".equals(holder.typinganimation$signMessage(3)), "sign edits were applied to the wrong line");
+            check(animation.animatedFrames > 0, "sign characters did not animate");
+            check(animation.ghostFrames > 0, "sign deletion ghosts were never drawn");
+            check(animation.caretGlides > 0 && animation.verticalCaretGlides > 0, "sign caret did not glide between lines");
+            check(TypingRenderer.firstError == null, "sign animation render error");
+        });
+        run(1, "restore settings after sign tests", () -> {
+            ConfigManager.get().copyFrom(beforeSignTest);
+        });
+
         // 9. Options screen -> our button -> ConfigScreen -> interact -> Done
         run(1, "open options", () -> mc.setScreen(new OptionsScreen(new TitleScreen(), mc.options)));
         waitFor(0, "options screen shown", 40, () -> mc.screen instanceof OptionsScreen);
@@ -399,17 +522,20 @@ public final class SelfTest {
         });
         run(1, "move duration slider", () -> {
             int before = ConfigManager.get().durationMs;
+            configScreen.showOption("durationMs");
             ConfigSlider s = configScreen.durationSlider;
             s.onClick(s.getX() + s.getWidth() * 0.8, s.getY() + 10);
             check(ConfigManager.get().durationMs != before, "duration slider did not change the config");
         });
         run(1, "toggle smooth cursor", () -> {
+            configScreen.showOption("smoothCursor");
             boolean before = ConfigManager.get().smoothCursor;
             configScreen.smoothCursorButton.onPress();
             check(ConfigManager.get().smoothCursor != before, "smooth cursor button did not change the config");
             configScreen.smoothCursorButton.onPress();
         });
         run(1, "slider arrow keys", () -> {
+            configScreen.showOption("durationMs");
             ConfigSlider s = configScreen.durationSlider;
             s.allowKeys();
             int before = ConfigManager.get().durationMs;
@@ -424,11 +550,13 @@ public final class SelfTest {
             check(ConfigManager.get().durationMs == before, "duration slider did not return to " + before);
         });
         run(1, "clicks keep the preview focused", () -> {
+            configScreen.showOption("smoothCursor");
             boolean before = ConfigManager.get().smoothCursor;
             click(configScreen, configScreen.smoothCursorButton);
             check(ConfigManager.get().smoothCursor != before, "clicking smooth cursor did not change the config");
             check(configScreen.getFocused() == configScreen.preview, "clicking a button took the focus from the preview");
             click(configScreen, configScreen.smoothCursorButton);
+            configScreen.showOption("durationMs");
             ConfigSlider s = configScreen.durationSlider;
             double x = s.getX() + s.getWidth() / 2.0;
             double y = s.getY() + s.getHeight() / 2.0;
@@ -469,6 +597,7 @@ public final class SelfTest {
         });
         // turning the Options button off (and on again) takes effect on the Options screen we return to
         run(1, "options button off", () -> {
+            configScreen.showOption("optionsButton");
             configScreen.optionsButtonToggle.onPress();
             check(!ConfigManager.get().optionsButton, "options button toggle did not change the config");
         });
@@ -479,6 +608,7 @@ public final class SelfTest {
         run(1, "open config again", () -> mc.setScreen(new ConfigScreen(mc.screen)));
         run(3, "options button on", () -> {
             configScreen = (ConfigScreen) mc.screen;
+            configScreen.showOption("optionsButton");
             configScreen.optionsButtonToggle.onPress();
             check(ConfigManager.get().optionsButton, "options button toggle did not change the config");
             configScreen.doneButton.onPress();
@@ -626,7 +756,8 @@ public final class SelfTest {
     private void forceLoadMixinTargets() {
         ClassLoader loader = SelfTest.class.getClassLoader();
         Class<?>[] targets = {EditBox.class, MultiLineEditBox.class, ChatScreen.class, OptionsScreen.class,
-                Minecraft.class, StringSplitter.class, LanguageManager.class};
+                Minecraft.class, StringSplitter.class, LanguageManager.class,
+                net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen.class};
         for (Class<?> c : targets) {
             try {
                 Class.forName(c.getName(), true, loader);
@@ -704,7 +835,7 @@ public final class SelfTest {
         configScreen = (ConfigScreen) mc.screen;
         List<AbstractWidget> widgets = new ArrayList<>();
         for (GuiEventListener l : configScreen.children()) {
-            if (l instanceof AbstractWidget w) {
+            if (l instanceof AbstractWidget w && w.visible) {
                 check(w.getX() >= 0 && w.getY() >= 0 && w.getX() + w.getWidth() <= configScreen.width
                                 && w.getY() + w.getHeight() <= configScreen.height,
                         "config widget outside the screen: " + w.getMessage().getString());
@@ -715,7 +846,7 @@ public final class SelfTest {
                 widgets.add(w);
             }
         }
-        check(widgets.size() >= 18, "config screen has only " + widgets.size() + " widgets");
+        check(widgets.size() >= 10, "config screen has only " + widgets.size() + " widgets");
         log("config screen " + configScreen.width + "x" + configScreen.height + ": " + widgets.size()
                 + " widgets, no overlaps");
     }
