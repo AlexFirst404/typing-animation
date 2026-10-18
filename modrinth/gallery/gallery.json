@@ -2,50 +2,106 @@
   {
     "file": "chat-typing.gif",
     "title": "Typing in chat",
-    "description": "Letters slide into place as you type. Editing in the middle of a line glides the rest aside, deleted letters fall away, pasted text is typed out letter by letter, and the message is sent as usual.",
+    "description": "Typing, edits, deletion and paste animate in real Minecraft chat.",
     "featured": false,
     "ordering": 0
   },
   {
     "file": "command-highlighting.gif",
     "title": "Commands keep their colours",
-    "description": "A command typed with syntax highlighting and a Tab completion: every character animates in its highlight colour.",
+    "description": "Command syntax colours are preserved while typing and completing with Tab.",
     "featured": false,
     "ordering": 1
   },
   {
     "file": "styles.gif",
     "title": "Appear and remove styles",
-    "description": "Pop, Scramble, Wave and Drop, each cleared with a different remove style. There are 11 appear styles and 5 remove styles in total.",
+    "description": "Pop, Scramble, Wave and Drop paired with removal effects. Version 1.1 has 17 appearance effects and 10 removal effects.",
     "featured": false,
     "ordering": 2
   },
   {
-    "file": "chat-in-world.png",
-    "title": "In the world",
-    "description": "A pasted sentence typing itself out in the chat, one letter after another. The mod is client-side only.",
-    "featured": true,
+    "file": "new-styles.gif",
+    "title": "New animation styles — 1.1",
+    "description": "Slide Right, Zoom Out, Flip, Swing, Roll and Spiral, with new removal effects.",
+    "featured": false,
     "ordering": 3
   },
   {
-    "file": "config-screen-en.png",
-    "title": "Settings",
-    "description": "The main options on one screen, with a live preview field and a Demo button that types a sample sentence for you (shown here mid-demo). A few advanced options live only in the config file.",
+    "file": "smooth-cursor.gif",
+    "title": "A cursor that glides",
+    "description": "Custom caret shape, colour and thickness, with independent smooth movement speed.",
     "featured": false,
     "ordering": 4
   },
   {
-    "file": "config-screen-ru.png",
-    "title": "Settings in Russian",
-    "description": "The settings screen with the built-in Russian translation.",
+    "file": "signs.gif",
+    "title": "Signs and hanging signs",
+    "description": "Real vanilla sign editors with animated text, deletion and a smooth cursor across lines.",
     "featured": false,
     "ordering": 5
   },
   {
-    "file": "options-button.png",
-    "title": "Options button",
-    "description": "The settings are one click away in the vanilla Options screen. The button can be hidden.",
+    "file": "settings-tabs.gif",
+    "title": "Three settings tabs — 1.1",
+    "description": "Animations, Cursor and Where to animate with a live preview and Demo.",
     "featured": false,
     "ordering": 6
+  },
+  {
+    "file": "chat-in-world.png",
+    "title": "In the world",
+    "description": "Animated text in Minecraft chat. The mod runs only on the client.",
+    "featured": false,
+    "ordering": 7
+  },
+  {
+    "file": "config-screen-en.png",
+    "title": "Animation settings — 1.1",
+    "description": "Separate appearance and removal effects, duration, intensity and text movement settings.",
+    "featured": false,
+    "ordering": 8
+  },
+  {
+    "file": "config-screen-ru.png",
+    "title": "Настройки анимаций — 1.1",
+    "description": "Русский интерфейс с живым предпросмотром, демо и тремя вкладками настроек.",
+    "featured": false,
+    "ordering": 9
+  },
+  {
+    "file": "options-button.png",
+    "title": "Options button",
+    "description": "Open Typing Animation directly from Minecraft Options.",
+    "featured": false,
+    "ordering": 10
+  },
+  {
+    "file": "normal-sign.png",
+    "title": "Ordinary sign editor",
+    "description": "Animated text across four lines while editing an ordinary sign.",
+    "featured": true,
+    "ordering": 11
+  },
+  {
+    "file": "hanging-sign.png",
+    "title": "Hanging sign editor",
+    "description": "Animated coloured and glowing text while editing a hanging sign.",
+    "featured": false,
+    "ordering": 12
+  },
+  {
+    "file": "cursor-settings.png",
+    "title": "Cursor settings",
+    "description": "Choose a shape, colour, thickness and independent glide speed.",
+    "featured": false,
+    "ordering": 13
+  },
+  {
+    "file": "behaviour-settings.png",
+    "title": "Where animations run",
+    "description": "Separate controls for chat, other fields, multiline input and signs, plus focus behaviour.",
+    "featured": false,
+    "ordering": 14
   }
 ]
