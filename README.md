@@ -110,6 +110,6 @@ node scripts/curseforge-publish.mjs
 
 The media recorder creates a disposable showcase world and saves frames in the system temporary directory. `tools/MakeGif.java` produces the GIFs in `modrinth/gallery/`. The same media are used on all three platforms.
 
-**Documentation:** [Engineering spec](docs/SPEC.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
+**Documentation:** [Engineering spec](docs/SPEC.md) · [1.1.0 validation](docs/validation-1.1.0.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
 
 **По-русски:** для сборки нужны JDK 17, 21 и 25; готовые JAR находятся в `dist/`. Команда `selftest` запускает проверку в настоящем клиенте Minecraft. Общее описание для Modrinth, CurseForge и GitHub редактируется в `docs/project-description.md` и переносится командой `node scripts/sync-description.mjs`.

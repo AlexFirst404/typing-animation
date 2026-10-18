@@ -5,15 +5,23 @@ Validation date: 18 October 2026. Tests use the Minecraft anchor version for eac
 | Check | Result |
 | --- | --- |
 | Shared core tests | **248 passed**, zero failures, errors or skipped tests |
+| Publisher unit tests | **14 passed** (`node --test scripts/modrinth-publish.test.mjs`) |
 | Release builds | **29/29 passed**; all 29 JARs are newer than their packaged source inputs |
-| Native-loader runtime self-tests | **Pending**: the final 29-target matrix is still running |
+| Native-loader runtime self-tests | **29/29 passed**; final-code runtime coverage confirmed for all ten Minecraft API groups (timing caveat below) |
 | Modrinth and CurseForge upload dry runs | **29/29 passed on each platform** |
 | Gallery capture | Real 26.3 NeoForge client; seven GIFs and eight screenshots generated and visually checked |
 
 Core tests cover configuration migration, independent appearance/removal strength, all animation transforms,
 two-dimensional caret movement, disabled/focus behavior, exact settling and allocation limits. Runtime checks
 exercise typing, deletion, paste, scrolling, selection, formatted text, pixel fidelity, settings pages and both
-normal and hanging sign editors. The native-loader matrix result above must be finalized before release.
+normal and hanging sign editors. All 1.20.1 and 26.3 native-loader variants also pass custom-cursor framebuffer
+checks for shape, color and thickness.
+
+Four native-loader passes—1.21.1 Fabric/Forge and 1.21.10 Fabric/Forge—predate the final sign cursor cell-width
+cache adjustment. The matrix therefore does not claim that every target was run from its exact final JAR.
+All 29 final JARs were rebuilt and checked for source freshness. Full native-loader runtime tests cover the final
+production code in all ten Minecraft API groups, including the confirmatory 1.21.10 NeoForge run that passed at
+17:57:03 +03:00 on 18 October 2026.
 
 ## Additional loader compatibility
 
@@ -53,7 +61,8 @@ compatibility claim. Other Fabric targets have no additional Quilt tag.
 | `1.20-1.20.1-forge.jar` | `b33907c90b92dbc3ec81adde302fa4dbfadb6f72d69b6127a8e194ddecf9ba9b` |
 
 Local validation records are retained in `core/build/test-results/test/`, `.research/release-build-progress.json`,
-`.research/release-artifact-freshness.json`, `.research/release-1.1.0-selftests.json` and
+`.research/release-artifact-freshness.json`, `.research/release-1.1.0-selftests.json`,
+`.research/release-1.1.0-selftests.md` and
 `.research/compat/release-1.1.0-results.json`. The last report includes the production logs, exact failure messages,
 rendering evidence and the final-JAR hash comparisons.
 
