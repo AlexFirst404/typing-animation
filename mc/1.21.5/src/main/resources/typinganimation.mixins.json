@@ -12,7 +12,11 @@
     "MinecraftMixin",
     "MultiLineEditBoxMixin",
     "OptionsScreenMixin",
-    "StringSplitterAccessor"
+    "StringSplitterAccessor",
+    "EditBoxSoundMixin",
+    "MultiLineSoundMixin",
+    "SignSoundMixin",
+    "ChatSoundMixin"
   ],
   "injectors": {
     "defaultRequire": 1

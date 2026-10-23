@@ -6,6 +6,8 @@ import dev.typinganimation.core.CursorColor;
 import dev.typinganimation.core.CursorStyle;
 import dev.typinganimation.core.Easing;
 import dev.typinganimation.core.RemoveStyle;
+import dev.typinganimation.core.SoundPreset;
+import dev.typinganimation.core.VisualPreset;
 import dev.typinganimation.core.TypingConfig;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -33,7 +35,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
 /**
- * Three compact settings pages with a persistent live preview. Each option has a tooltip, changes apply
+ * Four compact settings pages with a persistent live preview. Each option has a tooltip, changes apply
  * immediately, and Reset / Done stay in the same place. The layout fits a 320 x 240 scaled screen.
  */
 public class ConfigScreen extends Screen {
@@ -47,6 +49,8 @@ public class ConfigScreen extends Screen {
     private static final int CONTENT_HEIGHT = 230;
     private static final int TITLE_COLOR = 0xFFFFFFFF;
 
+    private static final int PAGE_COUNT = 4;
+
     private final Screen parent;
     private final Demo demo = new Demo();
     /** Option widgets by config field name (also used by the self-test). */
@@ -54,6 +58,10 @@ public class ConfigScreen extends Screen {
     private final Map<AbstractWidget, Integer> optionPages = new LinkedHashMap<>();
     private final List<Button> pageButtons = new ArrayList<>();
     private int selectedPage;
+    private VisualPreset selectedPreset;
+    private Button presetButton;
+    private Button applyPresetButton;
+    private Button soundTestButton;
     private int accentX;
     private int accentY;
     private EditBox preview;
@@ -105,8 +113,8 @@ public class ConfigScreen extends Screen {
         demoButton = addRenderableWidget(Button.builder(demoLabel(), button -> toggleDemo())
                 .bounds(left + CONTENT_WIDTH - DEMO_WIDTH, previewY, DEMO_WIDTH, BUTTON_HEIGHT).build());
 
-        String[] pageNames = {"animations", "cursor", "behaviour"};
-        int tabWidth = (CONTENT_WIDTH - 8) / 3;
+        String[] pageNames = {"animations", "cursor", "behaviour", "sound"};
+        int tabWidth = (CONTENT_WIDTH - (PAGE_COUNT - 1) * 4) / PAGE_COUNT;
         for (int i = 0; i < pageNames.length; i++) {
             final int page = i;
             pageButtons.add(addRenderableWidget(Button.builder(Component.translatable(PREFIX + "page." + pageNames[i]),
@@ -134,6 +142,7 @@ public class ConfigScreen extends Screen {
         animations.add(slider("maxStaggerMs", TypingConfig.MAX_STAGGER_MIN_MS, TypingConfig.MAX_STAGGER_MAX_MS, 25,
                 () -> cfg.maxStaggerMs, v -> cfg.maxStaggerMs = (int) Math.round(v), v -> Component.translatable(PREFIX + "ms", (int) Math.round(v))));
         addPage(animations, 0, left, right, gridY);
+        addPresetControls(left, top + 181, CONTENT_WIDTH);
 
         List<AbstractWidget> cursor = new ArrayList<>();
         cursor.add(toggle("smoothCursor", cfg.smoothCursor, v -> cfg.smoothCursor = v));
@@ -158,6 +167,24 @@ public class ConfigScreen extends Screen {
         behaviour.add(toggle("onlyWhenFocused", cfg.onlyWhenFocused, v -> cfg.onlyWhenFocused = v));
         behaviour.add(toggle("optionsButton", cfg.optionsButton, v -> cfg.optionsButton = v));
         addPage(behaviour, 2, left, right, gridY);
+
+        List<AbstractWidget> sound = new ArrayList<>();
+        sound.add(toggle("typingSounds", cfg.typingSounds, v -> cfg.typingSounds = v));
+        sound.add(cycle("soundPreset", SoundPreset.values(), cfg.soundPreset, SoundPreset::translationKey, v -> cfg.soundPreset = v));
+        sound.add(slider("soundVolume", TypingConfig.SOUND_VOLUME_MIN, TypingConfig.SOUND_VOLUME_MAX, 0.05,
+                () -> cfg.soundVolume, v -> cfg.soundVolume = (float) v,
+                v -> Component.translatable("typinganimation.config.percent", (int) Math.round(v * 100))));
+        sound.add(slider("soundPitch", TypingConfig.SOUND_PITCH_MIN, TypingConfig.SOUND_PITCH_MAX, 0.05,
+                () -> cfg.soundPitch, v -> cfg.soundPitch = (float) v, v -> Component.translatable(PREFIX + "multiplier", decimal(v))));
+        sound.add(toggle("soundVariation", cfg.soundVariation, v -> cfg.soundVariation = v));
+        sound.add(toggle("soundOnDelete", cfg.soundOnDelete, v -> cfg.soundOnDelete = v));
+        sound.add(toggle("soundOnEnter", cfg.soundOnEnter, v -> cfg.soundOnEnter = v));
+        soundTestButton = Button.builder(Component.translatable("typinganimation.config.soundTest"),
+                button -> TypingSounds.preview(ConfigManager.get().soundPreset)).bounds(0, 0, 150, 20).build();
+        soundTestButton.setTooltip(tooltip("soundTest"));
+        options.put("soundTest", soundTestButton);
+        sound.add(soundTestButton);
+        addPage(sound, 3, left, right, gridY);
         showPage(selectedPage);
         resetButton = addRenderableWidget(Button.builder(Component.translatable(PREFIX + "reset"), button -> resetAll())
                 .bounds(left, bottomY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
@@ -210,7 +237,7 @@ public class ConfigScreen extends Screen {
         demo.update(AnimationClock.nowMs());
         super.extractRenderState(graphics, mouseX, mouseY, a);
         graphics.centeredText(font, title, width / 2, titleY, TITLE_COLOR);
-        int tabWidth = (CONTENT_WIDTH - 8) / 3;
+        int tabWidth = (CONTENT_WIDTH - (PAGE_COUNT - 1) * 4) / PAGE_COUNT;
         int tabX = accentX + selectedPage * (tabWidth + 4);
         graphics.fill(tabX, accentY, tabX + tabWidth, accentY + 2, 0xFFB39DFF);
     }
@@ -230,6 +257,7 @@ public class ConfigScreen extends Screen {
 
     private void resetAll() {
         ConfigManager.reset();
+        selectedPreset = VisualPreset.DEFAULT;
         rebuildWidgets();
     }
 
@@ -252,15 +280,58 @@ public class ConfigScreen extends Screen {
         boolean enabled = ConfigManager.get().enabled;
         for (Map.Entry<String, AbstractWidget> e : options.entrySet()) {
             String key = e.getKey();
-            if (!key.equals("enabled") && !key.equals("optionsButton")) {
+            if (!independentControl(key)) {
                 e.getValue().active = enabled;
             }
         }
     }
 
+    private void addPresetControls(int left, int y, int total) {
+        if (selectedPreset == null) {
+            selectedPreset = VisualPreset.match(ConfigManager.get());
+            if (selectedPreset == null) selectedPreset = VisualPreset.DEFAULT;
+        }
+        presetButton = Button.builder(presetLabel(), button -> {
+            VisualPreset[] presets = VisualPreset.values();
+            selectedPreset = presets[(selectedPreset.ordinal() + 1) % presets.length];
+            refreshPresetControls();
+        }).bounds(left, y, total - 104, 20).build();
+        presetButton.setTooltip(tooltip("visualPreset"));
+        applyPresetButton = Button.builder(Component.translatable("typinganimation.config.applyPreset"), button -> {
+            selectedPreset.applyTo(ConfigManager.get());
+            // Rebuild the visual controls from the chosen values while retaining the preview text and demo.
+            rebuildWidgets();
+        }).bounds(left + total - 100, y, 100, 20).build();
+        applyPresetButton.setTooltip(tooltip("applyPreset"));
+        options.put("visualPreset", presetButton);
+        options.put("applyPreset", applyPresetButton);
+        optionPages.put(presetButton, 0);
+        optionPages.put(applyPresetButton, 0);
+        addRenderableWidget(presetButton);
+        addRenderableWidget(applyPresetButton);
+        refreshPresetControls();
+    }
+
+    private Component presetLabel() {
+        String key = VisualPreset.match(ConfigManager.get()) == null
+                ? "typinganimation.config.visualPreset.custom" : "typinganimation.config.visualPreset";
+        return Component.translatable(key, Component.translatable(selectedPreset.translationKey()));
+    }
+
+    private void refreshPresetControls() {
+        if (presetButton == null || applyPresetButton == null || selectedPreset == null) return;
+        presetButton.setMessage(presetLabel());
+        applyPresetButton.active = VisualPreset.match(ConfigManager.get()) != selectedPreset;
+    }
+
+    private static boolean independentControl(String key) {
+        return key.equals("enabled") || key.equals("optionsButton") || key.equals("typingSounds")
+                || key.startsWith("sound") || key.equals("visualPreset") || key.equals("applyPreset");
+    }
+
     /** Changes pages without rebuilding the preview, so a running demo keeps its animation state. */
     void showPage(int page) {
-        selectedPage = Math.max(0, Math.min(2, page));
+        selectedPage = Math.max(0, Math.min(PAGE_COUNT - 1, page));
         for (Map.Entry<AbstractWidget, Integer> entry : optionPages.entrySet()) {
             entry.getKey().visible = entry.getValue() == selectedPage;
         }
@@ -297,7 +368,7 @@ public class ConfigScreen extends Screen {
         CycleButton<Boolean> button = CycleButton.onOffBuilder(value)
                 .withTooltip(v -> tooltip)
                 .create(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable(PREFIX + key),
-                        (b, v) -> setter.accept(v));
+                        (b, v) -> { setter.accept(v); refreshPresetControls(); });
         options.put(key, button);
         return button;
     }
@@ -309,14 +380,14 @@ public class ConfigScreen extends Screen {
                 .withValues(Arrays.asList(values))
                 .withTooltip(v -> tooltip)
                 .create(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable(PREFIX + key),
-                        (b, v) -> setter.accept(v));
+                        (b, v) -> { setter.accept(v); refreshPresetControls(); });
         options.put(key, button);
         return button;
     }
 
     private AbstractWidget slider(String key, double min, double max, double step, DoubleSupplier getter,
                                   DoubleConsumer setter, DoubleFunction<Component> label) {
-        ValueSlider slider = new ValueSlider(key, min, max, step, getter, setter, label);
+        ValueSlider slider = new ValueSlider(key, min, max, step, getter, v -> { setter.accept(v); refreshPresetControls(); }, label);
         options.put(key, slider);
         return slider;
     }

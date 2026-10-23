@@ -1,10 +1,10 @@
 # Typing Animation
 
-**A little motion in every keystroke.**
+**A little motion. A little rhythm. Your own typing style.**
 
-![Client only](https://img.shields.io/badge/CLIENT-ONLY-AE72FF?style=for-the-badge&labelColor=25174A) ![17 appearance styles](https://img.shields.io/badge/17-APPEAR_STYLES-E860AD?style=for-the-badge&labelColor=572544) ![10 removal styles](https://img.shields.io/badge/10-REMOVE_STYLES-39C9DD?style=for-the-badge&labelColor=174A5A)
+![Client only](https://img.shields.io/badge/CLIENT-ONLY-AE72FF?style=for-the-badge&labelColor=25174A) ![4 sound presets](https://img.shields.io/badge/4-SOUND_PRESETS-E860AD?style=for-the-badge&labelColor=572544) ![6 visual presets](https://img.shields.io/badge/6-VISUAL_PRESETS-39C9DD?style=for-the-badge&labelColor=174A5A)
 
-Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and the cursor follows smoothly — in chat, commands, search fields, **signs and hanging signs**. Once letters settle, their vanilla appearance returns.
+Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and optional keyboard sounds give each keystroke a character — in chat, commands, search fields, **signs and hanging signs**. Settled text keeps its vanilla appearance.
 
 **Fabric · Forge · NeoForge · English & Russian · No Fabric API required**
 
@@ -23,9 +23,27 @@ Insert a word, erase a sentence or paste a message. Text shifts smoothly, while 
 
 ![Pop, Scramble, Wave and Drop paired with removal effects](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/styles.gif)
 
-**New in 1.1:** Slide Right, Zoom Out, Flip, Swing, Roll and Spiral — with five new ways for letters to disappear.
+Try Slide Right, Zoom Out, Flip, Swing, Roll and Spiral, then pair them with your favourite removal effect.
 
-![New animation styles in Typing Animation 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/new-styles.gif)
+![Slide Right, Zoom Out, Flip, Swing, Roll and Spiral](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/new-styles.gif)
+
+### ✧ Pick a mood — new in 1.2
+
+Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a preset, press **Apply**, then fine-tune it in the live preview. Presets change motion and the cursor; your sound settings and choice of fields stay yours. Manual edits appear as **Custom**.
+
+![Visual preset selector, Apply button and live preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
+
+## ♪ Hear every keystroke — new in 1.2
+
+| Typewriter | Mechanical | Soft | Laptop |
+|:---:|:---:|:---:|:---:|
+| A crisp, vintage clack | A tactile keyboard click | A gentle, muted tap | A short, light tick |
+
+Four sound families with distinct key, space, Backspace and Enter feedback. Adjust **volume, pitch and pitch variation**, mute deletion or Enter separately, and use **Test Sound** to listen before enabling.
+
+**Sounds are off by default**, including after updating. Enable them in the **Sound** tab. Pasting makes at most one sound; cursor navigation and automatic field updates stay quiet.
+
+![Sound presets, volume, pitch and the Test Sound button](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/sound-settings.png)
 
 ## │ A cursor that follows you
 
@@ -35,17 +53,17 @@ Smooth horizontal **and vertical** movement, with its own speed setting. Keep th
 
 ## ▣ Leave a sign
 
-The same animations now work while editing **ordinary and hanging signs**, across all four lines. Text colours, glowing text and normal editing controls stay intact.
+Animations and optional typing sounds work while editing **ordinary and hanging signs**, across all four lines. Text colours, glowing text and normal editing controls stay intact.
 
 ![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/signs.gif)
 
 ## ⚙ Make it yours
 
-Three tidy settings tabs: **Animations · Cursor · Where to animate**. Tune appearance and removal separately, cap paste delays, choose where animations run, and try everything in the **live preview** with **Demo**.
+Four tidy settings tabs: **Animations · Cursor · Fields · Sound**. Tune appearance and removal separately, cap paste delays, choose where the mod runs, and explore motion in the **live preview** with **Demo**.
 
-![Settings tabs and live animation preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/settings-tabs.gif)
+![Animation controls and live Demo, recorded in 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/settings-tabs.gif)
 
-Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Changes apply immediately. Settings are saved in `config/typinganimation.json`.
+Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Individual controls apply immediately; a visual preset uses **Apply**. Settings are saved in `config/typinganimation.json`.
 
 ## / Commands keep their colours
 
@@ -71,6 +89,8 @@ Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric fi
 
 Плавный набор в чате, командах, поиске и **обычных и подвесных табличках**. **17 эффектов появления, 10 эффектов удаления**, отдельные длительность и интенсивность, 10 кривых плавности и «Авто».
 
-Курсор плавно движется по горизонтали и между строками. Настраиваются его скорость, цвет, толщина и форма: обычный, палка, подчёркивание или полупрозрачный блок. Три вкладки настроек, живой предпросмотр и «Демо» помогают подобрать свой вариант.
+**Новое в 1.2:** четыре звуковых профиля — **печатная машинка, механическая клавиатура, мягкий звук и ноутбук**. Есть громкость, тон, разброс тона, отдельные звуки удаления и Enter и кнопка прослушивания. **Звук изначально выключен**; включается во вкладке «Звук».
+
+Шесть готовых наборов анимации выбираются кнопкой и применяются через **«Применить»**. Звуковые настройки и выбранные поля сохраняются. Курсору можно задать форму, цвет, толщину и плавность движения по двум осям. Четыре вкладки — **«Анимации», «Курсор», «Поля», «Звук»**, живой предпросмотр и «Демо» помогают подобрать свой вариант.
 
 **Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются, книги поддерживаются с 1.21.6. Автор — **AlexFirst**.

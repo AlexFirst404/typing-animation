@@ -3,6 +3,8 @@ package dev.typinganimation.mc;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.typinganimation.core.AppearStyle;
+import dev.typinganimation.core.SoundPreset;
+import dev.typinganimation.core.TypingSoundAction;
 import dev.typinganimation.core.ConfigManager;
 import dev.typinganimation.core.RemoveStyle;
 import dev.typinganimation.core.TypingAnimationMod;
@@ -96,6 +98,7 @@ public final class SelfTest {
     private SelfTestScreen screen;
     private Screen signScreen;
     private TypingConfig beforeSignTest;
+    private TypingConfig beforeSoundTest;
     private OptionsScreen options;
     private ConfigScreen config;
     private TypingConfig original;
@@ -640,6 +643,8 @@ public final class SelfTest {
             ConfigManager.get().copyFrom(beforeSignTest);
         });
 
+        addTypingSoundTests();
+
         act("open options", () -> {
             options = new OptionsScreen(startScreen, mc.options);
             mc.setScreen(options);
@@ -675,18 +680,18 @@ public final class SelfTest {
         });
         screenshot("21-config-screen");
         act("config layout", () -> {
-            for (int page = 0; page < 3; page++) {
+            for (int page = 0; page < 4; page++) {
                 config.showPage(page);
                 checkLayout(config, "ConfigScreen page " + page, true);
             }
             config.showPage(0);
-            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 23 : 22),
+            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 33 : 32),
                     "unexpected option count " + config.options().size());
             int w = config.width;
             int h = config.height;
             config.resize(mc, 320, 240);
             try {
-                for (int page = 0; page < 3; page++) {
+                for (int page = 0; page < 4; page++) {
                     config.showPage(page);
                     checkLayout(config, "ConfigScreen@320x240 page " + page, true);
                 }
@@ -984,6 +989,117 @@ public final class SelfTest {
     }
 
     /** A key press (GLFW key code, no scan code, no modifiers). */
+    private void addTypingSoundTests() {
+        act("prepare input sound tests", () -> {
+            beforeSoundTest = cfg().copy();
+            cfg().copyFrom(TypingConfig.defaults());
+            cfg().typingSounds = true;
+            cfg().soundVolume = .2f;
+            cfg().soundVariation = false;
+            mc.setScreen(screen);
+            for (SoundPreset preset : SoundPreset.values()) {
+                for (TypingSoundAction action : TypingSoundAction.values()) {
+                    var event = TypingSounds.event(preset, action);
+                    var loaded = mc.getSoundManager().getSoundEvent(event.location());
+                    check(loaded != null && loaded.getWeight() > 0, "missing sound resource " + event.location());
+                }
+            }
+        });
+        for (SoundPreset preset : SoundPreset.values()) {
+            act("type a key with " + preset, () -> {
+                cfg().soundPreset = preset;
+                TypingSounds.resetTestCounters();
+                screen.plain.setValue("");
+                screen.plain.setMaxLength(512);
+                screen.plain.setFocused(true);
+                type(screen.plain, 'A');
+                check(TypingSounds.playedCount == 1 && TypingSounds.lastAction == TypingSoundAction.KEY
+                        && TypingSounds.lastPreset == preset, "wrong key sound for " + preset);
+                check(TypingSounds.lastVolume == .2f && TypingSounds.lastPitch == 1f, "audio controls ignored");
+            });
+            act("space sound " + preset, () -> {
+                type(screen.plain, ' ');
+                check(TypingSounds.playedCount == 2 && TypingSounds.lastAction == TypingSoundAction.SPACE, "space sound missing");
+            });
+            act("delete sound " + preset, () -> {
+                key(screen.plain, InputConstants.KEY_BACKSPACE);
+                check(TypingSounds.playedCount == 3 && TypingSounds.lastAction == TypingSoundAction.BACKSPACE, "delete sound missing");
+            });
+            act("multiline enter sound " + preset, () -> {
+                screen.multi.setValue("Line");
+                screen.multi.setFocused(true);
+                key(screen.multi, InputConstants.KEY_RETURN);
+                check(TypingSounds.playedCount == 4 && TypingSounds.lastAction == TypingSoundAction.ENTER, "multiline enter sound missing");
+            });
+        }
+        act("programmatic updates and navigation are silent", () -> {
+            TypingSounds.resetTestCounters();
+            screen.plain.setValue("History / initialization");
+            screen.multi.setValue("First\nSecond");
+            key(screen.plain, InputConstants.KEY_LEFT);
+            key(screen.plain, InputConstants.KEY_END);
+            check(TypingSounds.playedCount == 0, "programmatic or caret-only sound");
+        });
+        act("one sound for a paste", () -> {
+            String clipboard = mc.keyboardHandler.getClipboard();
+            try {
+                mc.keyboardHandler.setClipboard(" pasted text with many characters");
+                screen.plain.keyPressed(InputConstants.KEY_V, 0, 2);
+            } finally { mc.keyboardHandler.setClipboard(clipboard); }
+            check(TypingSounds.playedCount == 1 && TypingSounds.lastAction == TypingSoundAction.KEY, "paste emitted a sound burst");
+        });
+        act("typing sound off and field gates", () -> {
+            TypingSounds.resetTestCounters();
+            cfg().typingSounds = false;
+            type(screen.plain, 'x');
+            cfg().typingSounds = true;
+            cfg().animateOtherFields = false;
+            type(screen.plain, 'x');
+            cfg().animateOtherFields = true;
+            cfg().enabled = false;
+            type(screen.plain, 'x');
+            cfg().enabled = true;
+            cfg().soundVolume = 0;
+            type(screen.plain, 'x');
+            cfg().soundVolume = .2f;
+            check(TypingSounds.playedCount == 0, "disabled or muted audio still played");
+        });
+        act("delete and enter switches", () -> {
+            cfg().soundOnDelete = false;
+            cfg().soundOnEnter = false;
+            key(screen.plain, InputConstants.KEY_BACKSPACE);
+            key(screen.multi, InputConstants.KEY_RETURN);
+            check(TypingSounds.playedCount == 0, "action audio toggle ignored");
+            cfg().soundOnDelete = true;
+            cfg().soundOnEnter = true;
+        });
+        for (boolean hanging : new boolean[]{false,true}) {
+            act("prepare audible sign " + hanging, () -> {
+                signScreen = SignSelfTest.create(hanging);
+                mc.setScreen(signScreen);
+                TypingSounds.resetTestCounters();
+            });
+            waitFrames(2);
+            act("sign key sound " + hanging, () -> {
+                SignSelfTest.type(signScreen, 'A');
+                check(TypingSounds.playedCount == 1 && TypingSounds.lastAction == TypingSoundAction.KEY, "sign key silent");
+            });
+            act("sign return sound " + hanging, () -> {
+                key(signScreen, InputConstants.KEY_RETURN);
+                check(TypingSounds.playedCount == 2 && TypingSounds.lastAction == TypingSoundAction.ENTER, "sign Enter silent");
+            });
+            act("sign arrows are silent " + hanging, () -> {
+                SignSelfTest.down(signScreen);
+                check(TypingSounds.playedCount == 2, "sign line navigation made a sound");
+            });
+        }
+        act("restore after audio input tests", () -> {
+            check(TypingSounds.firstError == null, "audio path failed");
+            cfg().copyFrom(beforeSoundTest);
+            LOG.info(TAG + "selftest: all four typing sound presets, 16 resources, paste/mute/field gates and both sign editors passed");
+        });
+    }
+
     private static void key(GuiEventListener widget, int key) {
         widget.keyPressed(key, 0, 0);
     }

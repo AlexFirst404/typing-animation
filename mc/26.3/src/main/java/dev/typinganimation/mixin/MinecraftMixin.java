@@ -1,6 +1,7 @@
 package dev.typinganimation.mixin;
 
 import dev.typinganimation.mc.ClientInit;
+import dev.typinganimation.mc.TypingSounds;
 import dev.typinganimation.mc.SelfTest;
 import dev.typinganimation.mc.Showcase;
 import dev.typinganimation.mc.TypingRenderer;
@@ -20,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void typinganimation$tick(CallbackInfo ci) {
+        TypingSounds.tick();
         if (ClientInit.SELFTEST) {
             SelfTest.onTick((Minecraft) (Object) this);
         } else if (ClientInit.SHOWCASE) {

@@ -7,7 +7,7 @@ All code, texts and media of this project are original. Another mod with a simil
 (Modrinth), is *All Rights Reserved*: never copy, paraphrase or port its code, names of its classes, its texts or
 its assets, and never describe this mod by comparison to it (Modrinth page, README, changelog).
 
-- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.1.0` · License: MIT
+- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.2.0` · License: MIT
 - Java package root: `dev.typinganimation`
 - Client only. Must never be required on servers; must never crash the game (see "Safety").
 - No dependency on Fabric API. Mod Menu integration on Fabric is optional (compileOnly).
@@ -119,7 +119,7 @@ unobfuscated 26.x), NeoForge/Forge use official names natively.
   `compileClasspath` in `scripts/target-common.gradle`) while the dev client runs the loader's own Mixin, so every
   injector `at`/`slice` is written in the single-value form that all Mixin and MixinExtras versions read (see the
   Fabric loader floors in section 1).
-- Output jar name: `typinganimation-1.1.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
+- Output jar name: `typinganimation-1.2.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
   (the only jar in `build/libs`; Fabric's remapJar, Forge 1.20.1's reobfJar and the plain jar task all produce it).
 - Mod metadata: id/name/version/license MIT/authors `AlexFirst`/description (see lang `typinganimation.description`
   in English)/icon `assets/typinganimation/icon.png`; client-only markers where the loader supports them
@@ -213,6 +213,13 @@ public final class TypingConfig {                  // plain mutable fields + def
   public CursorStyle cursorStyle = CursorStyle.VANILLA; // VANILLA, BAR, UNDERLINE, BLOCK
   public CursorColor cursorColor = CursorColor.VANILLA; // VANILLA, WHITE, LAVENDER, MINT, GOLD, AQUA, RED
   public int cursorWidth = 1;           // [1, 4] bar width or underline thickness in GUI pixels
+  public boolean typingSounds = false; // optional; existing configs remain silent
+  public SoundPreset soundPreset = SoundPreset.MECHANICAL; // TYPEWRITER, MECHANICAL, SOFT, LAPTOP
+  public float soundVolume = 0.35f;     // [0, 1]
+  public float soundPitch = 1.0f;       // [0.6, 1.6]
+  public boolean soundVariation = true; // subtle pitch variation
+  public boolean soundOnDelete = true;
+  public boolean soundOnEnter = true;
   public boolean animateChat = true;
   public boolean animateOtherFields = true;
   public boolean animateMultiline = true;
@@ -232,7 +239,39 @@ public final class ConfigManager {                 // file: <configDir>/typingan
 ```
 JSON: keys = field names, enums as lower-case names, missing/invalid values -> defaults, then clamp.
 Migration: a missing `removeIntensity` inherits the old `intensity`; a missing `cursorGlideMs` inherits
-the old `glideMs`. Existing tuning is preserved when upgrading.
+the old `glideMs`. Existing tuning is preserved when upgrading. Missing sound fields use the defaults above;
+in particular, migration never opts an existing installation into typing audio. The JSON contains 30 fields.
+
+```java
+public enum SoundPreset {
+  TYPEWRITER, MECHANICAL, SOFT, LAPTOP;
+  public String translationKey(); // "typinganimation.sound.<lower_name>"
+}
+
+public enum VisualPreset {
+  DEFAULT, MINIMAL, SOFT, BOUNCY, WAVE, GLITCH;
+  public String translationKey(); // "typinganimation.preset.<lower_name>"
+  public void applyTo(TypingConfig config); // non-null; mutates visual fields only, does not save
+  public static VisualPreset match(TypingConfig config); // exact visual match, or null for custom/null
+}
+
+public enum TypingSoundAction { KEY, SPACE, BACKSPACE, ENTER }
+public final class TypingSoundFeedback {
+  public static final long MIN_INTERVAL_MS = 25;
+  public static TypingSoundAction classify(String before, String after); // one action, or null for no edit
+  public static boolean shouldPlay(TypingConfig cfg, FieldKind kind, boolean previewField, TypingSoundAction action);
+  public boolean tryAcquire(long nowMs); // monotonic input clock; limits repeat overlap
+  public void reset();
+}
+```
+
+Visual presets update 16 motion/cursor fields: appearance/removal styles, easing, both durations and intensities,
+stagger and its cap, reflow/cursor smoothing and speeds, cursor shape, colour and width. They preserve `enabled`,
+all sound settings, all field toggles, `onlyWhenFocused` and `optionsButton`. `DEFAULT` restores the original visual
+defaults; `MINIMAL` uses brief fades without stagger; `SOFT` uses a gentle slide and lavender bar; `BOUNCY` uses
+pop/shrink and a gold bar; `WAVE` uses waves and an aqua underline; `GLITCH` uses scramble/scatter and a mint block
+with instant reflow/cursor movement. There is no saved preset name: `match` derives it from current values, so
+manual edits display Custom and sound/field changes do not change the recognised visual preset.
 
 ```java
 public enum FieldKind { CHAT, OTHER, MULTILINE, SIGN }
@@ -355,14 +394,19 @@ Both are exact at rest; the self-test of the render-state groups additionally tr
   (focused, hint text; vanilla draws a hint only in unfocused boxes, so the hint is the grey suggestion while the
   preview is empty, and clicking a button or releasing a slider gives the focus back to the preview) + "Demo"
   button that auto-types a localized sample phrase with human-like timing then erases part of it (loops until
-  pressed again); three tabs with a two-column grid (150 px buttons, 22 px row step):
+  pressed again); four tabs with a two-column grid (150 px buttons, 22 px row step):
   Animations: `enabled`, `appearStyle`, `removeStyle`, `easing`, `durationMs`, `removeDurationMs`,
   `intensity`, `removeIntensity`, `staggerMs`, `maxStaggerMs`;
   Cursor: `smoothCursor`, `cursorGlideMs`, `cursorStyle`, `cursorColor`, `cursorWidth`, `smoothReflow`, `glideMs`;
-  Where to animate: `animateChat`, `animateOtherFields`, `animateMultiline` (only where supported),
+  Fields: `animateChat`, `animateOtherFields`, `animateMultiline` (only where supported),
   `animateSigns`, `onlyWhenFocused`, `optionsButton`;
-  tooltips for each; bottom row "Reset" + "Done". Changes apply live; saved on Done/close. While `enabled` is
-  off every other option except `optionsButton` is greyed out. Slider labels: "220 ms", "14 ms/char", intensity
+  Sound: `typingSounds`, `soundPreset`, `soundVolume`, `soundPitch`, `soundVariation`, `soundOnDelete`,
+  `soundOnEnter`, plus an explicit sound audition button;
+  tooltips for each; bottom row "Reset" + "Done". A visual preset selector and **Apply** button sit above the
+  animation controls. Cycling the selector stages a choice without mutating settings; Apply changes the visual
+  values together and refreshes their controls while preserving preview text. Manual controls apply live;
+  settings save on Done/close. While `enabled` is off, visual/field controls are greyed out except `optionsButton`,
+  the preset selector and Apply. Sound controls and audition remain usable. Slider labels: "220 ms", "14 ms/char", intensity
   "1x" / "1.5x" / "1.25x" (no trailing zeros); arrow keys move a slider by exactly one step.
   Must fit a 240 px tall scaled screen.
 - **Options screen button**: when `optionsButton` is on, the vanilla Options screen shows a compact button
@@ -382,8 +426,33 @@ typinganimation.config.demo.text, typinganimation.config.reset, typinganimation.
 typinganimation.config.<field> and typinganimation.config.<field>.tooltip for every UI field above
 typinganimation.config.ms (format "%s ms"), typinganimation.config.ms_per_char ("%s ms/char"),
 typinganimation.config.multiplier ("%sx"), typinganimation.appear.*, typinganimation.remove.*, typinganimation.easing.*,
-typinganimation.config.page.*, typinganimation.cursor.style.*, typinganimation.cursor.color.*
+typinganimation.config.page.*, typinganimation.cursor.style.*, typinganimation.cursor.color.*,
+typinganimation.config.visualPreset, typinganimation.config.visualPreset.custom, typinganimation.config.visualPreset.tooltip,
+typinganimation.config.applyPreset, typinganimation.config.applyPreset.tooltip,
+typinganimation.config.soundTest, typinganimation.config.soundTest.tooltip, typinganimation.config.percent ("%s%%"),
+typinganimation.sound.*, typinganimation.preset.*
 ```
+
+### 6.1 Local typing audio (1.2 preview)
+
+Audio is triggered by accepted user input in text widgets and sign editors, never by drawing or programmatic
+text setters. A paste or replacement produces at most one action. Empty/unchanged edits, initial field contents,
+cursor navigation and programmatic demo updates remain silent. Key, space, deletion and Enter have separate
+events; `soundOnDelete` and `soundOnEnter` gate their respective actions. A 25 ms minimum interval and at most
+eight retained playback voices bound rapid repeats. Audio failures disable only this feedback path and log once.
+
+Normal typing audio requires `enabled`, `typingSounds`, a positive `soundVolume` and the field's animation toggle
+(the live preview bypasses field toggles). Sounds are non-positional UI feedback and obey Minecraft's master
+sound volume. The explicit audition button plays a short rhythm for the chosen family even while the mod or
+typing-audio toggle is off; it still respects the configured sound volume and Minecraft master volume. Closing
+the settings screen, starting another audition or accepted typing cancels the previous audition sequence.
+
+The shared original library contains **36 mono Ogg Vorbis files and 16 sound events**: four families, each with
+four key variants, two space variants, two deletion variants and one Enter sample. Event IDs are
+`typinganimation:typing.<family>.<action>`. Assets live in `common-resources/assets/typinganimation/sounds/typing/`
+and are mapped by `sounds.json`. `scripts/generate-typing-sounds.py` synthesizes the library from seeded noise
+and damped resonances; no downloaded samples or recordings are used. `--check` regenerates in memory and verifies
+the checked-in files. Reproducing identical Ogg bytes requires the dependency versions recorded in that script.
 
 ## 7. `target.properties`
 

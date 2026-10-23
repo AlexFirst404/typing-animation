@@ -26,6 +26,13 @@ class TypingConfigTest {
         assertEquals(CursorStyle.VANILLA, c.cursorStyle);
         assertEquals(CursorColor.VANILLA, c.cursorColor);
         assertEquals(1, c.cursorWidth);
+        assertFalse(c.typingSounds, "upgrading or installing must not unexpectedly start typing audio");
+        assertEquals(SoundPreset.MECHANICAL, c.soundPreset);
+        assertEquals(0.35f, c.soundVolume);
+        assertEquals(1f, c.soundPitch);
+        assertTrue(c.soundVariation);
+        assertTrue(c.soundOnDelete);
+        assertTrue(c.soundOnEnter);
         assertTrue(c.animateChat);
         assertTrue(c.animateOtherFields);
         assertTrue(c.animateMultiline);

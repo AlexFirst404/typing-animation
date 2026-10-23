@@ -1,0 +1,118 @@
+{
+  "typing.typewriter.key": {
+    "subtitle": "typinganimation.sound.typewriter.key",
+    "sounds": [
+      "typinganimation:typing/typewriter/key_1",
+      "typinganimation:typing/typewriter/key_2",
+      "typinganimation:typing/typewriter/key_3",
+      "typinganimation:typing/typewriter/key_4"
+    ]
+  },
+  "typing.typewriter.space": {
+    "subtitle": "typinganimation.sound.typewriter.space",
+    "sounds": [
+      "typinganimation:typing/typewriter/space_1",
+      "typinganimation:typing/typewriter/space_2"
+    ]
+  },
+  "typing.typewriter.backspace": {
+    "subtitle": "typinganimation.sound.typewriter.backspace",
+    "sounds": [
+      "typinganimation:typing/typewriter/backspace_1",
+      "typinganimation:typing/typewriter/backspace_2"
+    ]
+  },
+  "typing.typewriter.enter": {
+    "subtitle": "typinganimation.sound.typewriter.enter",
+    "sounds": [
+      "typinganimation:typing/typewriter/enter_1"
+    ]
+  },
+  "typing.mechanical.key": {
+    "subtitle": "typinganimation.sound.mechanical.key",
+    "sounds": [
+      "typinganimation:typing/mechanical/key_1",
+      "typinganimation:typing/mechanical/key_2",
+      "typinganimation:typing/mechanical/key_3",
+      "typinganimation:typing/mechanical/key_4"
+    ]
+  },
+  "typing.mechanical.space": {
+    "subtitle": "typinganimation.sound.mechanical.space",
+    "sounds": [
+      "typinganimation:typing/mechanical/space_1",
+      "typinganimation:typing/mechanical/space_2"
+    ]
+  },
+  "typing.mechanical.backspace": {
+    "subtitle": "typinganimation.sound.mechanical.backspace",
+    "sounds": [
+      "typinganimation:typing/mechanical/backspace_1",
+      "typinganimation:typing/mechanical/backspace_2"
+    ]
+  },
+  "typing.mechanical.enter": {
+    "subtitle": "typinganimation.sound.mechanical.enter",
+    "sounds": [
+      "typinganimation:typing/mechanical/enter_1"
+    ]
+  },
+  "typing.soft.key": {
+    "subtitle": "typinganimation.sound.soft.key",
+    "sounds": [
+      "typinganimation:typing/soft/key_1",
+      "typinganimation:typing/soft/key_2",
+      "typinganimation:typing/soft/key_3",
+      "typinganimation:typing/soft/key_4"
+    ]
+  },
+  "typing.soft.space": {
+    "subtitle": "typinganimation.sound.soft.space",
+    "sounds": [
+      "typinganimation:typing/soft/space_1",
+      "typinganimation:typing/soft/space_2"
+    ]
+  },
+  "typing.soft.backspace": {
+    "subtitle": "typinganimation.sound.soft.backspace",
+    "sounds": [
+      "typinganimation:typing/soft/backspace_1",
+      "typinganimation:typing/soft/backspace_2"
+    ]
+  },
+  "typing.soft.enter": {
+    "subtitle": "typinganimation.sound.soft.enter",
+    "sounds": [
+      "typinganimation:typing/soft/enter_1"
+    ]
+  },
+  "typing.laptop.key": {
+    "subtitle": "typinganimation.sound.laptop.key",
+    "sounds": [
+      "typinganimation:typing/laptop/key_1",
+      "typinganimation:typing/laptop/key_2",
+      "typinganimation:typing/laptop/key_3",
+      "typinganimation:typing/laptop/key_4"
+    ]
+  },
+  "typing.laptop.space": {
+    "subtitle": "typinganimation.sound.laptop.space",
+    "sounds": [
+      "typinganimation:typing/laptop/space_1",
+      "typinganimation:typing/laptop/space_2"
+    ]
+  },
+  "typing.laptop.backspace": {
+    "subtitle": "typinganimation.sound.laptop.backspace",
+    "sounds": [
+      "typinganimation:typing/laptop/backspace_1",
+      "typinganimation:typing/laptop/backspace_2"
+    ]
+  },
+  "typing.laptop.enter": {
+    "subtitle": "typinganimation.sound.laptop.enter",
+    "sounds": [
+      "typinganimation:typing/laptop/enter_1"
+    ]
+  }
+}

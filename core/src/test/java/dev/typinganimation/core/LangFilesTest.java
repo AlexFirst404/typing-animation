@@ -12,8 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -24,7 +27,8 @@ class LangFilesTest {
     private static final String[] UI_FIELDS = {"enabled", "appearStyle", "removeStyle", "easing", "durationMs",
             "intensity", "staggerMs", "glideMs", "smoothReflow", "smoothCursor", "animateChat", "animateOtherFields",
             "animateMultiline", "optionsButton", "removeDurationMs", "removeIntensity", "maxStaggerMs",
-            "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth", "animateSigns", "onlyWhenFocused"};
+            "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth", "animateSigns", "onlyWhenFocused",
+            "typingSounds", "soundPreset", "soundVolume", "soundPitch", "soundVariation", "soundOnDelete", "soundOnEnter"};
 
     private static List<String> requiredKeys() {
         List<String> keys = new ArrayList<>(List.of("typinganimation.title", "typinganimation.description",
@@ -34,7 +38,11 @@ class LangFilesTest {
                 "typinganimation.config.ms", "typinganimation.config.ms_per_char",
                 "typinganimation.config.multiplier", "typinganimation.config.pixels",
                 "typinganimation.config.page.animations", "typinganimation.config.page.cursor",
-                "typinganimation.config.page.behaviour"));
+                "typinganimation.config.page.behaviour", "typinganimation.config.page.sound",
+                "typinganimation.config.visualPreset", "typinganimation.config.visualPreset.custom",
+                "typinganimation.config.visualPreset.tooltip", "typinganimation.config.applyPreset",
+                "typinganimation.config.applyPreset.tooltip", "typinganimation.config.soundTest",
+                "typinganimation.config.soundTest.tooltip", "typinganimation.config.percent"));
         for (String f : UI_FIELDS) {
             keys.add("typinganimation.config." + f);
             keys.add("typinganimation.config." + f + ".tooltip");
@@ -44,6 +52,13 @@ class LangFilesTest {
         for (Easing e : Easing.values()) keys.add(e.translationKey());
         for (CursorStyle s : CursorStyle.values()) keys.add(s.translationKey());
         for (CursorColor c : CursorColor.values()) keys.add(c.translationKey());
+        for (SoundPreset s : SoundPreset.values()) {
+            keys.add(s.translationKey());
+            for (TypingSoundAction action : TypingSoundAction.values()) {
+                keys.add(s.translationKey() + "." + action.path());
+            }
+        }
+        for (VisualPreset p : VisualPreset.values()) keys.add(p.translationKey());
         return keys;
     }
 
@@ -102,5 +117,56 @@ class LangFilesTest {
         int n = 0;
         for (int i = s.indexOf(sub); i >= 0; i = s.indexOf(sub, i + 1)) n++;
         return n;
+    }
+
+    @Test
+    void everySoundEventHasTranslatedSubtitlesAndAllOriginalSamples() throws IOException {
+        Path assets = LANG.getParent().toAbsolutePath().normalize();
+        assumeTrue(Files.isDirectory(assets), "shared resources not present: " + assets);
+        Path manifest = assets.resolve("sounds.json");
+        assertTrue(Files.isRegularFile(manifest), "typing sound manifest is packaged");
+        JsonObject events = JsonParser.parseString(Files.readString(manifest, StandardCharsets.UTF_8)).getAsJsonObject();
+        JsonObject en = load("en_us.json"), ru = load("ru_ru.json");
+        assertEquals(16, events.size(), "four keyboard families each expose four input actions");
+        Path sounds = assets.resolve("sounds");
+        Set<Path> samples = new HashSet<>();
+        for (SoundPreset preset : SoundPreset.values()) {
+            for (TypingSoundAction action : TypingSoundAction.values()) {
+                String eventId = "typing." + preset.name().toLowerCase(Locale.ROOT) + "." + action.path();
+                assertTrue(events.has(eventId), "missing sound event " + eventId);
+                JsonObject event = events.getAsJsonObject(eventId);
+                String subtitle = preset.translationKey() + "." + action.path();
+                assertEquals(subtitle, event.get("subtitle").getAsString(), eventId);
+                assertTrue(en.has(subtitle) && ru.has(subtitle), "subtitle must be translated: " + subtitle);
+                assertFalse(en.get(subtitle).getAsString().isBlank());
+                assertFalse(ru.get(subtitle).getAsString().isBlank());
+                int count = switch (action) {
+                    case KEY -> 4;
+                    case SPACE, BACKSPACE -> 2;
+                    case ENTER -> 1;
+                };
+                var references = event.getAsJsonArray("sounds");
+                assertEquals(count, references.size(), eventId + " sample variants");
+                for (JsonElement reference : references) {
+                    String resource = reference.getAsString();
+                    String prefix = "typinganimation:";
+                    assertTrue(resource.startsWith(prefix), "sample must use this mod's namespace: " + resource);
+                    String relative = resource.substring(prefix.length());
+                    Path sample = sounds.resolve(relative + ".ogg").normalize();
+                    assertTrue(sample.startsWith(sounds), "sample cannot escape its namespace: " + resource);
+                    assertTrue(Files.isRegularFile(sample), "missing packaged sample " + resource);
+                    assertTrue(samples.add(sample), "each variant references a distinct original sample: " + resource);
+                    byte[] bytes = Files.readAllBytes(sample);
+                    assertTrue(bytes.length > 4, "empty sound sample " + resource);
+                    assertEquals("OggS", new String(bytes, 0, 4, StandardCharsets.US_ASCII), resource);
+                }
+            }
+        }
+        assertEquals(36, samples.size(), "all original samples are reachable through sound events");
+        try (var files = Files.walk(sounds)) {
+            assertEquals(samples, files.filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".ogg")).collect(java.util.stream.Collectors.toSet()),
+                    "no unused or accidentally omitted Ogg files");
+        }
     }
 }

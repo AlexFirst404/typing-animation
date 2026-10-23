@@ -103,5 +103,19 @@
     "description": "Separate controls for chat, other fields, multiline input and signs, plus focus behaviour.",
     "featured": false,
     "ordering": 14
+  },
+  {
+    "file": "preset-settings.png",
+    "title": "Ready-made visual presets — 1.2",
+    "description": "Choose Default, Minimal, Soft, Bouncy, Wave or Glitch, then Apply. Sound settings and field preferences stay unchanged.",
+    "featured": false,
+    "ordering": 15
+  },
+  {
+    "file": "sound-settings.png",
+    "title": "Typing sound presets — 1.2",
+    "description": "Typewriter, Mechanical, Soft and Laptop sounds with volume, pitch, separate deletion and Enter controls, and a Test Sound button. Sounds are off by default.",
+    "featured": false,
+    "ordering": 16
   }
 ]

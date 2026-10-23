@@ -13,7 +13,11 @@
     "MultilineTextFieldAccessor",
     "OptionsScreenMixin",
     "StringSplitterAccessor",
-    "StringViewAccessor"
+    "StringViewAccessor",
+    "EditBoxSoundMixin",
+    "MultiLineSoundMixin",
+    "SignSoundMixin",
+    "ChatSoundMixin"
   ],
   "injectors": {
     "defaultRequire": 1

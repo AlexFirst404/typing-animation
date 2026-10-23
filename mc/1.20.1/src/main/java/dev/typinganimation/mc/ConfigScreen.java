@@ -6,6 +6,8 @@ import dev.typinganimation.core.CursorColor;
 import dev.typinganimation.core.CursorStyle;
 import dev.typinganimation.core.Easing;
 import dev.typinganimation.core.RemoveStyle;
+import dev.typinganimation.core.SoundPreset;
+import dev.typinganimation.core.VisualPreset;
 import dev.typinganimation.core.TypingConfig;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,7 +32,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
 /**
- * Three compact settings pages with a persistent live preview. Each option has a tooltip, changes apply
+ * Four compact settings pages with a persistent live preview. Each option has a tooltip, changes apply
  * immediately, and Reset / Done stay in the same place. The layout fits a 320 x 240 scaled screen.
  */
 public class ConfigScreen extends Screen {
@@ -39,6 +41,8 @@ public class ConfigScreen extends Screen {
     private static final int ROW_H = 20;
     private static final int ROW_STEP = 22;
     private static final int DEMO_W = 60;
+
+    private static final int PAGE_COUNT = 4;
 
     private final Screen parent;
     private final DemoTyper demo = new DemoTyper();
@@ -49,6 +53,10 @@ public class ConfigScreen extends Screen {
     private final Map<AbstractWidget, Integer> optionPages = new LinkedHashMap<>();
     private final List<Button> pageButtons = new ArrayList<>();
     private int selectedPage;
+    private VisualPreset selectedPreset;
+    private Button presetButton;
+    private Button applyPresetButton;
+    private Button soundTestButton;
     private int accentX;
     private int accentY;
 
@@ -107,8 +115,8 @@ public class ConfigScreen extends Screen {
         demoButton = addRenderableWidget(Button.builder(demoLabel(), b -> toggleDemo())
                 .bounds(left + total - DEMO_W, previewY, DEMO_W, ROW_H).build());
 
-        String[] pageNames = {"animations", "cursor", "behaviour"};
-        int tabWidth = (total - 8) / 3;
+        String[] pageNames = {"animations", "cursor", "behaviour", "sound"};
+        int tabWidth = (total - (PAGE_COUNT - 1) * 4) / PAGE_COUNT;
         for (int i = 0; i < pageNames.length; i++) {
             final int page = i;
             pageButtons.add(addRenderableWidget(Button.builder(label("page." + pageNames[i]), b -> showPage(page))
@@ -139,6 +147,7 @@ public class ConfigScreen extends Screen {
         animations.add(slider("maxStaggerMs", TypingConfig.MAX_STAGGER_MIN_MS, TypingConfig.MAX_STAGGER_MAX_MS, 25,
                 () -> cfg.maxStaggerMs, v -> cfg.maxStaggerMs = (int) Math.round(v), ConfigScreen::ms));
         addPage(animations, 0, left, right, gridY);
+        addPresetControls(left, top + 181, total);
 
         List<AbstractWidget> cursor = new ArrayList<>();
         smoothCursorButton = onOff("smoothCursor", cfg.smoothCursor, v -> cfg.smoothCursor = v);
@@ -163,6 +172,24 @@ public class ConfigScreen extends Screen {
         optionsButtonToggle = onOff("optionsButton", cfg.optionsButton, v -> cfg.optionsButton = v);
         behaviour.add(optionsButtonToggle);
         addPage(behaviour, 2, left, right, gridY);
+
+        List<AbstractWidget> sound = new ArrayList<>();
+        sound.add(onOff("typingSounds", cfg.typingSounds, v -> cfg.typingSounds = v));
+        sound.add(cycle("soundPreset", SoundPreset.values(), cfg.soundPreset, SoundPreset::translationKey, v -> cfg.soundPreset = v));
+        sound.add(slider("soundVolume", TypingConfig.SOUND_VOLUME_MIN, TypingConfig.SOUND_VOLUME_MAX, 0.05,
+                () -> cfg.soundVolume, v -> cfg.soundVolume = (float) v,
+                v -> Component.translatable("typinganimation.config.percent", (int) Math.round(v * 100))));
+        sound.add(slider("soundPitch", TypingConfig.SOUND_PITCH_MIN, TypingConfig.SOUND_PITCH_MAX, 0.05,
+                () -> cfg.soundPitch, v -> cfg.soundPitch = (float) v, ConfigScreen::multiplier));
+        sound.add(onOff("soundVariation", cfg.soundVariation, v -> cfg.soundVariation = v));
+        sound.add(onOff("soundOnDelete", cfg.soundOnDelete, v -> cfg.soundOnDelete = v));
+        sound.add(onOff("soundOnEnter", cfg.soundOnEnter, v -> cfg.soundOnEnter = v));
+        soundTestButton = Button.builder(Component.translatable("typinganimation.config.soundTest"),
+                button -> TypingSounds.preview(ConfigManager.get().soundPreset)).bounds(0, 0, 150, 20).build();
+        soundTestButton.setTooltip(tooltip("soundTest"));
+        options.put("soundTest", soundTestButton);
+        sound.add(soundTestButton);
+        addPage(sound, 3, left, right, gridY);
         showPage(selectedPage);
         refreshActive();
 
@@ -178,15 +205,58 @@ public class ConfigScreen extends Screen {
     private void refreshActive() {
         boolean enabled = ConfigManager.get().enabled;
         for (Map.Entry<String, AbstractWidget> entry : options.entrySet()) {
-            if (!entry.getKey().equals("enabled") && !entry.getKey().equals("optionsButton")) {
+            if (!independentControl(entry.getKey())) {
                 entry.getValue().active = enabled;
             }
         }
     }
 
+    private void addPresetControls(int left, int y, int total) {
+        if (selectedPreset == null) {
+            selectedPreset = VisualPreset.match(ConfigManager.get());
+            if (selectedPreset == null) selectedPreset = VisualPreset.DEFAULT;
+        }
+        presetButton = Button.builder(presetLabel(), button -> {
+            VisualPreset[] presets = VisualPreset.values();
+            selectedPreset = presets[(selectedPreset.ordinal() + 1) % presets.length];
+            refreshPresetControls();
+        }).bounds(left, y, total - 104, 20).build();
+        presetButton.setTooltip(tooltip("visualPreset"));
+        applyPresetButton = Button.builder(Component.translatable("typinganimation.config.applyPreset"), button -> {
+            selectedPreset.applyTo(ConfigManager.get());
+            // Rebuild the visual controls from the chosen values while retaining the preview text and demo.
+            rebuildWidgets();
+        }).bounds(left + total - 100, y, 100, 20).build();
+        applyPresetButton.setTooltip(tooltip("applyPreset"));
+        options.put("visualPreset", presetButton);
+        options.put("applyPreset", applyPresetButton);
+        optionPages.put(presetButton, 0);
+        optionPages.put(applyPresetButton, 0);
+        addRenderableWidget(presetButton);
+        addRenderableWidget(applyPresetButton);
+        refreshPresetControls();
+    }
+
+    private Component presetLabel() {
+        String key = VisualPreset.match(ConfigManager.get()) == null
+                ? "typinganimation.config.visualPreset.custom" : "typinganimation.config.visualPreset";
+        return Component.translatable(key, Component.translatable(selectedPreset.translationKey()));
+    }
+
+    private void refreshPresetControls() {
+        if (presetButton == null || applyPresetButton == null || selectedPreset == null) return;
+        presetButton.setMessage(presetLabel());
+        applyPresetButton.active = VisualPreset.match(ConfigManager.get()) != selectedPreset;
+    }
+
+    private static boolean independentControl(String key) {
+        return key.equals("enabled") || key.equals("optionsButton") || key.equals("typingSounds")
+                || key.startsWith("sound") || key.equals("visualPreset") || key.equals("applyPreset");
+    }
+
     /** Changes pages without rebuilding the preview, so a running demo keeps its animation state. */
     void showPage(int page) {
-        selectedPage = Math.max(0, Math.min(2, page));
+        selectedPage = Math.max(0, Math.min(PAGE_COUNT - 1, page));
         for (Map.Entry<AbstractWidget, Integer> entry : optionPages.entrySet()) {
             entry.getKey().visible = entry.getValue() == selectedPage;
         }
@@ -219,7 +289,7 @@ public class ConfigScreen extends Screen {
     private CycleButton<Boolean> onOff(String field, boolean initial, Consumer<Boolean> setter) {
         CycleButton<Boolean> widget = CycleButton.onOffBuilder(initial)
                 .withTooltip(v -> tooltip(field))
-                .create(0, 0, COL_W, ROW_H, label(field), (b, v) -> setter.accept(v));
+                .create(0, 0, COL_W, ROW_H, label(field), (b, v) -> { setter.accept(v); refreshPresetControls(); });
         options.put(field, widget);
         return widget;
     }
@@ -228,14 +298,14 @@ public class ConfigScreen extends Screen {
                                      Consumer<E> setter) {
         CycleButton<E> widget = CycleButton.<E>builder(v -> Component.translatable(translation.apply(v)))
                 .withValues(values).withInitialValue(initial).withTooltip(v -> tooltip(field))
-                .create(0, 0, COL_W, ROW_H, label(field), (b, v) -> setter.accept(v));
+                .create(0, 0, COL_W, ROW_H, label(field), (b, v) -> { setter.accept(v); refreshPresetControls(); });
         options.put(field, widget);
         return widget;
     }
 
     private ConfigSlider slider(String field, double min, double max, double step, DoubleSupplier getter,
                                 DoubleConsumer setter, DoubleFunction<Component> format) {
-        ConfigSlider widget = new ConfigSlider(0, 0, COL_W, ROW_H, key(field), min, max, step, getter, setter, format);
+        ConfigSlider widget = new ConfigSlider(0, 0, COL_W, ROW_H, key(field), min, max, step, getter, v -> { setter.accept(v); refreshPresetControls(); }, format);
         options.put(field, widget);
         return widget;
     }
@@ -296,6 +366,7 @@ public class ConfigScreen extends Screen {
 
     private void resetToDefaults() {
         ConfigManager.reset();
+        selectedPreset = VisualPreset.DEFAULT;
         savedSnapshot = ConfigManager.get().copy();
         rebuildWidgets();
     }
@@ -314,7 +385,7 @@ public class ConfigScreen extends Screen {
         renderBackground(gg); // 1.20.x: Screen#render does not draw the background
         super.render(gg, mouseX, mouseY, partialTick);
         gg.drawCenteredString(this.font, this.title, this.width / 2, titleY, 0xFFFFFF);
-        int tabWidth = (COL_W * 2 + COL_GAP - 8) / 3;
+        int tabWidth = (COL_W * 2 + COL_GAP - (PAGE_COUNT - 1) * 4) / PAGE_COUNT;
         int tabX = accentX + selectedPage * (tabWidth + 4);
         gg.fill(tabX, accentY, tabX + tabWidth, accentY + 2, 0xFFB39DFF);
     }

@@ -3,6 +3,8 @@ package dev.typinganimation.mc;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.typinganimation.core.AppearStyle;
+import dev.typinganimation.core.SoundPreset;
+import dev.typinganimation.core.TypingSoundAction;
 import dev.typinganimation.core.CharTransform;
 import dev.typinganimation.core.ConfigManager;
 import dev.typinganimation.core.FieldAnimationState;
@@ -66,6 +68,7 @@ public final class SelfTest {
     private SelfTestScreen screen;
     private Screen signScreen;
     private TypingConfig beforeSignTest;
+    private TypingConfig beforeSoundTest;
     private String asyncFailure;
     private boolean asyncDone;
     private Button optionsButton;
@@ -503,6 +506,8 @@ public final class SelfTest {
             ConfigManager.get().copyFrom(beforeSignTest);
         });
 
+        addTypingSoundTests();
+
         // 9. Options screen -> our button -> ConfigScreen -> interact -> Done
         run(1, "open options", () -> mc.setScreen(new OptionsScreen(new TitleScreen(), mc.options)));
         waitFor(0, "options screen shown", 40, () -> mc.screen instanceof OptionsScreen);
@@ -717,6 +722,117 @@ public final class SelfTest {
         run(0, "capture " + name, () -> screen.requestCapture(name, delayMs, null));
     }
 
+    private void addTypingSoundTests() {
+        run(1, "prepare input sound tests", () -> {
+            beforeSoundTest = ConfigManager.get().copy();
+            ConfigManager.get().copyFrom(TypingConfig.defaults());
+            ConfigManager.get().typingSounds = true;
+            ConfigManager.get().soundVolume = .2f;
+            ConfigManager.get().soundVariation = false;
+            mc.setScreen(screen);
+            for (SoundPreset preset : SoundPreset.values()) {
+                for (TypingSoundAction action : TypingSoundAction.values()) {
+                    var event = TypingSounds.event(preset, action);
+                    var loaded = mc.getSoundManager().getSoundEvent(event.location());
+                    check(loaded != null && loaded.getWeight() > 0, "missing sound resource " + event.location());
+                }
+            }
+        });
+        for (SoundPreset preset : SoundPreset.values()) {
+            run(1, "type a key with " + preset, () -> {
+                ConfigManager.get().soundPreset = preset;
+                TypingSounds.resetTestCounters();
+                screen.plain.setValue("");
+                screen.plain.setMaxLength(512);
+                screen.plain.setFocused(true);
+                check(screen.plain.charTyped('A', 0), "plain field rejected input");
+                check(TypingSounds.playedCount == 1 && TypingSounds.lastAction == TypingSoundAction.KEY
+                        && TypingSounds.lastPreset == preset, "wrong key sound for " + preset);
+                check(TypingSounds.lastVolume == .2f && TypingSounds.lastPitch == 1f, "audio controls ignored");
+            });
+            run(1, "space sound " + preset, () -> {
+                check(screen.plain.charTyped(' ', 0), "plain field rejected space");
+                check(TypingSounds.playedCount == 2 && TypingSounds.lastAction == TypingSoundAction.SPACE, "space sound missing");
+            });
+            run(1, "delete sound " + preset, () -> {
+                key(screen.plain, InputConstants.KEY_BACKSPACE);
+                check(TypingSounds.playedCount == 3 && TypingSounds.lastAction == TypingSoundAction.BACKSPACE, "delete sound missing");
+            });
+            run(1, "multiline enter sound " + preset, () -> {
+                screen.multi.setValue("Line");
+                screen.multi.setFocused(true);
+                key(screen.multi, InputConstants.KEY_RETURN);
+                check(TypingSounds.playedCount == 4 && TypingSounds.lastAction == TypingSoundAction.ENTER, "multiline enter sound missing");
+            });
+        }
+        run(1, "programmatic updates and navigation are silent", () -> {
+            TypingSounds.resetTestCounters();
+            screen.plain.setValue("History / initialization");
+            screen.multi.setValue("First\nSecond");
+            key(screen.plain, InputConstants.KEY_LEFT);
+            key(screen.plain, InputConstants.KEY_END);
+            check(TypingSounds.playedCount == 0, "programmatic or caret-only sound");
+        });
+        run(1, "one sound for a paste", () -> {
+            String clipboard = mc.keyboardHandler.getClipboard();
+            try {
+                mc.keyboardHandler.setClipboard(" pasted text with many characters");
+                screen.plain.keyPressed(InputConstants.KEY_V, 0, 2);
+            } finally { mc.keyboardHandler.setClipboard(clipboard); }
+            check(TypingSounds.playedCount == 1 && TypingSounds.lastAction == TypingSoundAction.KEY, "paste emitted a sound burst");
+        });
+        run(1, "typing sound off and field gates", () -> {
+            TypingSounds.resetTestCounters();
+            ConfigManager.get().typingSounds = false;
+            check(screen.plain.charTyped('x', 0), "plain field rejected input");
+            ConfigManager.get().typingSounds = true;
+            ConfigManager.get().animateOtherFields = false;
+            check(screen.plain.charTyped('x', 0), "plain field rejected input");
+            ConfigManager.get().animateOtherFields = true;
+            ConfigManager.get().enabled = false;
+            check(screen.plain.charTyped('x', 0), "plain field rejected input");
+            ConfigManager.get().enabled = true;
+            ConfigManager.get().soundVolume = 0;
+            check(screen.plain.charTyped('x', 0), "plain field rejected input");
+            ConfigManager.get().soundVolume = .2f;
+            check(TypingSounds.playedCount == 0, "disabled or muted audio still played");
+        });
+        run(1, "delete and enter switches", () -> {
+            ConfigManager.get().soundOnDelete = false;
+            ConfigManager.get().soundOnEnter = false;
+            key(screen.plain, InputConstants.KEY_BACKSPACE);
+            key(screen.multi, InputConstants.KEY_RETURN);
+            check(TypingSounds.playedCount == 0, "action audio toggle ignored");
+            ConfigManager.get().soundOnDelete = true;
+            ConfigManager.get().soundOnEnter = true;
+        });
+        for (boolean hanging : new boolean[]{false,true}) {
+            run(1, "prepare audible sign " + hanging, () -> {
+                signScreen = SignSelfTest.create(hanging);
+                mc.setScreen(signScreen);
+                TypingSounds.resetTestCounters();
+            });
+            run(2, "wait for sign editor render", () -> {});
+            run(1, "sign key sound " + hanging, () -> {
+                SignSelfTest.type(signScreen, 'A');
+                check(TypingSounds.playedCount == 1 && TypingSounds.lastAction == TypingSoundAction.KEY, "sign key silent");
+            });
+            run(1, "sign return sound " + hanging, () -> {
+                signScreen.keyPressed(InputConstants.KEY_RETURN, 0, 0);
+                check(TypingSounds.playedCount == 2 && TypingSounds.lastAction == TypingSoundAction.ENTER, "sign Enter silent");
+            });
+            run(1, "sign arrows are silent " + hanging, () -> {
+                SignSelfTest.down(signScreen);
+                check(TypingSounds.playedCount == 2, "sign line navigation made a sound");
+            });
+        }
+        run(1, "restore after audio input tests", () -> {
+            check(TypingSounds.firstError == null, "audio path failed");
+            ConfigManager.get().copyFrom(beforeSoundTest);
+            log("selftest: all four typing sound presets, 16 resources, paste/mute/field gates and both sign editors passed");
+        });
+    }
+
     private static void key(Object widget, int keyCode) {
         if (widget instanceof EditBox b) {
             b.keyPressed(keyCode, 0, 0);
@@ -838,22 +954,27 @@ public final class SelfTest {
 
     private void checkConfigLayout() {
         configScreen = (ConfigScreen) mc.screen;
-        List<AbstractWidget> widgets = new ArrayList<>();
-        for (GuiEventListener l : configScreen.children()) {
-            if (l instanceof AbstractWidget w && w.visible) {
-                check(w.getX() >= 0 && w.getY() >= 0 && w.getX() + w.getWidth() <= configScreen.width
-                                && w.getY() + w.getHeight() <= configScreen.height,
-                        "config widget outside the screen: " + w.getMessage().getString());
-                for (AbstractWidget o : widgets) {
-                    check(!overlaps(w, o), "config widgets overlap: " + w.getMessage().getString() + " / "
-                            + o.getMessage().getString());
+        check(configScreen.options().size() == 33, "config option/action count: " + configScreen.options().size());
+        for (int page = 0; page < 4; page++) {
+            configScreen.showPage(page);
+            List<AbstractWidget> widgets = new ArrayList<>();
+            for (GuiEventListener l : configScreen.children()) {
+                if (l instanceof AbstractWidget w && w.visible) {
+                    check(w.getX() >= 0 && w.getY() >= 0 && w.getX() + w.getWidth() <= configScreen.width
+                                    && w.getY() + w.getHeight() <= configScreen.height,
+                            "config widget outside the screen: " + w.getMessage().getString());
+                    for (AbstractWidget o : widgets) {
+                        check(!overlaps(w, o), "config widgets overlap: " + w.getMessage().getString() + " / "
+                                + o.getMessage().getString());
+                    }
+                    widgets.add(w);
                 }
-                widgets.add(w);
             }
+            check(widgets.size() >= 10, "config screen has only " + widgets.size() + " widgets");
+            log("config page " + page + " " + configScreen.width + "x" + configScreen.height + ": " + widgets.size()
+                    + " widgets, no overlaps");
         }
-        check(widgets.size() >= 10, "config screen has only " + widgets.size() + " widgets");
-        log("config screen " + configScreen.width + "x" + configScreen.height + ": " + widgets.size()
-                + " widgets, no overlaps");
+        configScreen.showPage(0);
     }
 
     private static boolean overlaps(AbstractWidget a, AbstractWidget b) {

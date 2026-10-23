@@ -12,6 +12,8 @@ public final class TypingConfig {
     public static final int GLIDE_MIN_MS = 0, GLIDE_MAX_MS = 300;
     public static final int CURSOR_GLIDE_MIN_MS = 0, CURSOR_GLIDE_MAX_MS = 500;
     public static final int CURSOR_WIDTH_MIN = 1, CURSOR_WIDTH_MAX = 4;
+    public static final float SOUND_VOLUME_MIN = 0f, SOUND_VOLUME_MAX = 1f;
+    public static final float SOUND_PITCH_MIN = 0.6f, SOUND_PITCH_MAX = 1.6f;
 
     public boolean enabled = true;
     public AppearStyle appearStyle = AppearStyle.SLIDE_UP;
@@ -41,6 +43,16 @@ public final class TypingConfig {
     public CursorColor cursorColor = CursorColor.VANILLA;
     /** [1, 4] bar width / underline thickness in GUI pixels. */
     public int cursorWidth = 1;
+    /** Optional local typing feedback; existing installations remain silent until enabled. */
+    public boolean typingSounds = false;
+    public SoundPreset soundPreset = SoundPreset.MECHANICAL;
+    /** [0, 1] local typing feedback volume. */
+    public float soundVolume = 0.35f;
+    /** [0.6, 1.6] base playback pitch. */
+    public float soundPitch = 1.0f;
+    public boolean soundVariation = true;
+    public boolean soundOnDelete = true;
+    public boolean soundOnEnter = true;
     public boolean animateChat = true;
     public boolean animateOtherFields = true;
     public boolean animateMultiline = true;
@@ -82,6 +94,13 @@ public final class TypingConfig {
         cursorStyle = o.cursorStyle;
         cursorColor = o.cursorColor;
         cursorWidth = o.cursorWidth;
+        typingSounds = o.typingSounds;
+        soundPreset = o.soundPreset;
+        soundVolume = o.soundVolume;
+        soundPitch = o.soundPitch;
+        soundVariation = o.soundVariation;
+        soundOnDelete = o.soundOnDelete;
+        soundOnEnter = o.soundOnEnter;
         animateChat = o.animateChat;
         animateOtherFields = o.animateOtherFields;
         animateMultiline = o.animateMultiline;
@@ -90,13 +109,14 @@ public final class TypingConfig {
         optionsButton = o.optionsButton;
     }
 
-    /** Clamps numbers to their ranges, replaces null enums and NaN intensity by defaults. */
+    /** Clamps numbers to their ranges, replaces null enums and NaN floating-point values by defaults. */
     public void clamp() {
         if (appearStyle == null) appearStyle = AppearStyle.SLIDE_UP;
         if (removeStyle == null) removeStyle = RemoveStyle.FADE;
         if (easing == null) easing = Easing.AUTO;
         if (cursorStyle == null) cursorStyle = CursorStyle.VANILLA;
         if (cursorColor == null) cursorColor = CursorColor.VANILLA;
+        if (soundPreset == null) soundPreset = SoundPreset.MECHANICAL;
         durationMs = clampInt(durationMs, DURATION_MIN_MS, DURATION_MAX_MS);
         removeDurationMs = clampInt(removeDurationMs, DURATION_MIN_MS, DURATION_MAX_MS);
         if (Float.isNaN(intensity)) intensity = 1.0f;
@@ -108,6 +128,10 @@ public final class TypingConfig {
         glideMs = clampInt(glideMs, GLIDE_MIN_MS, GLIDE_MAX_MS);
         cursorGlideMs = clampInt(cursorGlideMs, CURSOR_GLIDE_MIN_MS, CURSOR_GLIDE_MAX_MS);
         cursorWidth = clampInt(cursorWidth, CURSOR_WIDTH_MIN, CURSOR_WIDTH_MAX);
+        if (Float.isNaN(soundVolume)) soundVolume = 0.35f;
+        soundVolume = Math.max(SOUND_VOLUME_MIN, Math.min(SOUND_VOLUME_MAX, soundVolume));
+        if (Float.isNaN(soundPitch)) soundPitch = 1.0f;
+        soundPitch = Math.max(SOUND_PITCH_MIN, Math.min(SOUND_PITCH_MAX, soundPitch));
     }
 
     private static int clampInt(int v, int min, int max) {
@@ -127,6 +151,9 @@ public final class TypingConfig {
                 && smoothCursor == o.smoothCursor && glideMs == o.glideMs && animateChat == o.animateChat
                 && cursorGlideMs == o.cursorGlideMs && cursorStyle == o.cursorStyle
                 && cursorColor == o.cursorColor && cursorWidth == o.cursorWidth
+                && typingSounds == o.typingSounds && soundPreset == o.soundPreset
+                && Float.compare(soundVolume, o.soundVolume) == 0 && Float.compare(soundPitch, o.soundPitch) == 0
+                && soundVariation == o.soundVariation && soundOnDelete == o.soundOnDelete && soundOnEnter == o.soundOnEnter
                 && animateOtherFields == o.animateOtherFields && animateMultiline == o.animateMultiline
                 && animateSigns == o.animateSigns
                 && onlyWhenFocused == o.onlyWhenFocused && optionsButton == o.optionsButton;
@@ -136,7 +163,8 @@ public final class TypingConfig {
     public int hashCode() {
         return Objects.hash(enabled, appearStyle, removeStyle, easing, durationMs, removeDurationMs, intensity,
                 removeIntensity, staggerMs, maxStaggerMs, smoothReflow, smoothCursor, glideMs, cursorGlideMs,
-                cursorStyle, cursorColor, cursorWidth, animateChat, animateOtherFields,
+                cursorStyle, cursorColor, cursorWidth, typingSounds, soundPreset, soundVolume, soundPitch,
+                soundVariation, soundOnDelete, soundOnEnter, animateChat, animateOtherFields,
                 animateMultiline, animateSigns, onlyWhenFocused, optionsButton);
     }
 
@@ -149,6 +177,10 @@ public final class TypingConfig {
                 + ", smoothReflow=" + smoothReflow + ", smoothCursor=" + smoothCursor + ", glideMs=" + glideMs
                 + ", cursorGlideMs=" + cursorGlideMs + ", cursorStyle=" + cursorStyle
                 + ", cursorColor=" + cursorColor + ", cursorWidth=" + cursorWidth
+                + ", typingSounds=" + typingSounds + ", soundPreset=" + soundPreset
+                + ", soundVolume=" + soundVolume + ", soundPitch=" + soundPitch
+                + ", soundVariation=" + soundVariation + ", soundOnDelete=" + soundOnDelete
+                + ", soundOnEnter=" + soundOnEnter
                 + ", animateChat=" + animateChat + ", animateOtherFields=" + animateOtherFields
                 + ", animateMultiline=" + animateMultiline + ", animateSigns=" + animateSigns
                 + ", onlyWhenFocused=" + onlyWhenFocused

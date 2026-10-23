@@ -169,6 +169,13 @@ public final class ConfigManager {
         o.addProperty("cursorStyle", enumName(c.cursorStyle, CursorStyle.VANILLA));
         o.addProperty("cursorColor", enumName(c.cursorColor, CursorColor.VANILLA));
         o.addProperty("cursorWidth", c.cursorWidth);
+        o.addProperty("typingSounds", c.typingSounds);
+        o.addProperty("soundPreset", enumName(c.soundPreset, SoundPreset.MECHANICAL));
+        o.addProperty("soundVolume", c.soundVolume);
+        o.addProperty("soundPitch", c.soundPitch);
+        o.addProperty("soundVariation", c.soundVariation);
+        o.addProperty("soundOnDelete", c.soundOnDelete);
+        o.addProperty("soundOnEnter", c.soundOnEnter);
         o.addProperty("animateChat", c.animateChat);
         o.addProperty("animateOtherFields", c.animateOtherFields);
         o.addProperty("animateMultiline", c.animateMultiline);
@@ -202,6 +209,13 @@ public final class ConfigManager {
         c.cursorStyle = readEnum(o, "cursorStyle", CursorStyle.class, c.cursorStyle);
         c.cursorColor = readEnum(o, "cursorColor", CursorColor.class, c.cursorColor);
         c.cursorWidth = readInt(o, "cursorWidth", c.cursorWidth);
+        c.typingSounds = readBool(o, "typingSounds", c.typingSounds);
+        c.soundPreset = readEnum(o, "soundPreset", SoundPreset.class, c.soundPreset);
+        c.soundVolume = readFloat(o, "soundVolume", c.soundVolume);
+        c.soundPitch = readFloat(o, "soundPitch", c.soundPitch);
+        c.soundVariation = readBool(o, "soundVariation", c.soundVariation);
+        c.soundOnDelete = readBool(o, "soundOnDelete", c.soundOnDelete);
+        c.soundOnEnter = readBool(o, "soundOnEnter", c.soundOnEnter);
         c.animateChat = readBool(o, "animateChat", c.animateChat);
         c.animateOtherFields = readBool(o, "animateOtherFields", c.animateOtherFields);
         c.animateMultiline = readBool(o, "animateMultiline", c.animateMultiline);
