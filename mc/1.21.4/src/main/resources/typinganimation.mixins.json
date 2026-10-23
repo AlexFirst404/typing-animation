@@ -16,7 +16,8 @@
     "EditBoxSoundMixin",
     "MultiLineSoundMixin",
     "SignSoundMixin",
-    "ChatSoundMixin"
+    "ChatSoundMixin",
+    "SoundResourcePackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

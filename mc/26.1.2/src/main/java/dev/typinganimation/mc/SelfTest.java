@@ -992,11 +992,20 @@ public final class SelfTest {
             cfg().soundVolume = .2f;
             cfg().soundVariation = false;
             mc.setScreen(screen);
+            var manifest = TypingSounds.event(SoundPreset.TYPEWRITER, TypingSoundAction.KEY).location().withPath("sounds.json");
+            int manifestCount = mc.getResourceManager().getResourceStack(manifest).size();
+            check(manifestCount == 1, "expected one typing sound manifest, found " + manifestCount);
             for (SoundPreset preset : SoundPreset.values()) {
                 for (TypingSoundAction action : TypingSoundAction.values()) {
                     var event = TypingSounds.event(preset, action);
                     var loaded = mc.getSoundManager().getSoundEvent(event.location());
                     check(loaded != null && loaded.getWeight() > 0, "missing sound resource " + event.location());
+                    int variants = action == TypingSoundAction.KEY ? 4 : action == TypingSoundAction.ENTER ? 1 : 2;
+                    for (int variant = 1; variant <= variants; variant++) {
+                        var resource = event.location().withPath("sounds/typing/" + preset.name().toLowerCase(java.util.Locale.ROOT)
+                                + "/" + action.path() + "_" + variant + ".ogg");
+                        check(mc.getResourceManager().getResource(resource).isPresent(), "missing OGG resource " + resource);
+                    }
                 }
             }
         });

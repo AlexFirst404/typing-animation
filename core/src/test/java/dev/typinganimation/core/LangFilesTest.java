@@ -163,6 +163,12 @@ class LangFilesTest {
             }
         }
         assertEquals(36, samples.size(), "all original samples are reachable through sound events");
+        Set<String> fallbackPaths = new HashSet<>();
+        fallbackPaths.add("sounds.json");
+        for (Path sample : samples) fallbackPaths.add(assets.relativize(sample).toString().replace('\\', '/'));
+        assertEquals(fallbackPaths, new HashSet<>(BundledSoundResources.PATHS),
+                "bare-loader fallback exposes exactly the manifest and every referenced sample");
+        assertEquals(fallbackPaths.size(), BundledSoundResources.PATHS.size(), "fallback contains no duplicate paths");
         try (var files = Files.walk(sounds)) {
             assertEquals(samples, files.filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith(".ogg")).collect(java.util.stream.Collectors.toSet()),

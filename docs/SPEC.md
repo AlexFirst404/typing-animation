@@ -433,7 +433,7 @@ typinganimation.config.soundTest, typinganimation.config.soundTest.tooltip, typi
 typinganimation.sound.*, typinganimation.preset.*
 ```
 
-### 6.1 Local typing audio (1.2 preview)
+### 6.1 Local typing audio (1.2)
 
 Audio is triggered by accepted user input in text widgets and sign editors, never by drawing or programmatic
 text setters. A paste or replacement produces at most one action. Empty/unchanged edits, initial field contents,
@@ -453,6 +453,13 @@ four key variants, two space variants, two deletion variants and one Enter sampl
 and are mapped by `sounds.json`. `scripts/generate-typing-sounds.py` synthesizes the library from seeded noise
 and damped resonances; no downloaded samples or recordings are used. `--check` regenerates in memory and verifies
 the checked-in files. Reproducing identical Ogg bytes requires the dependency versions recorded in that script.
+
+Bare Fabric/Quilt loaders do not register bundled mod resource packs. A client-only
+`SoundResourcePackMixin` prepends a classpath-backed audio pack to `MultiPackResourceManager` at lowest priority.
+It exposes only `sounds.json` and the 36 indexed samples, opens a fresh stream for each consumer, and leaves
+server data untouched. If an existing pack already supplies all 37 paths, the fallback is omitted to avoid
+duplicate sound events with Fabric API, Forge or NeoForge. Partial custom packs keep their normal higher
+priority while missing samples remain available from the fallback. Fabric API stays optional.
 
 ## 7. `target.properties`
 

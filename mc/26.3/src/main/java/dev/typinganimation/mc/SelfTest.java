@@ -1030,6 +1030,28 @@ public final class SelfTest {
     }
 
 
+    private static void checkSoundPackFallback() {
+        var bundled = new ClasspathSoundPack();
+        java.util.List<net.minecraft.server.packs.PackResources> complete = java.util.List.of(bundled);
+        check(ClasspathSoundPack.includeIfMissing(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, complete) == complete,
+                "complete mod resource pack was duplicated");
+        var partial = (net.minecraft.server.packs.PackResources) java.lang.reflect.Proxy.newProxyInstance(
+                net.minecraft.server.packs.PackResources.class.getClassLoader(),
+                new Class<?>[]{net.minecraft.server.packs.PackResources.class}, (proxy, method, args) -> {
+                    // Match types, not remapped method names: this fixture also runs in production JARs.
+                    if (args != null && args.length == 2 && args[0] instanceof net.minecraft.server.packs.PackType type
+                            && args[1] instanceof net.minecraft.resources.Identifier id && id.getPath().equals("sounds.json"))
+                        return bundled.getResource(type, id);
+                    return null;
+                });
+        java.util.List<net.minecraft.server.packs.PackResources> original = java.util.List.of(partial);
+        var layered = ClasspathSoundPack.includeIfMissing(net.minecraft.server.packs.PackType.CLIENT_RESOURCES, original);
+        check(layered.size() == 2 && layered.get(0) instanceof ClasspathSoundPack && layered.get(1) == partial,
+                "partial override did not preserve fallback priority");
+        check(ClasspathSoundPack.includeIfMissing(net.minecraft.server.packs.PackType.SERVER_DATA, original) == original,
+                "client sounds altered server data packs");
+    }
+
     private void addTypingSoundTests() {
         act("prepare input sound tests", () -> {
             beforeSoundTest = cfg().copy();
@@ -1038,11 +1060,21 @@ public final class SelfTest {
             cfg().soundVolume = .2f;
             cfg().soundVariation = false;
             mc.gui.setScreen(screen);
+            checkSoundPackFallback();
+            var manifest = TypingSounds.event(SoundPreset.TYPEWRITER, TypingSoundAction.KEY).location().withPath("sounds.json");
+            int manifestCount = mc.getResourceManager().getResourceStack(manifest).size();
+            check(manifestCount == 1, "expected one typing sound manifest, found " + manifestCount);
             for (SoundPreset preset : SoundPreset.values()) {
                 for (TypingSoundAction action : TypingSoundAction.values()) {
                     var event = TypingSounds.event(preset, action);
                     var loaded = mc.getSoundManager().getSoundEvent(event.location());
                     check(loaded != null && loaded.getWeight() > 0, "missing sound resource " + event.location());
+                    int variants = action == TypingSoundAction.KEY ? 4 : action == TypingSoundAction.ENTER ? 1 : 2;
+                    for (int variant = 1; variant <= variants; variant++) {
+                        var resource = event.location().withPath("sounds/typing/" + preset.name().toLowerCase(java.util.Locale.ROOT)
+                                + "/" + action.path() + "_" + variant + ".ogg");
+                        check(mc.getResourceManager().getResource(resource).isPresent(), "missing OGG resource " + resource);
+                    }
                 }
             }
         });

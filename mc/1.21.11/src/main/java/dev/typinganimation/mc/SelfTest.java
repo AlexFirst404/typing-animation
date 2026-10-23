@@ -952,30 +952,18 @@ public final class SelfTest {
         return false;
     }
 
-    /** Caret index of the multi-line test field (dev diagnostics only: reflection on the private text field). */
+    /** Mapping-safe caret access for the same development and production diagnostics. */
     private int multiCursor() {
-        try {
-            java.lang.reflect.Field f = MultiLineEditBox.class.getDeclaredField("textField");
-            f.setAccessible(true);
-            return ((MultilineTextField) f.get(screen.multi)).cursor();
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            throw new AssertionError("can not read the multi-line caret", e);
-        }
+        return ((dev.typinganimation.mixin.MultiLineTestAccessor) screen.multi).typinganimation$getTextField().cursor();
     }
 
     private void logMultiCursor(String when) {
         LOG.info(TAG + "selftest: multi-line caret {} of {} ({})", multiCursor(), screen.multi.getValue().length(), when);
     }
 
-    /** The grey suggestion of an EditBox (diagnostics only: reflection on the private field, Mojang name in dev). */
+    /** Mapping-safe access keeps the same assertion in development and remapped production JARs. */
     private static String suggestion(EditBox box) {
-        try {
-            java.lang.reflect.Field f = EditBox.class.getDeclaredField("suggestion");
-            f.setAccessible(true);
-            return (String) f.get(box);
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            throw new AssertionError("can not read the EditBox suggestion", e);
-        }
+        return ((dev.typinganimation.mixin.EditBoxTestAccessor) box).typinganimation$getSuggestion();
     }
 
     // =================================================================== input helpers
@@ -992,11 +980,20 @@ public final class SelfTest {
             cfg().soundVolume = .2f;
             cfg().soundVariation = false;
             mc.setScreen(screen);
+            var manifest = TypingSounds.event(SoundPreset.TYPEWRITER, TypingSoundAction.KEY).location().withPath("sounds.json");
+            int manifestCount = mc.getResourceManager().getResourceStack(manifest).size();
+            check(manifestCount == 1, "expected one typing sound manifest, found " + manifestCount);
             for (SoundPreset preset : SoundPreset.values()) {
                 for (TypingSoundAction action : TypingSoundAction.values()) {
                     var event = TypingSounds.event(preset, action);
                     var loaded = mc.getSoundManager().getSoundEvent(event.location());
                     check(loaded != null && loaded.getWeight() > 0, "missing sound resource " + event.location());
+                    int variants = action == TypingSoundAction.KEY ? 4 : action == TypingSoundAction.ENTER ? 1 : 2;
+                    for (int variant = 1; variant <= variants; variant++) {
+                        var resource = event.location().withPath("sounds/typing/" + preset.name().toLowerCase(java.util.Locale.ROOT)
+                                + "/" + action.path() + "_" + variant + ".ogg");
+                        check(mc.getResourceManager().getResource(resource).isPresent(), "missing OGG resource " + resource);
+                    }
                 }
             }
         });
