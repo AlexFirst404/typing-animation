@@ -2,7 +2,7 @@
   "_notes": [
     "Read by scripts/modrinth-publish.mjs (keys starting with '_' are ignored). See modrinth/README.md.",
     "Links (source_url, issues_url, wiki_url, discord_url, license_url): null = not set, otherwise an https:// URL.",
-    "extra_loaders: target name -> additional Modrinth loader tags for that target's jar. Stable 1.2.0 production verification is pending for the five retained combinations: NeoForge 47.1.106 (1.20.1-forge) and Quilt Loader 0.30.1 (1.20.1-fabric, 1.21.1-fabric, 1.21.11-fabric, 26.2-fabric). See docs/validation-1.2.0.md for current evidence and limitations before publishing. 26.3-fabric remains untagged: stable Quilt 0.30.1 provides fabricloader 0.19.3, below its required >=0.19.5. Other Fabric jars have no additional Quilt tag.",
+    "extra_loaders: target name -> additional Modrinth loader tags for that target's jar. All five final stable 1.2.0 JAR combinations passed full production self-tests with installed-copy SHA-256 verification: NeoForge 47.1.106 (1.20.1-forge) and Quilt Loader 0.30.1 (1.20.1-fabric, 1.21.1-fabric, 1.21.11-fabric, 26.2-fabric). Tests include all 16 sound events, resource fallback and both sign editors; the older reflection diagnostics now use mapping-safe accessors. See docs/validation-1.2.0.md for evidence and test limits. 26.3-fabric remains untagged: stable Quilt 0.30.1 provides fabricloader 0.19.3, below its required >=0.19.5. Other Fabric jars have no additional Quilt tag.",
     "dependencies_by_loader: added to every version whose target uses that loader ('name' is informational only)."
   ],
   "slug": "typing-animation",
