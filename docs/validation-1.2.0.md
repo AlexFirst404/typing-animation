@@ -118,3 +118,20 @@ vanilla shader warnings are unrelated to the mod. Two nonfatal Windows clipboard
 runs; both affected runs still passed their paste assertions. A Russian label diagnostic uses an unreachable
 1000 ms cursor value even though that UI slider is capped at 500 ms; its 18 width warnings are known diagnostic
 false positives.
+
+## Delivery verification
+
+On 23 October 2026, the public GitHub release `v1.2.0` contained all 29 final JARs, with matching names, sizes
+and SHA-256 digests. The tag points to `9ef2f774cc032175817f7a012abdbb78dd070bc9`, containing the validated code
+and release receipts.
+
+Modrinth accepted all 29 release versions; their file sizes and SHA-512 hashes matched the final artifacts.
+All ten Fabric versions carry the optional Mod Menu dependency, and the project description and source URL
+were verified. The project status at this check was `processing` (moderation pending).
+
+CurseForge accepted all 29 files, and every uploaded CDN download matched its final local JAR by SHA-512 and
+size. The author dashboard showed all 29 as `Processing` at verification time. The new 26.3 Fabric file also
+showed Mod Menu as an Optional Dependency. Upload IDs and hashes are recorded in
+[`curseforge/releases/1.2.0.json`](../curseforge/releases/1.2.0.json).
+
+The complete local verification record is `.research/release-1.2.0-publication-verification.json`.
