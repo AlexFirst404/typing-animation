@@ -15,6 +15,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import xml.etree.ElementTree as ET
 import zipfile
 
 from PIL import Image, ImageDraw, ImageFont, __version__ as PILLOW_VERSION
@@ -248,10 +249,106 @@ def write_contact_sheet() -> None:
     save_png(sheet, CONTACT_SHEET)
 
 
+def write_wide_svgs() -> dict:
+    """Encode the same pixel grid as integer-aligned SVG runs; leave PNGs/ZIP untouched."""
+    records = []
+    for spec in SPECS[:4]:
+        original = ORIGINALS / (spec["name"] + ".png")
+        with Image.open(original) as image:
+            image.load()
+            assert image.size == (96, 12)
+            cleaned = image.convert("RGBA")
+        if spec.get("black_background"):
+            original_pixels = pixels(cleaned)
+            assert sum(pixel[:3] == (0, 0, 0) for pixel in original_pixels) == spec["black_background"]
+            cleaned.putdata([(red, green, blue, 0 if (red, green, blue) == (0, 0, 0) else alpha)
+                             for red, green, blue, alpha in original_pixels])
+        expected = pixels(cleaned)
+        assert all(pixel[3] in (0, 255) for pixel in expected), "The supplied dividers have binary alpha"
+        assert all(pixel == (0, 0, 0, 0) for pixel in expected if pixel[3] == 0)
+        with Image.open(ASSETS / f'{spec["name"]}-3x.png') as png:
+            png.load()
+            verify_nearest(cleaned, png, 3)
+
+        lines = [
+            '<svg xmlns="http://www.w3.org/2000/svg" width="2304" height="288" viewBox="0 0 96 12"',
+            '     shape-rendering="crispEdges" preserveAspectRatio="xMidYMid meet">',
+        ]
+        for y in range(cleaned.height):
+            x = 0
+            while x < cleaned.width:
+                pixel = expected[y * cleaned.width + x]
+                end = x + 1
+                while end < cleaned.width and expected[y * cleaned.width + end] == pixel:
+                    end += 1
+                if pixel[3]:
+                    color = "#{:02x}{:02x}{:02x}".format(*pixel[:3])
+                    lines.append(f'  <rect x="{x}" y="{y}" width="{end - x}" height="1" fill="{color}"/>')
+                x = end
+        lines.append("</svg>")
+        destination = ASSETS / f'{spec["name"]}-wide.svg'
+        destination.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+        # Independently parse the written SVG and expand every rectangle into its
+        # source-size RGBA matrix, checking geometry, overlap, colors and alpha.
+        root = ET.parse(destination).getroot()
+        assert root.tag == "{http://www.w3.org/2000/svg}svg"
+        assert root.attrib == {"width": "2304", "height": "288", "viewBox": "0 0 96 12",
+                               "shape-rendering": "crispEdges", "preserveAspectRatio": "xMidYMid meet"}
+        expanded = Image.new("RGBA", (96, 12), (0, 0, 0, 0))
+        output_pixels = expanded.load()
+        occupied = set()
+        for rect in root:
+            assert rect.tag == "{http://www.w3.org/2000/svg}rect"
+            assert set(rect.attrib) == {"x", "y", "width", "height", "fill"}
+            x, y, width, height = (int(rect.attrib[key]) for key in ("x", "y", "width", "height"))
+            assert 0 <= x < 96 and 0 <= y < 12 and width > 0 and x + width <= 96 and height == 1
+            color = rect.attrib["fill"]
+            assert len(color) == 7 and color.startswith("#")
+            rgba = tuple(int(color[index:index + 2], 16) for index in (1, 3, 5)) + (255,)
+            for column in range(x, x + width):
+                assert (column, y) not in occupied, "SVG rectangles may not overlap"
+                occupied.add((column, y))
+                output_pixels[column, y] = rgba
+        assert expanded.tobytes() == cleaned.tobytes(), "SVG pixel matrix differs from the cleaned original"
+        records.append({
+            "attachment": spec["number"], "file": destination.name,
+            "original": original.relative_to(ASSETS).as_posix(), "source_sha256": sha256(original.read_bytes()),
+            "sha256": sha256(destination.read_bytes()), "bytes": destination.stat().st_size,
+            "intrinsic_dimensions": [2304, 288], "view_box": [0, 0, 96, 12], "intrinsic_scale": 24,
+            "rectangles": len(root), "black_background_pixels_cleaned": spec.get("black_background", 0),
+            "cleaned_rgba_sha256": sha256(cleaned.tobytes()), "expanded_svg_rgba_sha256": sha256(expanded.tobytes()),
+            "verification": {"expanded_pixel_matrix_exact": True, "existing_3x_png_exact": True,
+                             "rgba_palette_exact": True, "alpha_counts": alpha_counts(expanded)},
+        })
+    manifest = {"schema_version": 1, "method": "integer-aligned horizontal runs of identical nontransparent pixels",
+                "outputs": records, "existing_pngs_and_archive_modified": False}
+    (ASSETS / "wide-dividers-manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    (ASSETS / "wide-dividers.md").write_text("""# Wide pixel dividers
+
+`divider-01-wide.svg` through `divider-04-wide.svg` reproduce the four original 96×12 pixel grids exactly. Their intrinsic size is 2304×288 (24×), with `viewBox="0 0 96 12"`, `shape-rendering="crispEdges"` and `preserveAspectRatio="xMidYMid meet"`.
+
+Each SVG contains only horizontal rectangles spanning adjacent identical opaque pixels. The original RGB palette, geometry and alpha mask are preserved. The existing approved cleanup is retained: only the 796/700 pure-black background pixels in dividers 02/03 become transparent. No new colors, interpolation, embedded bitmap, script, font or external resource is used.
+
+The larger intrinsic width lets a host that permits SVG images constrain the image to its content-column width. Aspect ratio remains 8:1, and the crisp-edge rendering hint avoids smooth color interpolation. Actual HTML/CSS constraints remain the host platform's responsibility.
+
+Run `python scripts/prepare-pixel-ui.py --wide-svg-only` to regenerate only these four SVGs and their separate verification manifest. The normal pipeline also generates them, without adding them to or changing the existing PNG archive. `wide-dividers-manifest.json` records source/output hashes and independently expands the written SVG rectangles into a 96×12 RGBA matrix, proving equality with the cleaned source and the existing 3× PNG.
+""", encoding="utf-8", newline="\n")
+    return {"wide_svgs": len(records), "intrinsic_dimensions": [2304, 288],
+            "verification": "4/4 expanded SVG pixel matrices equal the cleaned originals and existing PNGs"}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-map", type=Path)
+    parser.add_argument("--wide-svg-only", action="store_true", help="Generate exact wide SVG dividers without rewriting PNGs or ZIP")
     args = parser.parse_args()
+    if args.wide_svg_only:
+        if args.source_map:
+            parser.error("--source-map and --wide-svg-only cannot be combined")
+        print(json.dumps(write_wide_svgs(), indent=2))
+        return
     source_map = json.loads(args.source_map.read_text(encoding="utf-8-sig")) if args.source_map else {}
     source_names = import_originals(source_map)
     manifest, generated = prepare(source_names)
@@ -261,6 +358,7 @@ def main() -> None:
     originals = [ORIGINALS / (spec["name"] + ".png") for spec in SPECS]
     write_archive(generated + originals + [manifest_file, readme])
     write_contact_sheet()
+    write_wide_svgs()
     print(json.dumps({"sources": len(originals), "usable_pngs": len(generated),
                       "zip_entries": len(generated) + len(originals) + 2,
                       "archive": ARCHIVE.relative_to(ROOT).as_posix(), "sha256": sha256(ARCHIVE.read_bytes()),

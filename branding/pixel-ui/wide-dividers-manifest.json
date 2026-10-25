@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "method": "integer-aligned horizontal runs of identical nontransparent pixels",
+  "outputs": [
+    {
+      "attachment": 1,
+      "file": "divider-01-wide.svg",
+      "original": "originals/divider-01.png",
+      "source_sha256": "0b3b0d9876c28a55db932420946d474cb443b48712e0cf136cfee6fe6a2274f5",
+      "sha256": "9a783124d669321323cb0ee4f4e2234703b503eb2a58a20ff513ae33254093a1",
+      "bytes": 14662,
+      "intrinsic_dimensions": [
+        2304,
+        288
+      ],
+      "view_box": [
+        0,
+        0,
+        96,
+        12
+      ],
+      "intrinsic_scale": 24,
+      "rectangles": 246,
+      "black_background_pixels_cleaned": 0,
+      "cleaned_rgba_sha256": "11fac2272502b2788810a6050ed729e881b44c22c2b157a79aca8955ec0d8155",
+      "expanded_svg_rgba_sha256": "11fac2272502b2788810a6050ed729e881b44c22c2b157a79aca8955ec0d8155",
+      "verification": {
+        "expanded_pixel_matrix_exact": true,
+        "existing_3x_png_exact": true,
+        "rgba_palette_exact": true,
+        "alpha_counts": {
+          "0": 700,
+          "255": 452
+        }
+      }
+    },
+    {
+      "attachment": 2,
+      "file": "divider-02-wide.svg",
+      "original": "originals/divider-02.png",
+      "source_sha256": "c2ce97255fe0add2ca67772e306d37f82ef2e96bca8d96a41ea9c5d795a9380d",
+      "sha256": "5f0f0782503be21fe5a192e180ca2e4468136c67d817b94a447554f203341167",
+      "bytes": 11468,
+      "intrinsic_dimensions": [
+        2304,
+        288
+      ],
+      "view_box": [
+        0,
+        0,
+        96,
+        12
+      ],
+      "intrinsic_scale": 24,
+      "rectangles": 192,
+      "black_background_pixels_cleaned": 796,
+      "cleaned_rgba_sha256": "5792f3f53ca22004a3375fae16dde74e7c2060e6f114c94a2c5f2463d4a2ebcf",
+      "expanded_svg_rgba_sha256": "5792f3f53ca22004a3375fae16dde74e7c2060e6f114c94a2c5f2463d4a2ebcf",
+      "verification": {
+        "expanded_pixel_matrix_exact": true,
+        "existing_3x_png_exact": true,
+        "rgba_palette_exact": true,
+        "alpha_counts": {
+          "0": 796,
+          "255": 356
+        }
+      }
+    },
+    {
+      "attachment": 3,
+      "file": "divider-03-wide.svg",
+      "original": "originals/divider-03.png",
+      "source_sha256": "e3cf1637e74a1fe6006a0ebc73b3e5a0da19e64c2d40c2ea7f7d0bb896ad5d8b",
+      "sha256": "000f1bc4b0a584647c0ca58750ca345da6328d3bba066d0d7fc2121cd367259d",
+      "bytes": 14721,
+      "intrinsic_dimensions": [
+        2304,
+        288
+      ],
+      "view_box": [
+        0,
+        0,
+        96,
+        12
+      ],
+      "intrinsic_scale": 24,
+      "rectangles": 247,
+      "black_background_pixels_cleaned": 700,
+      "cleaned_rgba_sha256": "3369bba65c04c95a39f0418b856410d48c0df7f07d209df35d15935646a05f0c",
+      "expanded_svg_rgba_sha256": "3369bba65c04c95a39f0418b856410d48c0df7f07d209df35d15935646a05f0c",
+      "verification": {
+        "expanded_pixel_matrix_exact": true,
+        "existing_3x_png_exact": true,
+        "rgba_palette_exact": true,
+        "alpha_counts": {
+          "0": 700,
+          "255": 452
+        }
+      }
+    },
+    {
+      "attachment": 4,
+      "file": "divider-04-wide.svg",
+      "original": "originals/divider-04.png",
+      "source_sha256": "0f1412993fa677c0a8a526784a58e45b1c56ef3fa2cc32f15f78b851dd5113a1",
+      "sha256": "e744ff4f0cb9528ceb3166328bf6789951f8d88a5d72d953eb5566daced3b34b",
+      "bytes": 14662,
+      "intrinsic_dimensions": [
+        2304,
+        288
+      ],
+      "view_box": [
+        0,
+        0,
+        96,
+        12
+      ],
+      "intrinsic_scale": 24,
+      "rectangles": 246,
+      "black_background_pixels_cleaned": 0,
+      "cleaned_rgba_sha256": "f6fc3d7efe4d11707f020bd5e3b827535200952fd4f090b67620533333495d72",
+      "expanded_svg_rgba_sha256": "f6fc3d7efe4d11707f020bd5e3b827535200952fd4f090b67620533333495d72",
+      "verification": {
+        "expanded_pixel_matrix_exact": true,
+        "existing_3x_png_exact": true,
+        "rgba_palette_exact": true,
+        "alpha_counts": {
+          "0": 700,
+          "255": 452
+        }
+      }
+    }
+  ],
+  "existing_pngs_and_archive_modified": false
+}
