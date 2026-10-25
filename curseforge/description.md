@@ -2,11 +2,25 @@
 
 **A little motion. A little rhythm. Your own typing style.**
 
-![Client only](https://img.shields.io/badge/CLIENT-ONLY-AE72FF?style=for-the-badge&labelColor=25174A) ![4 sound presets](https://img.shields.io/badge/4-SOUND_PRESETS-E860AD?style=for-the-badge&labelColor=572544) ![6 visual presets](https://img.shields.io/badge/6-VISUAL_PRESETS-39C9DD?style=for-the-badge&labelColor=174A5A)
+![Pixel highlight](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/point-inline-2x.png) **Client-only · 4 sound presets · 6 visual presets**
 
 Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and optional keyboard sounds give each keystroke a character — in chat, commands, search fields, **signs and hanging signs**. Settled text keeps its vanilla appearance.
 
 **Fabric · Forge · NeoForge · English & Russian · No Fabric API required**
+
+<p style="text-align: center">
+<a href="https://modrinth.com/mod/typing-animation"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-modrinth-4x.png" alt="Download Typing Animation on Modrinth" width="64" height="64"></a>
+&nbsp;&nbsp;
+<a href="https://www.curseforge.com/minecraft/mc-mods/typing-animation"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-curseforge-4x.png" alt="Download Typing Animation on CurseForge" width="64" height="64"></a>
+&nbsp;&nbsp;
+<a href="https://github.com/AlexFirst404/typing-animation"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-github-4x.png" alt="Browse Typing Animation source code on GitHub" width="64" height="64"></a>
+</p>
+
+<p style="text-align: center">
+<a href="https://modrinth.com/mod/typing-animation">Modrinth</a> · <a href="https://www.curseforge.com/minecraft/mc-mods/typing-animation">CurseForge</a> · <a href="https://github.com/AlexFirst404/typing-animation">Source code</a>
+</p>
+
+<p style="text-align: center"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-01-3x.png" alt="Typing Animation overview" width="288" height="36"></p>
 
 ## ▸ Type. Edit. Enjoy.
 
@@ -33,6 +47,8 @@ Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a 
 
 ![Visual preset selector, Apply button and live preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
 
+<p style="text-align: center"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-02-3x.png" alt="Purple pixel divider — typing sounds" width="288" height="36"></p>
+
 ## ♪ Hear every keystroke — new in 1.2
 
 | Typewriter | Mechanical | Soft | Laptop |
@@ -41,7 +57,7 @@ Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a 
 
 Four sound families with distinct key, space, Backspace and Enter feedback. Adjust **volume, pitch and pitch variation**, mute deletion or Enter separately, and use **Test Sound** to listen before enabling.
 
-**Sounds are off by default**, including after updating. Enable them in the **Sound** tab. Pasting makes at most one sound; cursor navigation and automatic field updates stay quiet.
+![Sound note](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-01-2x.png) **Sounds are off by default**, including after updating. Enable them in the **Sound** tab. Pasting makes at most one sound; cursor navigation and automatic field updates stay quiet.
 
 ![Sound presets, volume, pitch and the Test Sound button](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/sound-settings.png)
 
@@ -57,7 +73,7 @@ Animations and optional typing sounds work while editing **ordinary and hanging 
 
 ![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/signs.gif)
 
-## ⚙ Make it yours
+## ![Settings](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-03-2x.png) Make it yours
 
 Four tidy settings tabs: **Animations · Cursor · Fields · Sound**. Tune appearance and removal separately, cap paste delays, choose where the mod runs, and explore motion in the **live preview** with **Demo**.
 
@@ -71,15 +87,19 @@ Syntax highlighting stays intact while typing and completing commands with **Tab
 
 ![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
 
----
+<p style="text-align: center"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-03-3x.png" alt="Download and installation" width="288" height="36"></p>
 
 ### Install & recommended companion
 
-Download the JAR for your **Minecraft version and loader**, then put it in `mods`. Install on your client; the server does not need the mod. **Fabric API is not required.**
+![Download](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-04-2x.png) Download the JAR for your **Minecraft version and loader**, then put it in `mods`. Install on your client; the server does not need the mod. **Fabric API is not required.**
 
-**Recommended for Fabric/Quilt: Mod Menu** — opens the settings directly from your mod list. It is an **optional dependency**: [Modrinth](https://modrinth.com/mod/modmenu) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/modmenu).
+![Recommended companion](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-02-2x.png) **Recommended for Fabric/Quilt: Mod Menu** — opens the settings directly from your mod list. It is an **optional dependency**: [Modrinth](https://modrinth.com/mod/modmenu) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/modmenu).
 
 **Minecraft:** 1.20–1.20.1 · 1.21–1.21.1 · 1.21.4 · 1.21.5 · 1.21.6–1.21.8 · 1.21.9–1.21.10 · 1.21.11 · 26.1–26.1.2 · 26.2 · 26.3.
+
+<p style="text-align: center"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-04-3x.png" alt="Compatibility notes" width="288" height="36"></p>
+
+### Compatibility notes
 
 Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. Book input is supported from Minecraft 1.21.6. Mods replacing the standard text renderer may conflict.
 
