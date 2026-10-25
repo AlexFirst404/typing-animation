@@ -8,11 +8,19 @@ Give Minecraft's text a little personality. Letters animate in and out, edits gl
 
 **Fabric · Forge · NeoForge · English & Russian · No Fabric API required**
 
-[![Download Typing Animation on Modrinth](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-modrinth-4x.png)](https://modrinth.com/mod/typing-animation) [![Download Typing Animation on CurseForge](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-curseforge-4x.png)](https://www.curseforge.com/minecraft/mc-mods/typing-animation) [![Browse Typing Animation source code on GitHub](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-github-4x.png)](https://github.com/AlexFirst404/typing-animation)
+<p align="center" style="text-align: center">
+<a href="https://modrinth.com/mod/typing-animation"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-modrinth-4x.png" alt="Download Typing Animation on Modrinth" width="64" height="64"></a>
+&nbsp;&nbsp;
+<a href="https://www.curseforge.com/minecraft/mc-mods/typing-animation"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-curseforge-4x.png" alt="Download Typing Animation on CurseForge" width="64" height="64"></a>
+&nbsp;&nbsp;
+<a href="https://github.com/AlexFirst404/typing-animation"><img src="https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/platform-github-4x.png" alt="Browse Typing Animation source code on GitHub" width="64" height="64"></a>
+</p>
 
-[Modrinth](https://modrinth.com/mod/typing-animation) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/typing-animation) · [GitHub — source code](https://github.com/AlexFirst404/typing-animation)
+<p align="center" style="text-align: center">
+<a href="https://modrinth.com/mod/typing-animation">Modrinth</a> · <a href="https://www.curseforge.com/minecraft/mc-mods/typing-animation">CurseForge</a> · <a href="https://github.com/AlexFirst404/typing-animation">GitHub — source code</a>
+</p>
 
-![Typing Animation overview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-01-3x.png)
+![Typing Animation overview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-01-wide.svg)
 
 ## ▸ Type. Edit. Enjoy.
 
@@ -39,7 +47,7 @@ Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a 
 
 ![Visual preset selector, Apply button and live preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
 
-![Purple pixel divider — typing sounds](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-02-3x.png)
+![Purple pixel divider — typing sounds](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-02-wide.svg)
 
 ## ♪ Hear every keystroke — new in 1.2
 
@@ -79,7 +87,7 @@ Syntax highlighting stays intact while typing and completing commands with **Tab
 
 ![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
 
-![Download and installation](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-03-3x.png)
+![Download and installation](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-03-wide.svg)
 
 ### Install & recommended companion
 
@@ -89,7 +97,7 @@ Syntax highlighting stays intact while typing and completing commands with **Tab
 
 **Minecraft:** 1.20–1.20.1 · 1.21–1.21.1 · 1.21.4 · 1.21.5 · 1.21.6–1.21.8 · 1.21.9–1.21.10 · 1.21.11 · 26.1–26.1.2 · 26.2 · 26.3.
 
-![Compatibility notes](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-04-3x.png)
+![Compatibility notes](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-04-wide.svg)
 
 ### Compatibility notes
 
