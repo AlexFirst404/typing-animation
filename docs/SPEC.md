@@ -7,7 +7,7 @@ All code, texts and media of this project are original. Another mod with a simil
 (Modrinth), is *All Rights Reserved*: never copy, paraphrase or port its code, names of its classes, its texts or
 its assets, and never describe this mod by comparison to it (Modrinth page, README, changelog).
 
-- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.2.0` · License: MIT
+- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.3.0` · License: MIT
 - Java package root: `dev.typinganimation`
 - Client only. Must never be required on servers; must never crash the game (see "Safety").
 - No dependency on Fabric API. Mod Menu integration on Fabric is optional (compileOnly).
@@ -119,7 +119,7 @@ unobfuscated 26.x), NeoForge/Forge use official names natively.
   `compileClasspath` in `scripts/target-common.gradle`) while the dev client runs the loader's own Mixin, so every
   injector `at`/`slice` is written in the single-value form that all Mixin and MixinExtras versions read (see the
   Fabric loader floors in section 1).
-- Output jar name: `typinganimation-1.2.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
+- Output jar name: `typinganimation-1.3.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
   (the only jar in `build/libs`; Fabric's remapJar, Forge 1.20.1's reobfJar and the plain jar task all produce it).
 - Mod metadata: id/name/version/license MIT/authors `AlexFirst`/description (see lang `typinganimation.description`
   in English)/icon `assets/typinganimation/icon.png`; client-only markers where the loader supports them
@@ -377,6 +377,9 @@ Cross-loader rules learned in research (all groups):
   If multi-line support is not feasible cleanly in a version, omit it there and hide the `animateMultiline` option.
 - 26.1+: `GuiGraphics` -> `GuiGraphicsExtractor`, `renderWidget` -> `extractWidgetRenderState`, `drawString` -> `text`,
   caret drawn via `TextCursorUtils`; 26.3 input uses SDL key codes (`KeyEvent(key, keycode, mods)`).
+- `Util` is in `net.minecraft.util` from 1.21.11. Blink redirects must use that owner in their descriptors too.
+  Screen/overlay access moves to `Minecraft.gui` from 26.2; 26.1 still uses `Minecraft.setScreen`, `screen`
+  and `getOverlay`. Mouse probes use `InputConstants.MOUSE_BUTTON_LEFT`: SDL's left button is not GLFW's zero.
 
 Scroll model: the two families of groups intentionally differ in how a scroll of the visible window is shown.
 - 1.20.x–1.21.5 (immediate-mode `GuiGraphics`): the chars glide from their previous x like any reflow; a scroll jump
@@ -460,6 +463,46 @@ It exposes only `sounds.json` and the 36 indexed samples, opens a fresh stream f
 server data untouched. If an existing pack already supplies all 37 paths, the fallback is omitted to avoid
 duplicate sound events with Fabric API, Forge or NeoForge. Partial custom packs keep their normal higher
 priority while missing samples remain available from the fallback. Fabric API stays optional.
+
+### 6.2 Personal styles and interface modes (1.3 preview)
+
+The first settings visit asks for Basic or Detailed mode. An explicit choice persists
+`settingsModeChosen` and `advancedSettings`; leaving the question does not choose for the user.
+The mode can be changed at any time and only filters controls, never discards their values.
+Detailed controls use eight-item subpages so every control remains reachable at 320×240.
+Reset restores effect defaults while retaining the chosen interface mode.
+
+`ConfigAccess` is loader-neutral. Fabric glue reports whether Mod Menu is installed. Hiding
+`optionsButton` is allowed only when this alternate settings entry is available. Every Options
+hook also enforces reachability, so removing Mod Menu or moving a config between loaders cannot
+hide the only settings entry point.
+
+New config fields (all handled by copy, clamp, equality and explicit JSON mapping):
+`adaptiveTyping=false`, `cursorCustomColor=false`, `cursorHexColor="#C4B5FD"`,
+`cursorBlinkMs=600` (200–2000, full period), `cursorSoftBlink=false`,
+`cursorKeepVisibleWhileTyping=false`, `advancedSettings=false`,
+`settingsModeChosen=false`, `customSoundPack=""`.
+
+`UserPresetLibrary` stores bounded, versioned JSON styles in `config/typinganimation-presets`.
+Names are separate from hashed filenames. Applying a style preserves the master enabled switch,
+field toggles, focus policy, options entry point and interface mode. Importing a duplicate name
+creates a separate copy; saving and exporting never silently overwrite an existing file.
+Built-in visual presets remain visual-only; their matching includes the new cursor settings.
+
+`TypingRhythm` estimates the cadence of individual edits, resets after a pause and never treats
+a paste as hundreds of keystrokes. Adaptive animation durations are snapshotted per birth and
+ghost so subsequent edits cannot rewind them. Adaptive audio spaces rapid repeats and reduces
+their volume; explicit auditions retain the selected volume.
+
+`CursorBlinkState` retains vanilla timing by default. Customized blinking changes only the
+visibility phase and cursor alpha; vanilla continues to enforce focus, selection and clipping.
+Older fonts' near-zero-alpha behavior is avoided by skipping that region of the fade.
+
+`CustomSoundPackLibrary` imports a bounded ZIP with a `pack.json` manifest and short Ogg Vorbis
+samples. Installed samples are exposed as `typinganimation_custom` resources by the classpath
+resource-pack adapter at lowest priority. Selection uses the loaded event snapshot without
+per-keystroke disk access. Import/delete reloads resources; invalid or missing selected packs
+fall back to the built-in family. See [custom-sound-packs.md](custom-sound-packs.md).
 
 ## 7. `target.properties`
 

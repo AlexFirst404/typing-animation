@@ -1,5 +1,11 @@
 package dev.typinganimation.mixin;
 
+import net.minecraft.util.Util;
+
+import dev.typinganimation.core.TypingConfig;
+
+import dev.typinganimation.core.ConfigManager;
+
 import dev.typinganimation.mc.SignAnimation;
 import dev.typinganimation.mc.SignStateHolder;
 import net.minecraft.client.gui.Font;
@@ -70,5 +76,15 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Sign
     @Inject(method = "extractSignText", at = @At("TAIL"))
     private void typinganimation$end(GuiGraphicsExtractor graphics, org.joml.Vector2f cursorOutput, CallbackInfo ci) {
         typinganimation$signAnimation().end(graphics, font);
+    }
+
+    /** Changes only blink timing; vanilla retains focus, selection and viewport checks. */
+    @Redirect(method = "extractSignText", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/TextCursorUtils;isCursorVisible(J)Z"))
+    private boolean typinganimation$customBlink(long elapsed) {
+        TypingConfig cfg = ConfigManager.get();
+        long now = Util.getMillis();
+        typinganimation$signAnimation().observeCursor(line, messages[Math.max(0, Math.min(line, messages.length - 1))], now);
+        return typinganimation$signAnimation().cursorBlink.visible(net.minecraft.client.gui.components.TextCursorUtils.isCursorVisible(elapsed),
+                elapsed, now, cfg, cfg.enabled && cfg.animateSigns && !font.isBidirectional());
     }
 }

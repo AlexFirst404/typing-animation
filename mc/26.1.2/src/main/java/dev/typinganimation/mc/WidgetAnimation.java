@@ -1,6 +1,7 @@
 package dev.typinganimation.mc;
 
 import dev.typinganimation.core.FieldAnimationState;
+import dev.typinganimation.core.CursorBlinkState;
 import dev.typinganimation.core.FieldKind;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.Font;
@@ -12,6 +13,8 @@ import net.minecraft.network.chat.Style;
  * bookkeeping of the frame currently being drawn. Render thread only.
  */
 public final class WidgetAnimation {
+    public final CursorBlinkState cursorBlink = new CursorBlinkState();
+    long cursorBlinkFrame = -2L;
     /** Text animation state (core). */
     public final FieldAnimationState state = new FieldAnimationState();
     /** Which config toggle applies. */
@@ -140,6 +143,8 @@ public final class WidgetAnimation {
 
     /** Forgets all animation state (mod or field kind switched off). */
     void resetAll() {
+        cursorBlink.reset();
+        cursorBlinkFrame = -2L;
         state.reset();
         if (caretState != null) {
             caretState.reset();

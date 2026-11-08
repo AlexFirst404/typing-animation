@@ -1,5 +1,13 @@
 package dev.typinganimation.mixin;
 
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.util.Util;
+
+import dev.typinganimation.core.TypingConfig;
+
+import dev.typinganimation.core.ConfigManager;
+
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.mc.EditBoxAccess;
 import dev.typinganimation.mc.TypingRenderer;
@@ -38,6 +46,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(EditBox.class)
 public abstract class EditBoxMixin implements TypingStateHolder, EditBoxAccess {
+    @Shadow private long focusedTime;
+
     @Unique
     private static final String DRAW_SEQUENCE =
             "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;IIIZ)V";
@@ -174,5 +184,17 @@ public abstract class EditBoxMixin implements TypingStateHolder, EditBoxAccess {
     private void typinganimation$end(GuiGraphics graphics, int mouseX, int mouseY, float partialTick,
                                      CallbackInfo ci) {
         TypingRenderer.endEditBox(typinganimation$animation(), this, font, textShadow);
+    }
+
+    /** Changes only blink timing; vanilla retains focus, selection and viewport checks. */
+    @Redirect(method = "renderWidget", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Util;getMillis()J"))
+    private long typinganimation$customBlink() {
+        TypingConfig cfg = ConfigManager.get();
+        long now = Util.getMillis();
+        typinganimation$animation().cursorBlink.observe(value, now);
+        long elapsed = now - focusedTime;
+        boolean visible = typinganimation$animation().cursorBlink.visible(elapsed / 300L % 2L == 0L, elapsed, now, cfg,
+                cfg.enabled && (typinganimation$animation().forceAnimate || dev.typinganimation.core.FieldKind.isAnimated(typinganimation$animation().kind, cfg)));
+        return focusedTime + (visible ? 0L : 300L);
     }
 }

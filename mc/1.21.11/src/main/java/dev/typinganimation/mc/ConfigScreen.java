@@ -60,6 +60,8 @@ public class ConfigScreen extends Screen {
     private final List<Button> pageButtons = new ArrayList<>();
     private int selectedPage;
     private VisualPreset selectedPreset;
+    private String cachedCustomSoundId;
+    private String cachedCustomSoundName;
     private Button presetButton;
     private Button applyPresetButton;
     private Button soundTestButton;
@@ -74,6 +76,134 @@ public class ConfigScreen extends Screen {
     private int titleY;
     private long frames;
 
+
+    private static final int VISIBLE_OPTIONS = 8;
+    private int optionOffset;
+    private int gridLeft, gridRight, gridTop;
+    private Button previousOptions, nextOptions, optionCounter;
+    private boolean choosingMode;
+
+    private void chooseMode(boolean detailed) {
+        TypingConfig cfg = ConfigManager.get();
+        cfg.advancedSettings = detailed;
+        cfg.settingsModeChosen = true;
+        ConfigManager.save();
+        optionOffset = 0;
+        rebuildWidgets();
+    }
+
+    private void addModeChoice() {
+        int left = width / 2 - 155;
+        int y = Math.max(40, height / 2 - 20);
+        addRenderableWidget(Button.builder(Component.translatable("typinganimation.config.mode.basic"),
+                b -> chooseMode(false)).bounds(left, y, 150, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("typinganimation.config.mode.detailed"),
+                b -> chooseMode(true)).bounds(left + 160, y, 150, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.back"), b -> onClose())
+                .bounds(left + 80, y + 56, 150, 20).build());
+    }
+
+    private void addManagementControls(int left, int y) {
+        previousOptions = addRenderableWidget(Button.builder(Component.literal("<"), b -> {
+            optionOffset = Math.max(0, optionOffset - VISIBLE_OPTIONS);
+            refreshOptionVisibility();
+        }).bounds(left, y - 28, 40, 20).build());
+        optionCounter = addRenderableWidget(Button.builder(Component.empty(), b -> {})
+                .bounds(left + 44, y - 28, 222, 20).build());
+        optionCounter.active = false;
+        nextOptions = addRenderableWidget(Button.builder(Component.literal(">"), b -> {
+            optionOffset += VISIBLE_OPTIONS;
+            refreshOptionVisibility();
+        }).bounds(left + 270, y - 28, 40, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("typinganimation.config.library.presets"),
+                b -> openLibrary(false)).bounds(left, y, 98, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("typinganimation.config.library.sounds"),
+                b -> openLibrary(true)).bounds(left + 102, y, 98, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("typinganimation.config.mode.current", Component.translatable(ConfigManager.get().advancedSettings
+                ? "typinganimation.config.mode.detailed" : "typinganimation.config.mode.basic")),
+                b -> chooseMode(!ConfigManager.get().advancedSettings)).bounds(left + 204, y, 106, 20).build());
+    }
+
+    private void openLibrary(boolean sounds) {
+        minecraft.setScreen(new StyleLibraryScreen(this, sounds));
+    }
+
+    private void resetConfigPreservingMode() {
+        boolean detailed = ConfigManager.get().advancedSettings;
+        ConfigManager.reset();
+        ConfigManager.get().advancedSettings = detailed;
+        ConfigManager.get().settingsModeChosen = true;
+        ConfigAccess.ensureReachable();
+        ConfigManager.save();
+    }
+
+    private boolean basicOption(AbstractWidget widget) {
+        for (Map.Entry<String, AbstractWidget> entry : options.entrySet()) {
+            if (entry.getValue() != widget) continue;
+            return switch (entry.getKey()) {
+                case "enabled", "appearStyle", "removeStyle", "adaptiveTyping", "visualPreset", "applyPreset",
+                     "smoothCursor", "cursorStyle", "cursorColor", "cursorKeepVisibleWhileTyping",
+                     "animateChat", "animateOtherFields", "animateMultiline", "animateSigns", "optionsButton",
+                     "typingSounds", "soundPreset", "soundVolume", "soundTest" -> true;
+                default -> false;
+            };
+        }
+        return false;
+    }
+
+    private List<AbstractWidget> currentOptions() {
+        List<AbstractWidget> visible = new ArrayList<>();
+        for (Map.Entry<AbstractWidget, Integer> entry : optionPages.entrySet()) {
+            if (entry.getValue() == selectedPage
+                    && (ConfigManager.get().advancedSettings || basicOption(entry.getKey()))) {
+                visible.add(entry.getKey());
+            }
+        }
+        return visible;
+    }
+
+    private void refreshOptionVisibility() {
+        List<AbstractWidget> visible = currentOptions();
+        optionOffset = Math.max(0, Math.min(optionOffset,
+                Math.max(0, (visible.size() - 1) / VISIBLE_OPTIONS * VISIBLE_OPTIONS)));
+        for (AbstractWidget widget : optionPages.keySet()) widget.visible = false;
+        for (int i = optionOffset; i < Math.min(visible.size(), optionOffset + VISIBLE_OPTIONS); i++) {
+            AbstractWidget widget = visible.get(i);
+            int cell = i - optionOffset;
+            widget.setPosition(cell % 2 == 0 ? gridLeft : gridRight, gridTop + cell / 2 * 22);
+            widget.visible = true;
+        }
+        if (previousOptions != null) {
+            previousOptions.visible = nextOptions.visible = optionCounter.visible = visible.size() > VISIBLE_OPTIONS;
+            previousOptions.active = optionOffset > 0;
+            nextOptions.active = optionOffset + VISIBLE_OPTIONS < visible.size();
+            optionCounter.setMessage(Component.translatable("typinganimation.config.optionPage",
+                    optionOffset / VISIBLE_OPTIONS + 1, Math.max(1, (visible.size() + VISIBLE_OPTIONS - 1) / VISIBLE_OPTIONS)));
+        }
+    }
+
+    private AbstractWidget hexColorControl(TypingConfig cfg) {
+        EditBox input = new EditBox(font, 0, 0, 150, 20,
+                Component.translatable("typinganimation.config.cursorHexColor"));
+        input.setMaxLength(7);
+        input.setValue(cfg.cursorHexColor);
+        input.setTooltip(tooltip("cursorHexColor"));
+        input.setResponder(value -> {
+            if (value.matches("#[0-9a-fA-F]{6}")) {
+                cfg.cursorHexColor = value.toUpperCase(Locale.ROOT);
+                input.setTextColor(0xFFE0E0E0);
+            } else input.setTextColor(0xFFFF7777);
+        });
+        options.put("cursorHexColor", input);
+        return input;
+    }
+
+    /** Runtime UI verification hooks. */
+    boolean choosingMode() { return choosingMode; }
+    void chooseSettingsMode(boolean detailed) { chooseMode(detailed); }
+    int optionPageOffset() { return optionOffset; }
+    void refreshFromLibrary() { cachedCustomSoundId = null; rebuildWidgets(); }
+
     public ConfigScreen(Screen parent) {
         super(Component.translatable("typinganimation.title"));
         this.parent = parent;
@@ -82,9 +212,17 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         options.clear();
+        preview = null;
         optionPages.clear();
         pageButtons.clear();
         TypingConfig cfg = ConfigManager.get();
+        ConfigAccess.ensureReachable();
+        choosingMode = !cfg.settingsModeChosen;
+        if (choosingMode) {
+            titleY = Math.max(12, height / 2 - 76);
+            addModeChoice();
+            return;
+        }
         int left = width / 2 - CONTENT_WIDTH / 2;
         int right = left + BUTTON_WIDTH + COLUMN_GAP;
         int top = Math.max(0, (height - CONTENT_HEIGHT) / 2);
@@ -92,6 +230,9 @@ public class ConfigScreen extends Screen {
         int tabsY = top + 39;
         int gridY = top + 65;
         int bottomY = top + 205;
+        gridLeft = left;
+        gridRight = right;
+        gridTop = gridY;
         accentX = left;
         accentY = tabsY + BUTTON_HEIGHT;
 
@@ -142,6 +283,7 @@ public class ConfigScreen extends Screen {
                 () -> cfg.staggerMs, v -> cfg.staggerMs = (int) Math.round(v), v -> Component.translatable("typinganimation.config.ms_per_char", (int) Math.round(v))));
         animations.add(slider("maxStaggerMs", TypingConfig.MAX_STAGGER_MIN_MS, TypingConfig.MAX_STAGGER_MAX_MS, 25,
                 () -> cfg.maxStaggerMs, v -> cfg.maxStaggerMs = (int) Math.round(v), v -> Component.translatable(PREFIX + "ms", (int) Math.round(v))));
+        animations.add(toggle("adaptiveTyping", cfg.adaptiveTyping, v -> cfg.adaptiveTyping = v));
         addPage(animations, 0, left, right, gridY);
         addPresetControls(left, top + 181, CONTENT_WIDTH);
 
@@ -150,12 +292,20 @@ public class ConfigScreen extends Screen {
         cursor.add(slider("cursorGlideMs", TypingConfig.CURSOR_GLIDE_MIN_MS, TypingConfig.CURSOR_GLIDE_MAX_MS, 5,
                 () -> cfg.cursorGlideMs, v -> cfg.cursorGlideMs = (int) Math.round(v), v -> Component.translatable(PREFIX + "ms", (int) Math.round(v))));
         cursor.add(cycle("cursorStyle", CursorStyle.values(), cfg.cursorStyle, CursorStyle::translationKey, v -> cfg.cursorStyle = v));
-        cursor.add(cycle("cursorColor", CursorColor.values(), cfg.cursorColor, CursorColor::translationKey, v -> cfg.cursorColor = v));
+        cursor.add(cycle("cursorColor", CursorColor.values(), cfg.cursorColor, CursorColor::translationKey, v -> { cfg.cursorColor = v; cfg.cursorCustomColor = false; }));
         cursor.add(slider("cursorWidth", TypingConfig.CURSOR_WIDTH_MIN, TypingConfig.CURSOR_WIDTH_MAX, 1,
                 () -> cfg.cursorWidth, v -> cfg.cursorWidth = (int) Math.round(v), v -> Component.translatable("typinganimation.config.pixels", (int) Math.round(v))));
         cursor.add(toggle("smoothReflow", cfg.smoothReflow, v -> cfg.smoothReflow = v));
         cursor.add(slider("glideMs", TypingConfig.GLIDE_MIN_MS, TypingConfig.GLIDE_MAX_MS, 5,
                 () -> cfg.glideMs, v -> cfg.glideMs = (int) Math.round(v), v -> Component.translatable(PREFIX + "ms", (int) Math.round(v))));
+        cursor.add(toggle("cursorCustomColor", cfg.cursorCustomColor, v -> cfg.cursorCustomColor = v));
+        cursor.add(hexColorControl(cfg));
+        cursor.add(slider("cursorBlinkMs", 200, 2000, 50, () -> cfg.cursorBlinkMs,
+                v -> cfg.cursorBlinkMs = (int) Math.round(v),
+                v -> Component.translatable("typinganimation.config.ms", (int) Math.round(v))));
+        cursor.add(toggle("cursorSoftBlink", cfg.cursorSoftBlink, v -> cfg.cursorSoftBlink = v));
+        cursor.add(toggle("cursorKeepVisibleWhileTyping", cfg.cursorKeepVisibleWhileTyping,
+                v -> cfg.cursorKeepVisibleWhileTyping = v));
         addPage(cursor, 1, left, right, gridY);
 
         List<AbstractWidget> behaviour = new ArrayList<>();
@@ -171,7 +321,7 @@ public class ConfigScreen extends Screen {
 
         List<AbstractWidget> sound = new ArrayList<>();
         sound.add(toggle("typingSounds", cfg.typingSounds, v -> cfg.typingSounds = v));
-        sound.add(cycle("soundPreset", SoundPreset.values(), cfg.soundPreset, SoundPreset::translationKey, v -> cfg.soundPreset = v));
+        sound.add(cycle("soundPreset", SoundPreset.values(), cfg.soundPreset, SoundPreset::translationKey, v -> { cfg.soundPreset = v; cfg.customSoundPack = ""; }));
         sound.add(slider("soundVolume", TypingConfig.SOUND_VOLUME_MIN, TypingConfig.SOUND_VOLUME_MAX, 0.05,
                 () -> cfg.soundVolume, v -> cfg.soundVolume = (float) v,
                 v -> Component.translatable("typinganimation.config.percent", (int) Math.round(v * 100))));
@@ -186,6 +336,7 @@ public class ConfigScreen extends Screen {
         options.put("soundTest", soundTestButton);
         sound.add(soundTestButton);
         addPage(sound, 3, left, right, gridY);
+        addManagementControls(left, top + 181);
         showPage(selectedPage);
         resetButton = addRenderableWidget(Button.builder(Component.translatable(PREFIX + "reset"), button -> resetAll())
                 .bounds(left, bottomY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
@@ -196,14 +347,14 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void setInitialFocus() {
-        setInitialFocus(preview);
+        if (preview != null) setInitialFocus(preview);
     }
 
     /** Keeps the caret in the preview after a click on a button; a slider keeps the focus until it is released. */
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         boolean handled = super.mouseClicked(event, doubleClick);
-        if (!(getFocused() instanceof AbstractSliderButton)) {
+        if (!(getFocused() instanceof AbstractSliderButton) && !(getFocused() instanceof EditBox)) {
             focusPreview();
         }
         return handled;
@@ -238,6 +389,11 @@ public class ConfigScreen extends Screen {
         demo.update(Util.getMillis());
         super.render(graphics, mouseX, mouseY, a);
         graphics.drawCenteredString(font, title, width / 2, titleY, TITLE_COLOR);
+        if (choosingMode) {
+            graphics.drawCenteredString(font, Component.translatable("typinganimation.config.mode.question"), width / 2, titleY + 18, 0xFFE0E0E0);
+            graphics.drawCenteredString(font, Component.translatable("typinganimation.config.mode.hint"), width / 2, titleY + 32, 0xFFAAAAAA);
+            return;
+        }
         int tabWidth = (CONTENT_WIDTH - (PAGE_COUNT - 1) * 4) / PAGE_COUNT;
         int tabX = accentX + selectedPage * (tabWidth + 4);
         graphics.fill(tabX, accentY, tabX + tabWidth, accentY + 2, 0xFFB39DFF);
@@ -257,7 +413,7 @@ public class ConfigScreen extends Screen {
     // ------------------------------------------------------------------ actions
 
     private void resetAll() {
-        ConfigManager.reset();
+        resetConfigPreservingMode();
         selectedPreset = VisualPreset.DEFAULT;
         rebuildWidgets();
     }
@@ -278,12 +434,19 @@ public class ConfigScreen extends Screen {
 
     /** Style options only matter while animations are enabled. */
     private void refreshActive() {
+        refreshSoundChoiceLabel();
         boolean enabled = ConfigManager.get().enabled;
         for (Map.Entry<String, AbstractWidget> e : options.entrySet()) {
             String key = e.getKey();
             if (!independentControl(key)) {
                 e.getValue().active = enabled;
             }
+        }
+        AbstractWidget navigation = options.get("optionsButton");
+        if (navigation != null) {
+            navigation.active = ConfigAccess.canHideOptionsButton();
+            if (!navigation.active) navigation.setTooltip(Tooltip.create(
+                    Component.translatable("typinganimation.config.optionsButton.requiresModMenu")));
         }
     }
 
@@ -296,13 +459,13 @@ public class ConfigScreen extends Screen {
             VisualPreset[] presets = VisualPreset.values();
             selectedPreset = presets[(selectedPreset.ordinal() + 1) % presets.length];
             refreshPresetControls();
-        }).bounds(left, y, total - 104, 20).build();
+        }).bounds(left, y, 150, 20).build();
         presetButton.setTooltip(tooltip("visualPreset"));
         applyPresetButton = Button.builder(Component.translatable("typinganimation.config.applyPreset"), button -> {
             selectedPreset.applyTo(ConfigManager.get());
             // Rebuild the visual controls from the chosen values while retaining the preview text and demo.
             rebuildWidgets();
-        }).bounds(left + total - 100, y, 100, 20).build();
+        }).bounds(left + 160, y, 150, 20).build();
         applyPresetButton.setTooltip(tooltip("applyPreset"));
         options.put("visualPreset", presetButton);
         options.put("applyPreset", applyPresetButton);
@@ -319,7 +482,24 @@ public class ConfigScreen extends Screen {
         return Component.translatable(key, Component.translatable(selectedPreset.translationKey()));
     }
 
+    private void refreshSoundChoiceLabel() {
+        TypingConfig cfg = ConfigManager.get();
+        AbstractWidget soundChoice = options.get("soundPreset");
+        if (!cfg.customSoundPack.equals(cachedCustomSoundId)) {
+            cachedCustomSoundId = cfg.customSoundPack;
+            cachedCustomSoundName = "";
+            if (!cachedCustomSoundId.isEmpty()) {
+                var pack = dev.typinganimation.core.CustomSoundPackLibrary.defaultLibrary().find(cachedCustomSoundId);
+                cachedCustomSoundName = pack == null ? "?" : pack.name();
+            }
+        }
+        if (soundChoice != null && !cfg.customSoundPack.isEmpty()) {
+            soundChoice.setMessage(Component.translatable("typinganimation.config.customSoundChoice", cachedCustomSoundName));
+        }
+    }
+
     private void refreshPresetControls() {
+        refreshSoundChoiceLabel();
         if (presetButton == null || applyPresetButton == null || selectedPreset == null) return;
         presetButton.setMessage(presetLabel());
         applyPresetButton.active = VisualPreset.match(ConfigManager.get()) != selectedPreset;
@@ -332,16 +512,11 @@ public class ConfigScreen extends Screen {
 
     /** Changes pages without rebuilding the preview, so a running demo keeps its animation state. */
     void showPage(int page) {
+        if (selectedPage != page) optionOffset = 0;
         selectedPage = Math.max(0, Math.min(PAGE_COUNT - 1, page));
-        for (Map.Entry<AbstractWidget, Integer> entry : optionPages.entrySet()) {
-            entry.getKey().visible = entry.getValue() == selectedPage;
-        }
-        for (int i = 0; i < pageButtons.size(); i++) {
-            pageButtons.get(i).active = i != selectedPage;
-        }
-        if (preview != null) {
-            setFocused(preview);
-        }
+        refreshOptionVisibility();
+        for (int i = 0; i < pageButtons.size(); i++) pageButtons.get(i).active = i != selectedPage;
+        if (preview != null) setFocused(preview);
     }
 
     /** Self-test and keyboard navigation helper: reveal the page containing an option. */
@@ -350,6 +525,9 @@ public class ConfigScreen extends Screen {
         Integer page = optionPages.get(widget);
         if (page != null) {
             showPage(page);
+            int index = currentOptions().indexOf(widget);
+            if (index >= 0) optionOffset = index / VISIBLE_OPTIONS * VISIBLE_OPTIONS;
+            refreshOptionVisibility();
         }
     }
 

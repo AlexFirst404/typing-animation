@@ -117,5 +117,19 @@
     "description": "Typewriter, Mechanical, Soft and Laptop sounds with volume, pitch, separate deletion and Enter controls, and a Test Sound button. Sounds are off by default.",
     "featured": false,
     "ordering": 16
+  },
+  {
+    "file": "basic-settings-1.3.png",
+    "title": "Basic settings · 1.3",
+    "description": "Basic mode with the live preview, built-in visual presets, optional adaptive typing and the Basic/Detailed switch. The first settings visit asks which mode to use.",
+    "featured": false,
+    "ordering": 17
+  },
+  {
+    "file": "preset-library-1.3.png",
+    "title": "Your own preset library · 1.3",
+    "description": "Save animation, cursor and sound settings under a name. Apply, duplicate, rename, import or export presets and share them with friends.",
+    "featured": false,
+    "ordering": 18
   }
 ]

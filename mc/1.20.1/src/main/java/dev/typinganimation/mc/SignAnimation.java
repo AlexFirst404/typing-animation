@@ -2,6 +2,7 @@ package dev.typinganimation.mc;
 
 import dev.typinganimation.core.ConfigManager;
 import dev.typinganimation.core.FieldAnimationState;
+import dev.typinganimation.core.CursorBlinkState;
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.core.TypingConfig;
 import net.minecraft.client.gui.Font;
@@ -12,6 +13,17 @@ import net.minecraft.client.gui.GuiGraphics;
  * vanilla's sign-local space: the normal/hanging sign scale, dye/glow color, selection and input stay vanilla.
  */
 public final class SignAnimation {
+    public final CursorBlinkState cursorBlink = new CursorBlinkState();
+    private int cursorBlinkLine = -1;
+
+    /** Moving between sign lines is navigation, not a new typing action. */
+    public void observeCursor(int line, String text, long nowMs) {
+        if (line != cursorBlinkLine) {
+            cursorBlink.reset();
+            cursorBlinkLine = line;
+        }
+        cursorBlink.observe(text, nowMs);
+    }
     private final WidgetAnimator[] lines = {
             new WidgetAnimator(FieldKind.SIGN), new WidgetAnimator(FieldKind.SIGN),
             new WidgetAnimator(FieldKind.SIGN), new WidgetAnimator(FieldKind.SIGN)
@@ -39,6 +51,8 @@ public final class SignAnimation {
             TypingConfig cfg = ConfigManager.get();
             // Shaped/bidirectional text keeps vanilla's exact visual/logical cursor behavior.
             if (failed || !cfg.enabled || !cfg.animateSigns || font.isBidirectional()) {
+                cursorBlink.reset();
+                cursorBlinkLine = -1;
                 for (WidgetAnimator a : lines) {
                     a.disable();
                 }
@@ -116,6 +130,7 @@ public final class SignAnimation {
         boolean pushed = false;
         try {
             TypingConfig cfg = ConfigManager.get();
+            color = cursorBlink.tint(color);
             graphics.pose().pushPose();
             pushed = true;
             graphics.pose().translate(caretDx, caretDy, 0f);

@@ -35,7 +35,7 @@ public final class OptionsButton {
     /** The button for this Options screen, or null when the setting is off (or on failure). */
     public static Button create(Screen optionsScreen, Font font) {
         try {
-            if (!ConfigManager.get().optionsButton) {
+            if (!ConfigAccess.showOptionsButton()) {
                 return null;
             }
             Component label = Component.translatable(KEY);
@@ -70,7 +70,7 @@ public final class OptionsButton {
     static Screen returnTarget(Screen parent) {
         try {
             if (parent instanceof OptionsScreen && parent instanceof ParentAccess access
-                    && (find(parent) != null) != ConfigManager.get().optionsButton) {
+                    && (find(parent) != null) != ConfigAccess.showOptionsButton()) {
                 Minecraft mc = Minecraft.getInstance();
                 return new OptionsScreen(access.typinganimation$lastScreen(), mc.options);
             }

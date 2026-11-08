@@ -2,7 +2,7 @@
 
 **A little motion. A little rhythm. Your own typing style.**
 
-![Pixel highlight](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/point-inline-2x.png) **Client-only · 4 sound presets · 6 visual presets**
+![Pixel highlight](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/point-inline-2x.png) **Client-only · Shareable presets · Custom sounds · Your own cursor**
 
 Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and optional keyboard sounds give each keystroke a character — in chat, commands, search fields, **signs and hanging signs**. Settled text keeps its vanilla appearance.
 
@@ -26,6 +26,8 @@ Give Minecraft's text a little personality. Letters animate in and out, edits gl
 
 Insert a word, erase a sentence or paste a message. Text shifts smoothly, while pasted text and autocomplete unfold letter by letter.
 
+**Optional adaptive typing** follows your pace: faster keystrokes use shorter animations and gentler sound feedback. Slow typing keeps the full effect. Enable it when you want it; pasting stays one bulk edit.
+
 ![Typing, editing and pasting in Minecraft chat](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/chat-typing.gif)
 
 ## ✦ Find your favourite motion
@@ -41,15 +43,21 @@ Try Slide Right, Zoom Out, Flip, Swing, Roll and Spiral, then pair them with you
 
 ![Slide Right, Zoom Out, Flip, Swing, Roll and Spiral](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/new-styles.gif)
 
-### ✧ Pick a mood — new in 1.2
+### ✧ Pick a mood
 
-Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a preset, press **Apply**, then fine-tune it in the live preview. Presets change motion and the cursor; your sound settings and choice of fields stay yours. Manual edits appear as **Custom**.
+Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a built-in preset, press **Apply**, then fine-tune it in the live preview. These presets change motion and the cursor while keeping your sound settings and field choices. Manual edits appear as **Custom**.
 
-![Visual preset selector, Apply button and live preview](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
+![Built-in visual presets and live preview, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
+
+### ✧ Share your style · new in 1.3
+
+Save your own combination of **animation, cursor and sound** under a name. Apply, duplicate or rename it, then **export a JSON preset** to share with friends. Importing a matching name creates a separate copy. Your enabled fields and interface preferences stay yours.
+
+![Named preset library with save, apply, duplicate, rename, import and export](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-library-1.3.png)
 
 ![Purple pixel divider — typing sounds](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-02-wide.svg)
 
-## ♪ Hear every keystroke — new in 1.2
+## ♪ Hear every keystroke
 
 | Typewriter | Mechanical | Soft | Laptop |
 |:---:|:---:|:---:|:---:|
@@ -57,13 +65,17 @@ Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a 
 
 Four sound families with distinct key, space, Backspace and Enter feedback. Adjust **volume, pitch and pitch variation**, mute deletion or Enter separately, and use **Test Sound** to listen before enabling.
 
-![Sound note](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-01-2x.png) **Sounds are off by default**, including after updating. Enable them in the **Sound** tab. Pasting makes at most one sound; cursor navigation and automatic field updates stay quiet.
+**New in 1.3:** bring your own **Ogg Vorbis sound pack**. Drop a ZIP into **Sound packs**, import it, audition it and press **Use**. Switch between installed packs without another resource reload. [Sound pack format](https://github.com/AlexFirst404/typing-animation/blob/master/docs/custom-sound-packs.md). Presets refer to the selected pack; share its ZIP alongside the preset when it uses custom audio.
 
-![Sound presets, volume, pitch and the Test Sound button](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/sound-settings.png)
+![Sound note](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-01-2x.png) **Sounds are off by default**; your existing sound settings carry over. Enable them in the **Sound** tab. Pasting makes at most one sound; cursor navigation and automatic field updates stay quiet.
+
+![Built-in sound controls and the Test Sound button, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/sound-settings.png)
 
 ## │ A cursor that follows you
 
 Smooth horizontal **and vertical** movement, with its own speed setting. Keep the vanilla cursor or choose a **bar, underline or translucent block**; pick a colour and thickness to match your style.
+
+**New in 1.3:** enter your own **HEX colour**, adjust the blink period, choose a soft fade, or keep the caret visible while typing. Find the fine controls in **Detailed** mode.
 
 ![Smooth caret movement with custom shapes and colours](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/smooth-cursor.gif)
 
@@ -75,11 +87,17 @@ Animations and optional typing sounds work while editing **ordinary and hanging 
 
 ## ![Settings](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-03-2x.png) Make it yours
 
-Four tidy settings tabs: **Animations · Cursor · Fields · Sound**. Tune appearance and removal separately, cap paste delays, choose where the mod runs, and explore motion in the **live preview** with **Demo**.
+Choose **Basic** or **Detailed** on your first settings visit, then switch modes whenever you like. Basic keeps the essentials close; Detailed exposes timing, intensity, blink and sound controls across compact pages. Switching modes keeps your saved values.
+
+![Basic settings with the live preview, built-in presets and mode switch](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/basic-settings-1.3.png)
+
+Four settings tabs: **Animations · Cursor · Fields · Sound**, with a **live preview** and **Demo** to try your changes.
 
 ![Animation controls and live Demo, recorded in 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/settings-tabs.gif)
 
 Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Individual controls apply immediately; a visual preset uses **Apply**. Settings are saved in `config/typinganimation.json`.
+
+With **Mod Menu installed on Fabric/Quilt**, you can hide the Typing Animation button from Options. Without Mod Menu the button stays available, so you can always reach the settings.
 
 ## / Commands keep their colours
 
@@ -101,7 +119,7 @@ Syntax highlighting stays intact while typing and completing commands with **Tab
 
 ### Compatibility notes
 
-Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. Book input is supported from Minecraft 1.21.6. Mods replacing the standard text renderer may conflict.
+Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. **Minecraft 26.3 requires Quilt Loader 0.30.2 or newer.** Book input is supported from Minecraft 1.21.6. Mods replacing the standard text renderer may conflict.
 
 **Made by AlexFirst** · [Source code on GitHub](https://github.com/AlexFirst404/typing-animation) · **MIT** · Modpacks welcome.
 
@@ -109,11 +127,15 @@ Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric fi
 
 Плавный набор в чате, командах, поиске и **обычных и подвесных табличках**. **17 эффектов появления, 10 эффектов удаления**, отдельные длительность и интенсивность, 10 кривых плавности и «Авто».
 
-**Новое в 1.2:** четыре звуковых профиля — **печатная машинка, механическая клавиатура, мягкий звук и ноутбук**. Есть громкость, тон, разброс тона, отдельные звуки удаления и Enter и кнопка прослушивания. **Звук изначально выключен**; включается во вкладке «Звук».
+**Новое в 1.3:** сохраняйте собственные пресеты анимации, курсора и звука, копируйте, переименовывайте и делитесь ими через **импорт и экспорт JSON**. Свои звуковые наборы в **ZIP с Ogg Vorbis** можно импортировать и прослушать в библиотеке. JSON или ZIP можно перетащить в её окно.
 
-Шесть готовых наборов анимации выбираются кнопкой и применяются через **«Применить»**. Звуковые настройки и выбранные поля сохраняются. Курсору можно задать форму, цвет, толщину и плавность движения по двум осям. Четыре вкладки — **«Анимации», «Курсор», «Поля», «Звук»**, живой предпросмотр и «Демо» помогают подобрать свой вариант.
+**Адаптация к скорости печати** ускоряет анимации и приглушает звук при быстром наборе. Включается отдельно. Курсору можно задать **HEX-цвет, период и плавность мигания**, постоянную видимость при наборе, форму, толщину и плавность движения по двум осям.
 
-**Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются, книги поддерживаются с 1.21.6. Автор — **AlexFirst**.
+При первом входе выберите **«Базовый»** или **«Подробный»** интерфейс; режим можно поменять позже без сброса настроек. Четыре вкладки, живой предпросмотр и **«Демо»** помогают подобрать свой стиль. С установленным **Mod Menu** на Fabric/Quilt кнопку в «Настройках» можно скрыть; без него она остаётся доступной.
+
+Шесть готовых визуальных наборов применяются кнопкой **«Применить»**. Четыре встроенных звуковых профиля: **печатная машинка, механическая клавиатура, мягкий звук и ноутбук**. **Звук изначально выключен**; включается во вкладке «Звук». Для пресета с собственным звуком передайте другу и JSON, и ZIP-набор.
+
+**Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. **Для Minecraft 26.3 нужен Quilt Loader 0.30.2 или новее.** Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются, книги поддерживаются с 1.21.6. Автор — **AlexFirst**.
 
 ---
 
@@ -135,7 +157,7 @@ bash scripts/run-target.sh 26.3-neoforge selftest
 
 Release JARs are collected in `dist/`. Always use `--no-daemon` for direct Gradle commands. The standalone `core` Gradle project contains the JUnit tests.
 
-In-game self-tests exercise mixin application, typing, deletion, selections, scrolling, animation styles, both sign editors and all settings tabs. They also check sound input gates, visual-preset isolation and sound audition. They compare settled text against vanilla pixels, save screenshots, report `SELFTEST PASS` or `SELFTEST FAIL`, then close the client.
+In-game self-tests exercise mixin application, typing, deletion, selections, scrolling, animation styles, both sign editors and all settings tabs. They also check sound input gates, visual-preset isolation, sound audition, first-visit interface modes, named preset menu actions and imported sound pack resources. They compare settled text against vanilla pixels, save screenshots, report `SELFTEST PASS` or `SELFTEST FAIL`, then close the client.
 
 ```bash
 # Record actual Minecraft UI and build GIFs/screenshots:
@@ -152,6 +174,6 @@ The media recorder creates a disposable showcase world and saves frames in the s
 
 The 36 original keyboard samples are generated by `scripts/generate-typing-sounds.py`; its `--check` mode verifies reproducibility without changing assets. The source lists the Python audio-library versions used. Sound resources and English/Russian subtitles are validated by the core tests.
 
-**Documentation:** [Engineering spec](docs/SPEC.md) · [1.2.0 release notes](docs/release-1.2.0.md) · [1.2.0 validation](docs/validation-1.2.0.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
+**Documentation:** [Engineering spec](docs/SPEC.md) · [1.3.0 release notes](docs/changelog-1.3.0.md) · [1.3.0 validation](docs/validation-1.3.0.md) · [Custom sound packs](docs/custom-sound-packs.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
 
 **По-русски:** для сборки нужны JDK 17, 21 и 25; готовые JAR находятся в `dist/`. Команда `selftest` запускает проверку в настоящем клиенте Minecraft. Общее описание для Modrinth, CurseForge и GitHub редактируется в `docs/project-description.md` и переносится командой `node scripts/sync-description.mjs`.

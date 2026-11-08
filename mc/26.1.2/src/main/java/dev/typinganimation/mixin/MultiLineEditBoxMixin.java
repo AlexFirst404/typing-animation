@@ -1,5 +1,13 @@
 package dev.typinganimation.mixin;
 
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.util.Util;
+
+import dev.typinganimation.core.TypingConfig;
+
+import dev.typinganimation.core.ConfigManager;
+
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.mc.TypingRenderer;
 import dev.typinganimation.mc.TypingStateHolder;
@@ -142,5 +150,15 @@ public abstract class MultiLineEditBoxMixin extends AbstractTextAreaWidget imple
     @Inject(method = "extractContents", at = @At("TAIL"))
     private void typinganimation$end(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         TypingRenderer.end(typinganimation$animation(), this, font, textShadow);
+    }
+
+    /** Changes only blink timing; vanilla retains focus, selection and viewport checks. */
+    @Redirect(method = "extractContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/TextCursorUtils;isCursorVisible(J)Z"))
+    private boolean typinganimation$customBlink(long elapsed) {
+        TypingConfig cfg = ConfigManager.get();
+        long now = Util.getMillis();
+        typinganimation$animation().cursorBlink.observe(textField.value(), now);
+        return typinganimation$animation().cursorBlink.visible(net.minecraft.client.gui.components.TextCursorUtils.isCursorVisible(elapsed),
+                elapsed, now, cfg, cfg.enabled && (typinganimation$animation().forceAnimate || dev.typinganimation.core.FieldKind.isAnimated(typinganimation$animation().kind, cfg)));
     }
 }

@@ -1,6 +1,7 @@
 package dev.typinganimation.fabric;
 
 import dev.typinganimation.mc.ClientInit;
+import dev.typinganimation.mc.ConfigAccess;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -11,6 +12,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public final class TypingAnimationFabric implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		ConfigAccess.setModMenuAvailable(FabricLoader.getInstance().isModLoaded("modmenu"));
 		ClientInit.init(FabricLoader.getInstance().getConfigDir());
 	}
 }

@@ -1,6 +1,7 @@
 package dev.typinganimation.mc;
 
 import dev.typinganimation.core.FieldAnimationState;
+import dev.typinganimation.core.CursorBlinkState;
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.core.TypingConfig;
 import net.minecraft.client.gui.Font;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.Font;
  * between the HEAD inject, the redirected draw calls and the RETURN inject. Render thread only.
  */
 public final class WidgetAnimator {
+    public final CursorBlinkState cursorBlink = new CursorBlinkState();
     /**
      * A frame that comes this long after the widget's previous one (the game stalled) snaps to the current value
      * instead of animating what changed in the meantime, like a widget that skipped a frame (see {@link #touch}).
@@ -101,6 +103,7 @@ public final class WidgetAnimator {
         clean = false;
         final long f = frame;
         boolean continuous = !hiddenGap && lastFrame >= 0L && f - lastFrame <= 1L && nowMs - lastFrameMs <= RENDER_GAP_MS;
+        if (!continuous) cursorBlink.reset();
         hiddenGap = false;
         lastFrameMs = nowMs;
         lastFrame = f;
@@ -110,12 +113,14 @@ public final class WidgetAnimator {
     /** The widget is not drawn this frame (invisible). */
     void hidden() {
         hiddenGap = true;
+        cursorBlink.reset();
     }
 
     /** The mod is disabled: forget everything once, so re-enabling starts from a clean first sync. */
     void disable() {
         active = false;
         if (!clean) {
+            cursorBlink.reset();
             clean = true;
             caretOffsetY = 0f;
             lastValue = null;

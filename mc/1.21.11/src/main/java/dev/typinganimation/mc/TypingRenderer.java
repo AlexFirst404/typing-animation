@@ -232,6 +232,8 @@ public final class TypingRenderer {
             animate = false;
         }
         long now = Util.getMillis();
+        if (anim.cursorBlinkFrame < renderFrame - 1L) anim.cursorBlink.reset();
+        anim.cursorBlinkFrame = renderFrame;
         FieldAnimationState st = anim.state;
         st.beginFrame(now, originX, originY, scrollKey);
         st.sync(value, animate, cfg);
@@ -591,7 +593,7 @@ public final class TypingRenderer {
         anim.caretArgY = y0;
         anim.caretArgX1 = x1;
         anim.caretArgY1 = y1;
-        anim.caretArgColor = color;
+        anim.caretArgColor = anim.cursorBlink.tint(color);
         anim.caretArgFont = null;
         anim.caretArgText = null;
         anim.caretDx = dx;

@@ -1,6 +1,7 @@
 package dev.typinganimation.mc;
 
 import dev.typinganimation.core.ConfigManager;
+import dev.typinganimation.core.CustomSoundPackLibrary;
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.core.SoundPreset;
 import dev.typinganimation.core.TypingConfig;
@@ -17,6 +18,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 /** Local, non-positional UI audio. Called only after accepted input, never from rendering or text setters. */
 public final class TypingSounds {
@@ -30,12 +34,15 @@ public final class TypingSounds {
     private static final int[] PREVIEW_TIMES = {0, 80, 170, 260, 370, 470, 600};
     private static Object previewOwner;
     private static SoundPreset previewPreset;
+    private static String previewPack = "";
+    private static final Map<String, SoundEvent[]> CUSTOM_EVENTS = new HashMap<>();
     private static int previewIndex;
     private static long previewStart;
     public static Throwable firstError;
     static long playedCount;
     static TypingSoundAction lastAction;
     static SoundPreset lastPreset;
+    static String lastCustomPack = "";
     static float lastVolume, lastPitch;
     private static long inputSerial;
 
@@ -65,15 +72,36 @@ public final class TypingSounds {
 
     public static void action(TypingSoundAction action, FieldKind kind, boolean previewField) {
         try {
+            if (action != null) previewOwner = null;
             TypingConfig cfg = ConfigManager.get();
             if (!TypingSoundFeedback.shouldPlay(cfg, kind, previewField, action) || firstError != null) return;
-            previewOwner = null;
-            if (LIMIT.tryAcquire(now())) play(cfg.soundPreset, action, cfg);
+            long time = now();
+            if (LIMIT.tryAcquire(time, cfg.adaptiveTyping))
+                play(cfg.soundPreset, action, cfg, LIMIT.volumeScale(time, cfg.adaptiveTyping), cfg.customSoundPack);
         } catch (Throwable error) { fail(error); }
     }
 
     /** A short typing rhythm; explicit audition works even when the sound/animation master is off. */
     public static void preview(SoundPreset preset) {
+        preview(preset, ConfigManager.get().customSoundPack);
+    }
+
+    /** Audition an imported pack without changing the live configuration; empty id previews built-in audio. */
+    public static void previewCustom(String id) { preview(ConfigManager.get().soundPreset, id); }
+
+    public static CompletableFuture<Void> reloadCustomPacks() {
+        try {
+            previewOwner = null;
+            stopVoices();
+            firstError = null;
+            CUSTOM_EVENTS.clear();
+            return Minecraft.getInstance().reloadResourcePacks();
+        } catch (Throwable error) {
+            return CompletableFuture.failedFuture(error);
+        }
+    }
+
+    private static void preview(SoundPreset preset, String customPack) {
         try {
             TypingConfig cfg = ConfigManager.get();
             if (firstError != null || cfg.soundVolume <= 0) return;
@@ -81,9 +109,10 @@ public final class TypingSounds {
             stopVoices();
             previewOwner = mc.screen;
             previewPreset = preset == null ? cfg.soundPreset : preset;
+            previewPack = customPack == null ? "" : customPack;
             previewIndex = 0;
             previewStart = now();
-            play(previewPreset, PREVIEW[previewIndex++], cfg);
+            play(previewPreset, PREVIEW[previewIndex++], cfg, 1f, previewPack);
         } catch (Throwable error) { fail(error); }
     }
 
@@ -97,18 +126,18 @@ public final class TypingSounds {
                 return;
             }
             if (previewIndex < PREVIEW.length && now() - previewStart >= PREVIEW_TIMES[previewIndex]) {
-                play(previewPreset, PREVIEW[previewIndex++], ConfigManager.get());
+                play(previewPreset, PREVIEW[previewIndex++], ConfigManager.get(), 1f, previewPack);
             }
             if (previewIndex >= PREVIEW.length) previewOwner = null;
         } catch (Throwable error) { previewOwner = null; fail(error); }
     }
 
-    private static void play(SoundPreset preset, TypingSoundAction action, TypingConfig cfg) {
+    private static void play(SoundPreset preset, TypingSoundAction action, TypingConfig cfg, float volumeScale, String customPack) {
         if (preset == null || cfg.soundVolume <= 0) return;
-        float volume = Math.max(0, Math.min(1, cfg.soundVolume));
+        float volume = Math.max(0, Math.min(1, cfg.soundVolume * volumeScale));
         float pitch = Math.max(.6f, Math.min(1.6f, cfg.soundPitch));
         if (cfg.soundVariation) pitch = Math.max(.6f, Math.min(1.6f, pitch * (.96f + RANDOM.nextFloat() * .08f)));
-        SimpleSoundInstance sound = SimpleSoundInstance.forUI(EVENTS[preset.ordinal()][action.ordinal()], pitch, volume);
+        SimpleSoundInstance sound = SimpleSoundInstance.forUI(resolveEvent(preset, action, customPack), pitch, volume);
         var manager = Minecraft.getInstance().getSoundManager();
         while (VOICES.size() >= 8) manager.stop(VOICES.removeFirst());
         VOICES.addLast(sound);
@@ -116,13 +145,29 @@ public final class TypingSounds {
         playedCount++;
         lastAction = action;
         lastPreset = preset;
+        lastCustomPack = customPack != null && ClasspathSoundPack.customAvailable(customPack) ? customPack : "";
         lastVolume = volume;
         lastPitch = pitch;
     }
 
+    private static SoundEvent resolveEvent(SoundPreset preset, TypingSoundAction action, String customPack) {
+        if (customPack == null || !ClasspathSoundPack.customAvailable(customPack)) return EVENTS[preset.ordinal()][action.ordinal()];
+        return CUSTOM_EVENTS.computeIfAbsent(customPack, id -> {
+            SoundEvent[] events = new SoundEvent[TypingSoundAction.values().length];
+            for (TypingSoundAction sampleAction : TypingSoundAction.values()) {
+                events[sampleAction.ordinal()] = createCustomEvent(id, sampleAction);
+            }
+            return events;
+        })[action.ordinal()];
+    }
+
+    private static SoundEvent createCustomEvent(String id, TypingSoundAction action) {
+        return SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(CustomSoundPackLibrary.NAMESPACE, CustomSoundPackLibrary.eventPath(id, action)));
+    }
+
     /** Diagnostic helper: the policy and resources are also checked by the in-game test. */
     static SoundEvent event(SoundPreset preset, TypingSoundAction action) { return EVENTS[preset.ordinal()][action.ordinal()]; }
-    static void resetTestCounters() { LIMIT.reset(); playedCount = 0; lastAction = null; previewOwner = null; }
+    static void resetTestCounters() { LIMIT.reset(); playedCount = 0; lastAction = null; lastCustomPack = ""; previewOwner = null; }
 
     private static void stopVoices() {
         var manager = Minecraft.getInstance().getSoundManager();

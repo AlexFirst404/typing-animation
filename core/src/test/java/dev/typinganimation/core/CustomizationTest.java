@@ -152,6 +152,8 @@ class CustomizationTest {
             if (field.getType() == boolean.class) field.setBoolean(changed, !field.getBoolean(changed));
             else if (field.getType() == int.class) field.setInt(changed, field.getInt(changed) + 1);
             else if (field.getType() == float.class) field.setFloat(changed, field.getFloat(changed) + 0.25f);
+            else if (field.getType() == String.class) field.set(changed, field.getName().equals("cursorHexColor")
+                    ? "#112233" : "0123456789abcdef01234567");
             else {
                 Object current = field.get(changed);
                 Object[] choices = field.getType().getEnumConstants();

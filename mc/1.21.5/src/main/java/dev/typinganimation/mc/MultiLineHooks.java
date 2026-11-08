@@ -74,6 +74,7 @@ public final class MultiLineHooks {
                 float dy = a.caretOffsetY;
                 TypingConfig cfg = ConfigManager.get();
                 boolean custom = a.active && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+                if (custom) color = a.cursorBlink.tint(color);
                 if (dx != 0f || dy != 0f || custom) {
                     if (dx != 0f || dy != 0f) TypingRenderer.STATS.caretGlides++;
                     PoseStack pose = gg.pose();
@@ -113,6 +114,7 @@ public final class MultiLineHooks {
         TypingConfig cfg = ConfigManager.get();
         boolean cursor = a.active && color == CURSOR_COLOR;
         boolean custom = cursor && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+        if (custom) color = a.cursorBlink.tint(color);
         if (cursor) {
             dx = caretDx(box, a, x1, y1 + 1);
             dy = a.caretOffsetY;

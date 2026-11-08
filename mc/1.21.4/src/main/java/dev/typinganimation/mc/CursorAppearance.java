@@ -1,21 +1,34 @@
 package dev.typinganimation.mc;
 
 import dev.typinganimation.core.CursorColor;
+import dev.typinganimation.core.CursorBlinkState;
 import dev.typinganimation.core.CursorStyle;
 import dev.typinganimation.core.TypingConfig;
 import net.minecraft.client.gui.GuiGraphics;
 
 /** Shared cursor geometry; callers preserve vanilla blinking, clipping and selection behaviour. */
 public final class CursorAppearance {
+    private static String cachedHexColor;
+    private static int cachedHexRgb = 0xC4B5FD;
+
     private CursorAppearance() { }
+
+    /** Parsing occurs only after a user edits the value; steady caret rendering allocates nothing. */
+    private static int customRgb(String value) {
+        if (!java.util.Objects.equals(value, cachedHexColor)) {
+            cachedHexColor = value;
+            cachedHexRgb = Integer.parseInt(TypingConfig.normalizeHexColor(value).substring(1), 16);
+        }
+        return cachedHexRgb;
+    }
 
     public static boolean custom(TypingConfig cfg) {
         return cfg.cursorStyle != CursorStyle.VANILLA || cfg.cursorColor != CursorColor.VANILLA
-                || cfg.cursorWidth != 1;
+                || cfg.cursorWidth != 1 || cfg.cursorCustomColor || CursorBlinkState.customized(cfg);
     }
 
     public static int color(TypingConfig cfg, int vanillaColor) {
-        int rgb = cfg.cursorColor.rgb();
+        int rgb = cfg.cursorCustomColor ? customRgb(cfg.cursorHexColor) : cfg.cursorColor.rgb();
         if (rgb < 0) return vanillaColor;
         int alpha = vanillaColor >>> 24;
         return ((alpha == 0 ? 255 : alpha) << 24) | rgb;
@@ -26,7 +39,9 @@ public final class CursorAppearance {
                                int cellWidth, int vanillaColor, boolean insert) {
         CursorStyle style = cfg.cursorStyle;
         if (style == CursorStyle.VANILLA) {
-            if (!insert || cfg.cursorWidth == 1) return false;
+            // The append glyph keeps its native font shape and shadow, including with a custom blink.
+            if (!insert || (cfg.cursorWidth == 1 && !cfg.cursorSoftBlink)) return false;
+            // A soft insert caret needs alpha geometry instead of the native colour-inverting overlay.
             style = CursorStyle.BAR;
         }
         int h = Math.max(1, height), w = Math.max(1, cellWidth);

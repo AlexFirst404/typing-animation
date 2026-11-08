@@ -1,5 +1,11 @@
 package dev.typinganimation.mixin;
 
+import net.minecraft.util.Util;
+
+import dev.typinganimation.core.TypingConfig;
+
+import dev.typinganimation.core.ConfigManager;
+
 import dev.typinganimation.mc.SignAnimation;
 import dev.typinganimation.mc.SignStateHolder;
 import net.minecraft.client.gui.Font;
@@ -22,6 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Hooks the shared normal/hanging sign editor without replacing input, sign updates or selection rendering. */
 @Mixin(AbstractSignEditScreen.class)
 public abstract class AbstractSignEditScreenMixin extends Screen implements SignStateHolder {
+    @Shadow private int frame;
+
     @Shadow @Final private SignBlockEntity sign;
     @Shadow @Final private String[] messages;
     @Shadow private int line;
@@ -71,5 +79,16 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Sign
     @Inject(method = "renderSignText", at = @At("TAIL"))
     private void typinganimation$end(GuiGraphics graphics, CallbackInfo ci) {
         typinganimation$signAnimation().end(graphics, font);
+    }
+
+    /** Changes only blink timing; vanilla retains focus, selection and viewport checks. */
+    @Redirect(method = "renderSignText", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractSignEditScreen;frame:I", opcode = 180))
+    private int typinganimation$customBlink(AbstractSignEditScreen widget) {
+        TypingConfig cfg = ConfigManager.get();
+        long now = Util.getMillis();
+        typinganimation$signAnimation().observeCursor(line, messages[Math.max(0, Math.min(line, messages.length - 1))], now);
+        boolean visible = typinganimation$signAnimation().cursorBlink.visible(frame / 6 % 2 == 0, (long) frame * 50L, now, cfg,
+                cfg.enabled && cfg.animateSigns && !font.isBidirectional());
+        return visible ? 0 : 6;
     }
 }

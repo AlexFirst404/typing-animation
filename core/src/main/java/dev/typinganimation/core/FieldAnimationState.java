@@ -49,10 +49,14 @@ public final class FieldAnimationState {
     static final float LINE_HEIGHT = 9f;
     private static final int MIN_CAPACITY = 16;
     private static final TypingConfig FALLBACK = new TypingConfig();
+    private final TypingRhythm rhythm = new TypingRhythm();
+    /** Cadence for newly created animations; existing characters and ghosts retain their own snapshot. */
+    private float tempoScale = 1f;
 
     // ------------------------------------------------ per-char arrays (index = UTF-16 index of current value)
     private int length;
     private long[] birth = new long[0];
+    private float[] birthTempo = new float[0];
     private float[] smoothX = new float[0];
     private float[] layY = new float[0];
     private float[] layW = new float[0];
@@ -104,6 +108,7 @@ public final class FieldAnimationState {
     private Ghost[] ghosts = new Ghost[0];
     private int ghostCount;
     private int removeDurationMs = 160;
+    private boolean adaptiveThisFrame;
     /** Scratch transform used to capture a removed char's appear pose (keeps ghost creation allocation-light). */
     private final CharTransform scratch = new CharTransform();
 
@@ -173,6 +178,10 @@ public final class FieldAnimationState {
         if (cfg == null) cfg = FALLBACK;
         if (value == null) value = "";
         final boolean anim = animate && cfg.enabled;
+        if (!anim || !cfg.adaptiveTyping) {
+            rhythm.reset();
+            tempoScale = 1f;
+        }
         animateThisFrame = anim;
         boolean reflow = anim && cfg.smoothReflow && cfg.glideMs > 0;
         if (reflow != reflowActive || cfg.glideMs != glideMs) {
@@ -180,7 +189,8 @@ public final class FieldAnimationState {
         }
         reflowActive = reflow;
         glideMs = cfg.glideMs;
-        removeDurationMs = Math.max(1, cfg.removeDurationMs);
+        removeDurationMs = cfg.removeDurationMs;
+        adaptiveThisFrame = cfg.adaptiveTyping;
         if (!cfg.enabled || cfg.removeStyle == null || cfg.removeStyle == RemoveStyle.NONE) {
             clearGhosts();
         }
@@ -228,6 +238,19 @@ public final class FieldAnimationState {
         }
         final int removed = oldLen - s - p;
         final int inserted = newLen - s - p;
+        if (anim && cfg.adaptiveTyping) {
+            // Single accepted-looking edits build cadence. A paste/replacement is one bulk operation,
+            // never hundreds of imaginary keystrokes and never evidence of fast typing.
+            boolean single = (removed == 0 && cur.codePointCount(p, p + inserted) == 1)
+                    || (inserted == 0 && old.codePointCount(p, p + removed) == 1);
+            if (single) {
+                rhythm.record(nowMs);
+                tempoScale = rhythm.animationScale(nowMs);
+            } else {
+                rhythm.reset();
+                tempoScale = 1f;
+            }
+        }
 
         // removed chars that were visible last frame -> ghosts
         if (anim && removed > 0 && cfg.removeStyle != null && cfg.removeStyle != RemoveStyle.NONE) {
@@ -249,6 +272,7 @@ public final class FieldAnimationState {
         final int to = p + inserted;
         if (s > 0 && from != to) {
             System.arraycopy(birth, from, birth, to, s);
+            System.arraycopy(birthTempo, from, birthTempo, to, s);
             System.arraycopy(smoothX, from, smoothX, to, s);
             System.arraycopy(layY, from, layY, to, s);
             System.arraycopy(layW, from, layW, to, s);
@@ -271,6 +295,7 @@ public final class FieldAnimationState {
                 : 0f;
         int cpIndex = 0;
         for (int i = p; i < to; i++) {
+            birthTempo[i] = cfg.adaptiveTyping ? tempoScale : 1f;
             if (births) {
                 boolean lowHalf = i > p && Character.isLowSurrogate(cur.charAt(i))
                         && Character.isHighSurrogate(cur.charAt(i - 1));
@@ -357,7 +382,7 @@ public final class FieldAnimationState {
         if (b == NO_BIRTH || style == null || style == AppearStyle.NONE) {
             return false;
         }
-        final int dur = Math.max(1, cfg.durationMs);
+        final int dur = effectiveDuration(cfg.durationMs, cfg.adaptiveTyping, birthTempo[index]);
         final float t = (float) ((double) (atMs - b) / dur);
         if (t >= 1f) {
             if (forgetFinished) {
@@ -396,8 +421,9 @@ public final class FieldAnimationState {
             out.alpha = 0f;
             return false;
         }
-        final int dur = Math.max(1, cfg.removeDurationMs);
-        removeDurationMs = dur;
+        final int dur = effectiveDuration(cfg.removeDurationMs, cfg.adaptiveTyping, g.tempoScale);
+        removeDurationMs = cfg.removeDurationMs;
+        adaptiveThisFrame = cfg.adaptiveTyping;
         float t = (float) ((double) (nowMs - g.removedAt) / dur);
         if (!(t < 1f)) {
             out.alpha = 0f;
@@ -515,6 +541,8 @@ public final class FieldAnimationState {
 
     /** Forgets everything; the next {@link #sync} is a first sync and the next frame snaps. */
     public void reset() {
+        rhythm.reset();
+        tempoScale = 1f;
         Arrays.fill(layStyle, null);
         Arrays.fill(birth, NO_BIRTH);
         Arrays.fill(laidFrame, NEVER);
@@ -564,10 +592,11 @@ public final class FieldAnimationState {
         if (latestBirth == NO_BIRTH || cfg.appearStyle == null || cfg.appearStyle == AppearStyle.NONE) {
             return false;
         }
-        final int dur = Math.max(1, cfg.durationMs);
-        if (nowMs - latestBirth < dur) {
+        // Every adaptive scale is <=1. The unscaled duration is therefore a safe fast-path bound.
+        if (nowMs - latestBirth < Math.max(1, cfg.durationMs)) {
             for (int i = 0; i < length; i++) {
                 long b = birth[i];
+                final int dur = effectiveDuration(cfg.durationMs, cfg.adaptiveTyping, birthTempo[i]);
                 if (b != NO_BIRTH && nowMs - b < dur) {
                     return true;
                 }
@@ -583,9 +612,10 @@ public final class FieldAnimationState {
         if (ghostCount == 0 || cfg.removeStyle == null || cfg.removeStyle == RemoveStyle.NONE) {
             return false;
         }
-        final int dur = Math.max(1, cfg.removeDurationMs);
         for (int i = 0; i < ghostCount; i++) {
-            if (nowMs - ghosts[i].removedAt < dur) {
+            Ghost ghost = ghosts[i];
+            int dur = effectiveDuration(cfg.removeDurationMs, cfg.adaptiveTyping, ghost.tempoScale);
+            if (nowMs - ghost.removedAt < dur) {
                 return true;
             }
         }
@@ -600,12 +630,17 @@ public final class FieldAnimationState {
         return alphaValue;
     }
 
+    private static int effectiveDuration(int configuredMs, boolean adaptive, float tempo) {
+        return Math.max(1, Math.round(configuredMs * (adaptive ? tempo : 1f)));
+    }
+
     private void initChars(int n) {
         ensureCapacity(n);
         Arrays.fill(layStyle, null);
         length = n;
         for (int i = 0; i < n; i++) {
             birth[i] = NO_BIRTH;
+            birthTempo[i] = 1f;
             initSlot(i);
         }
     }
@@ -630,6 +665,8 @@ public final class FieldAnimationState {
         if (newCap < 0) newCap = n; // overflow guard
         birth = Arrays.copyOf(birth, newCap);
         Arrays.fill(birth, cap, newCap, NO_BIRTH);
+        birthTempo = Arrays.copyOf(birthTempo, newCap);
+        Arrays.fill(birthTempo, cap, newCap, 1f);
         smoothX = Arrays.copyOf(smoothX, newCap);
         layY = Arrays.copyOf(layY, newCap);
         layW = Arrays.copyOf(layW, newCap);
@@ -686,7 +723,8 @@ public final class FieldAnimationState {
             ghosts = Arrays.copyOf(ghosts, Math.min(MAX_GHOSTS, Math.max(8, ghostCount * 2)));
         }
         ghosts[ghostCount++] = new Ghost(layCp[i], layStyle[i], layColor[i], smoothX[i] + shiftX, layY[i] + shiftY,
-                layW[i], nowMs, seeds[i], pose, alpha0, dx0, dy0, sx0, sy0, rot0, glyph0);
+                layW[i], nowMs, seeds[i], pose, alpha0, dx0, dy0, sx0, sy0, rot0, glyph0,
+                cfg.adaptiveTyping ? tempoScale : 1f);
     }
 
     /** Moves every ghost by (dx, dy) (the widget moved). */
@@ -700,7 +738,7 @@ public final class FieldAnimationState {
         int w = 0;
         for (int r = 0; r < ghostCount; r++) {
             Ghost g = ghosts[r];
-            if (nowMs - g.removedAt < removeDurationMs) {
+            if (nowMs - g.removedAt < effectiveDuration(removeDurationMs, adaptiveThisFrame, g.tempoScale)) {
                 ghosts[w++] = g;
             }
         }
@@ -756,14 +794,22 @@ public final class FieldAnimationState {
         final boolean hasStartPose;
         final float startAlpha, startDx, startDy, startScaleX, startScaleY, startRotation;
         final int startGlyph;
+        final float tempoScale;
 
         public Ghost(int codepoint, Object style, int color, float x, float y, float width, long removedAt, int seed) {
-            this(codepoint, style, color, x, y, width, removedAt, seed, false, 1f, 0f, 0f, 1f, 1f, 0f, -1);
+            this(codepoint, style, color, x, y, width, removedAt, seed, false, 1f, 0f, 0f, 1f, 1f, 0f, -1, 1f);
         }
 
         Ghost(int codepoint, Object style, int color, float x, float y, float width, long removedAt, int seed,
               boolean hasStartPose, float startAlpha, float startDx, float startDy, float startScaleX,
               float startScaleY, float startRotation, int startGlyph) {
+            this(codepoint, style, color, x, y, width, removedAt, seed, hasStartPose, startAlpha, startDx,
+                    startDy, startScaleX, startScaleY, startRotation, startGlyph, 1f);
+        }
+
+        Ghost(int codepoint, Object style, int color, float x, float y, float width, long removedAt, int seed,
+              boolean hasStartPose, float startAlpha, float startDx, float startDy, float startScaleX,
+              float startScaleY, float startRotation, int startGlyph, float tempoScale) {
             this.codepoint = codepoint;
             this.style = style;
             this.color = color;
@@ -780,12 +826,13 @@ public final class FieldAnimationState {
             this.startScaleY = startScaleY;
             this.startRotation = startRotation;
             this.startGlyph = startGlyph;
+            this.tempoScale = tempoScale;
         }
 
         /** Copy moved by (dx, dy). */
         Ghost shifted(float dx, float dy) {
             return new Ghost(codepoint, style, color, x + dx, y + dy, width, removedAt, seed, hasStartPose, startAlpha,
-                    startDx, startDy, startScaleX, startScaleY, startRotation, startGlyph);
+                    startDx, startDy, startScaleX, startScaleY, startRotation, startGlyph, tempoScale);
         }
 
         @Override

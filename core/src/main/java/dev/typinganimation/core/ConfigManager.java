@@ -169,6 +169,12 @@ public final class ConfigManager {
         o.addProperty("cursorStyle", enumName(c.cursorStyle, CursorStyle.VANILLA));
         o.addProperty("cursorColor", enumName(c.cursorColor, CursorColor.VANILLA));
         o.addProperty("cursorWidth", c.cursorWidth);
+        o.addProperty("cursorCustomColor", c.cursorCustomColor);
+        o.addProperty("cursorHexColor", c.cursorHexColor);
+        o.addProperty("cursorBlinkMs", c.cursorBlinkMs);
+        o.addProperty("cursorSoftBlink", c.cursorSoftBlink);
+        o.addProperty("cursorKeepVisibleWhileTyping", c.cursorKeepVisibleWhileTyping);
+        o.addProperty("adaptiveTyping", c.adaptiveTyping);
         o.addProperty("typingSounds", c.typingSounds);
         o.addProperty("soundPreset", enumName(c.soundPreset, SoundPreset.MECHANICAL));
         o.addProperty("soundVolume", c.soundVolume);
@@ -176,12 +182,15 @@ public final class ConfigManager {
         o.addProperty("soundVariation", c.soundVariation);
         o.addProperty("soundOnDelete", c.soundOnDelete);
         o.addProperty("soundOnEnter", c.soundOnEnter);
+        o.addProperty("customSoundPack", c.customSoundPack);
         o.addProperty("animateChat", c.animateChat);
         o.addProperty("animateOtherFields", c.animateOtherFields);
         o.addProperty("animateMultiline", c.animateMultiline);
         o.addProperty("animateSigns", c.animateSigns);
         o.addProperty("onlyWhenFocused", c.onlyWhenFocused);
         o.addProperty("optionsButton", c.optionsButton);
+        o.addProperty("advancedSettings", c.advancedSettings);
+        o.addProperty("settingsModeChosen", c.settingsModeChosen);
         return GSON.toJson(o) + System.lineSeparator();
     }
 
@@ -209,6 +218,12 @@ public final class ConfigManager {
         c.cursorStyle = readEnum(o, "cursorStyle", CursorStyle.class, c.cursorStyle);
         c.cursorColor = readEnum(o, "cursorColor", CursorColor.class, c.cursorColor);
         c.cursorWidth = readInt(o, "cursorWidth", c.cursorWidth);
+        c.cursorCustomColor = readBool(o, "cursorCustomColor", c.cursorCustomColor);
+        c.cursorHexColor = readString(o, "cursorHexColor", c.cursorHexColor);
+        c.cursorBlinkMs = readInt(o, "cursorBlinkMs", c.cursorBlinkMs);
+        c.cursorSoftBlink = readBool(o, "cursorSoftBlink", c.cursorSoftBlink);
+        c.cursorKeepVisibleWhileTyping = readBool(o, "cursorKeepVisibleWhileTyping", c.cursorKeepVisibleWhileTyping);
+        c.adaptiveTyping = readBool(o, "adaptiveTyping", c.adaptiveTyping);
         c.typingSounds = readBool(o, "typingSounds", c.typingSounds);
         c.soundPreset = readEnum(o, "soundPreset", SoundPreset.class, c.soundPreset);
         c.soundVolume = readFloat(o, "soundVolume", c.soundVolume);
@@ -216,12 +231,15 @@ public final class ConfigManager {
         c.soundVariation = readBool(o, "soundVariation", c.soundVariation);
         c.soundOnDelete = readBool(o, "soundOnDelete", c.soundOnDelete);
         c.soundOnEnter = readBool(o, "soundOnEnter", c.soundOnEnter);
+        c.customSoundPack = readString(o, "customSoundPack", c.customSoundPack);
         c.animateChat = readBool(o, "animateChat", c.animateChat);
         c.animateOtherFields = readBool(o, "animateOtherFields", c.animateOtherFields);
         c.animateMultiline = readBool(o, "animateMultiline", c.animateMultiline);
         c.animateSigns = readBool(o, "animateSigns", c.animateSigns);
         c.onlyWhenFocused = readBool(o, "onlyWhenFocused", c.onlyWhenFocused);
         c.optionsButton = readBool(o, "optionsButton", c.optionsButton);
+        c.advancedSettings = readBool(o, "advancedSettings", c.advancedSettings);
+        c.settingsModeChosen = readBool(o, "settingsModeChosen", c.settingsModeChosen);
     }
 
     private static String enumName(Enum<?> e, Enum<?> fallback) {
@@ -259,6 +277,15 @@ public final class ConfigManager {
             // fall through
         }
         return Double.NaN;
+    }
+
+    private static String readString(JsonObject o, String key, String def) {
+        try {
+            JsonPrimitive p = primitive(o, key);
+            return p != null && p.isString() ? p.getAsString() : def;
+        } catch (RuntimeException ignored) {
+            return def;
+        }
     }
 
     private static int readInt(JsonObject o, String key, int def) {

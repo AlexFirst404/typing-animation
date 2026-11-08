@@ -99,6 +99,7 @@ public final class SelfTest {
     private Screen signScreen;
     private TypingConfig beforeSignTest;
     private TypingConfig beforeSoundTest;
+    private java.util.concurrent.CompletableFuture<Void> customSoundReload;
     private OptionsScreen options;
     private ConfigScreen config;
     private TypingConfig original;
@@ -198,6 +199,8 @@ public final class SelfTest {
         }
         original = ConfigManager.get().copy();
         cfg().copyFrom(TypingConfig.defaults());
+        cfg().settingsModeChosen = true;
+        cfg().advancedSettings = true;
         buildScript();
     }
 
@@ -210,6 +213,8 @@ public final class SelfTest {
 
     private void fail(String reason, Throwable t) {
         finished = true;
+        StyleLibraryUiProbe.abort();
+        try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             restoreConfig();
         } catch (Throwable ignored) {
@@ -402,6 +407,8 @@ public final class SelfTest {
         // --- at rest
         act("default settings", () -> {
             cfg().copyFrom(TypingConfig.defaults());
+        cfg().settingsModeChosen = true;
+        cfg().advancedSettings = true;
             logMultiCursor("after styles");
         });
         until("all fields settled", this::settled, 200);
@@ -526,6 +533,8 @@ public final class SelfTest {
         act("prepare sign editing tests", () -> {
             beforeSignTest = ConfigManager.get().copy();
             ConfigManager.get().copyFrom(TypingConfig.defaults());
+        cfg().settingsModeChosen = true;
+        cfg().advancedSettings = true;
             ConfigManager.get().durationMs = 500;
             ConfigManager.get().removeDurationMs = 500;
             ConfigManager.get().cursorGlideMs = 180;
@@ -646,6 +655,16 @@ public final class SelfTest {
 
         addTypingSoundTests();
 
+        addCustomSoundLibraryTests();
+        act("open named preset library", StyleLibraryUiProbe::prepare);
+        waitFrames(3);
+        act("exercise named preset menu actions", StyleLibraryUiProbe::verifyActions);
+        waitFrames(3);
+        screenshot("27-preset-library");
+        act("restore after named preset actions", StyleLibraryUiProbe::cleanup);
+
+        addCustomizationUiTests();
+
         act("open options", () -> {
             options = new OptionsScreen(startScreen, mc.options);
             mc.setScreen(options);
@@ -686,7 +705,7 @@ public final class SelfTest {
                 checkLayout(config, "ConfigScreen page " + page, true);
             }
             config.showPage(0);
-            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 33 : 32),
+            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 39 : 38),
                     "unexpected option count " + config.options().size());
             int w = config.width;
             int h = config.height;
@@ -704,12 +723,14 @@ public final class SelfTest {
         act("russian label widths", this::checkRussianLabels);
         act("cycle appear style", () -> {
             AppearStyle before = cfg().appearStyle;
+            config.showOption("appearStyle");
             click(config, config.option("appearStyle"));
             check(cfg().appearStyle != before, "appear style did not change");
             check(config.getFocused() == config.preview(), "clicking a button took the focus from the preview");
         });
         act("drag duration slider", () -> {
             int before = cfg().durationMs;
+            config.showOption("durationMs");
             AbstractWidget slider = config.option("durationMs");
             click(config, slider.getX() + slider.getWidth() * 0.75, slider.getY() + slider.getHeight() / 2.0);
             check(cfg().durationMs != before, "duration slider did not change the config");
@@ -717,6 +738,7 @@ public final class SelfTest {
             check(config.getFocused() == config.preview(), "releasing the slider did not give the focus back to the preview");
         });
         act("slider arrow keys", () -> {
+            config.showOption("durationMs");
             AbstractWidget slider = config.option("durationMs");
             config.allowKeyboardAdjust("durationMs");
             int before = cfg().durationMs;
@@ -732,11 +754,13 @@ public final class SelfTest {
             config.setFocused(null);
         });
         act("toggle enabled off", () -> {
+            config.showOption("enabled");
             click(config, config.option("enabled"));
             check(!cfg().enabled, "enabled toggle did not switch off");
             check(!config.option("easing").active, "style options stay active while disabled");
         });
         act("toggle enabled on", () -> {
+            config.showOption("enabled");
             click(config, config.option("enabled"));
             check(cfg().enabled, "enabled toggle did not switch on");
         });
@@ -799,11 +823,12 @@ public final class SelfTest {
             config = (ConfigScreen) mc.screen;
             config.showOption("optionsButton");
             click(config, config.option("optionsButton"));
-            check(!cfg().optionsButton, "optionsButton toggle did not switch off");
+            check(cfg().optionsButton == !ConfigAccess.canHideOptionsButton(), "optionsButton accessibility guard failed");
             click(config, config.doneButton());
             check(mc.screen == options, "Done did not return to the Options screen");
             AbstractWidget b = optionsButtonOrNull(options);
-            check(b == null || (!b.visible && !b.active), "options button still shown after switching it off");
+            if (ConfigAccess.canHideOptionsButton()) check(b == null || (!b.visible && !b.active), "options button still shown after switching it off");
+            else check(b != null && b.visible && b.active, "settings entry hidden without Mod Menu");
         });
         waitFrames(2);
         act("options button on again", () -> {
@@ -821,7 +846,7 @@ public final class SelfTest {
             cfg().optionsButton = false;
             OptionsScreen second = new OptionsScreen(startScreen, mc.options);
             mc.setScreen(second);
-            check(optionsButtonOrNull(second) == null, "options button added although switched off");
+            check((optionsButtonOrNull(second) == null) == ConfigAccess.canHideOptionsButton(), "options button guard on reopening");
             mc.setScreen(new ConfigScreen(second));
             config = (ConfigScreen) mc.screen;
             config.showOption("optionsButton");
@@ -839,7 +864,10 @@ public final class SelfTest {
             check(mc.screen instanceof ConfigScreen, "options button did not reopen ConfigScreen");
             config = (ConfigScreen) mc.screen;
             click(config, config.resetButton());
-            check(cfg().equals(TypingConfig.defaults()), "Reset did not restore defaults: " + cfg());
+            TypingConfig resetExpected = TypingConfig.defaults();
+            resetExpected.settingsModeChosen = true;
+            resetExpected.advancedSettings = true;
+            check(cfg().equals(resetExpected), "Reset did not restore defaults while keeping interface mode: " + cfg());
             click(config, config.doneButton());
             String json = Files.readString(ConfigManager.path(), StandardCharsets.UTF_8);
             check(json.contains("\"appearStyle\": \"slide_up\""), "reset config not saved: " + json);
@@ -991,10 +1019,89 @@ public final class SelfTest {
         check(widget.charTyped(new CharacterEvent(c, 0)), "charTyped rejected by " + widget);
     }
 
+    /** Exercises onboarding and mode filtering without relying on a previously saved developer config. */
+    private void addCustomSoundLibraryTests() {
+        act("import user sound pack", () -> customSoundReload = CustomSoundPackProbe.prepare());
+        until("user sound resources reloaded", () -> customSoundReload.isDone() && mc.getOverlay() == null, 600);
+        act("audition imported sound pack", () -> {
+            customSoundReload.join();
+            CustomSoundPackProbe.verifyLoadedAndPlay();
+        });
+        waitTicks(18);
+        act("verify custom audition and restore", () -> {
+            check(TypingSounds.playedCount == 7, "custom audition did not play seven actions");
+            check(TypingSounds.firstError == null, "custom audio playback failed");
+            customSoundReload = CustomSoundPackProbe.cleanup();
+        });
+        until("user sound test resources removed", () -> customSoundReload.isDone() && mc.getOverlay() == null, 600);
+        act("check sound cleanup", () -> customSoundReload.join());
+    }
+
+    private void addCustomizationUiTests() {
+        act("first settings visit can be postponed", () -> {
+            beforeSoundTest = cfg().copy();
+            cfg().settingsModeChosen = false;
+            cfg().advancedSettings = false;
+            config = new ConfigScreen(startScreen);
+            mc.setScreen(config);
+            check(config.choosingMode(), "first visit did not ask for interface mode");
+            checkLayout(config, "interface mode choice", true);
+            config.onClose();
+            check(!cfg().settingsModeChosen, "leaving chooser committed a choice");
+        });
+        act("choose basic interface", () -> {
+            config = new ConfigScreen(startScreen);
+            mc.setScreen(config);
+            config.chooseSettingsMode(false);
+            check(cfg().settingsModeChosen && !cfg().advancedSettings && !config.choosingMode(), "basic choice not applied");
+            config.showOption("durationMs");
+            check(!config.option("durationMs").visible, "technical duration shown in basic mode");
+            config.showOption("appearStyle");
+            check(config.option("appearStyle").visible, "basic appearance choice missing");
+        });
+        waitFrames(3);
+        screenshot("25-basic-settings");
+        act("switch to detailed and enter custom cursor colour", () -> {
+            config.chooseSettingsMode(true);
+            for (String key : new String[]{"adaptiveTyping", "cursorCustomColor", "cursorHexColor", "cursorBlinkMs",
+                    "cursorSoftBlink", "cursorKeepVisibleWhileTyping", "maxStaggerMs", "soundPitch"}) {
+                config.showOption(key);
+                check(config.option(key).visible, "detailed control unreachable: " + key);
+                checkLayout(config, "detailed option " + key, true);
+            }
+            config.showOption("cursorHexColor");
+            EditBox hex = (EditBox) config.option("cursorHexColor");
+            hex.setValue("#12ab34");
+            check(cfg().cursorHexColor.equals("#12AB34"), "valid HEX not accepted");
+            hex.setValue("#oops");
+            check(cfg().cursorHexColor.equals("#12AB34"), "invalid HEX changed cursor colour");
+            config.onClose();
+            config = new ConfigScreen(startScreen);
+            mc.setScreen(config);
+            check(!config.choosingMode() && cfg().advancedSettings, "interface mode was not remembered");
+            cfg().cursorCustomColor = true;
+            cfg().cursorHexColor = "#12AB34";
+            cfg().cursorSoftBlink = true;
+            cfg().cursorBlinkMs = 1200;
+            cfg().cursorKeepVisibleWhileTyping = true;
+            config.showOption("cursorCustomColor");
+            config.preview().setValue("Custom cursor");
+            config.setFocused(config.preview());
+        });
+        waitFrames(5);
+        screenshot("26-custom-cursor-settings");
+        act("restore after interface customization checks", () -> {
+            cfg().copyFrom(beforeSoundTest);
+            mc.setScreen(startScreen);
+        });
+    }
+
     private void addTypingSoundTests() {
         act("prepare input sound tests", () -> {
             beforeSoundTest = cfg().copy();
             cfg().copyFrom(TypingConfig.defaults());
+        cfg().settingsModeChosen = true;
+        cfg().advancedSettings = true;
             cfg().typingSounds = true;
             cfg().soundVolume = .2f;
             cfg().soundVariation = false;

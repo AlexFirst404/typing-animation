@@ -73,6 +73,11 @@ public enum VisualPreset {
         config.cursorStyle = settings.cursorStyle;
         config.cursorColor = settings.cursorColor;
         config.cursorWidth = settings.cursorWidth;
+        config.cursorCustomColor = settings.cursorCustomColor;
+        config.cursorHexColor = settings.cursorHexColor;
+        config.cursorBlinkMs = settings.cursorBlinkMs;
+        config.cursorSoftBlink = settings.cursorSoftBlink;
+        config.cursorKeepVisibleWhileTyping = settings.cursorKeepVisibleWhileTyping;
     }
 
     /** Returns the exact visual match, or null for custom settings / a null config. Ignores unrelated settings. */
@@ -89,7 +94,12 @@ public enum VisualPreset {
                     && config.smoothReflow == s.smoothReflow && config.glideMs == s.glideMs
                     && config.smoothCursor == s.smoothCursor && config.cursorGlideMs == s.cursorGlideMs
                     && config.cursorStyle == s.cursorStyle && config.cursorColor == s.cursorColor
-                    && config.cursorWidth == s.cursorWidth) {
+                    && config.cursorWidth == s.cursorWidth
+                    && config.cursorCustomColor == s.cursorCustomColor
+                    && Objects.equals(config.cursorHexColor, s.cursorHexColor)
+                    && config.cursorBlinkMs == s.cursorBlinkMs
+                    && config.cursorSoftBlink == s.cursorSoftBlink
+                    && config.cursorKeepVisibleWhileTyping == s.cursorKeepVisibleWhileTyping) {
                 return preset;
             }
         }

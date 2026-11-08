@@ -547,6 +547,40 @@ public final class SelfTest {
         });
 
         addTypingSoundTests();
+        run(1, "import custom sound library", () -> {
+            try { reload = CustomSoundPackProbe.prepare(); }
+            catch (Exception e) { throw new IllegalStateException("Sound pack probe setup failed", e); }
+        });
+        waitFor(0, "custom sound resources loaded", 1200, () -> {
+            if (!reload.isDone() || mc.getOverlay() != null) return false;
+            reload.join();
+            return true;
+        });
+        run(1, "custom sound resources and audition", CustomSoundPackProbe::verifyLoadedAndPlay);
+        run(17, "custom audition completed", () -> {
+            check(TypingSounds.firstError == null, "custom sound playback failed: " + TypingSounds.firstError);
+            check(TypingSounds.playedCount == 7, "custom audition played " + TypingSounds.playedCount + " sounds");
+            reload = CustomSoundPackProbe.cleanup();
+        });
+        waitFor(0, "custom sound probe restored", 1200, () -> {
+            if (!reload.isDone() || mc.getOverlay() != null) return false;
+            reload.join();
+            return true;
+        });
+
+        run(1, "open named preset library", () -> {
+            try { StyleLibraryUiProbe.prepare(); }
+            catch (Exception e) { throw new IllegalStateException("Preset library UI setup", e); }
+        });
+        run(2, "exercise named preset menu actions", () -> {
+            try { StyleLibraryUiProbe.verifyActions(); }
+            catch (Exception e) { throw new IllegalStateException("Preset library UI actions", e); }
+        });
+        run(3, "screenshot named preset library", () -> grab("preset-library"));
+        run(1, "restore after preset menu actions", () -> {
+            try { StyleLibraryUiProbe.cleanup(); }
+            catch (Exception e) { throw new IllegalStateException("Preset library UI cleanup", e); }
+        });
 
         // 9. Options screen -> our button -> ConfigScreen -> interact -> Done
         run(1, "open options", () -> mc.setScreen(new OptionsScreen(new TitleScreen(), mc.options)));
@@ -555,6 +589,31 @@ public final class SelfTest {
         run(0, "screenshot options", () -> grab("options-screen"));
         run(0, "press options button", () -> optionsButton.onPress());
         waitFor(0, "config screen shown", 20, () -> mc.screen instanceof ConfigScreen);
+        run(1, "first-open settings mode can be deferred", () -> {
+            configScreen = (ConfigScreen) mc.screen;
+            check(configScreen.choosingMode(), "new settings did not ask for a mode");
+            configScreen.onClose();
+            check(!ConfigManager.get().settingsModeChosen, "closing the choice committed a mode");
+            mc.setScreen(new ConfigScreen(mc.screen));
+            configScreen = (ConfigScreen) mc.screen;
+            check(configScreen.choosingMode(), "deferred choice did not reappear");
+        });
+        run(1, "basic settings mode hides detailed controls and persists", () -> {
+            configScreen.chooseSettingsMode(false);
+            check(!configScreen.choosingMode(), "mode chooser stayed open after a choice");
+            check(ConfigManager.get().settingsModeChosen && !ConfigManager.get().advancedSettings,
+                    "basic mode was not committed");
+            configScreen.showOption("durationMs");
+            check(!configScreen.durationSlider.visible, "basic mode exposed a duration slider");
+            configScreen.showOption("appearStyle");
+            check(configScreen.appearButton.visible, "basic mode hid appearance styles");
+            ConfigManager.reload();
+            check(ConfigManager.get().settingsModeChosen && !ConfigManager.get().advancedSettings,
+                    "basic mode did not survive reload");
+            configScreen.chooseSettingsMode(true);
+            configScreen.showOption("durationMs");
+            check(configScreen.durationSlider.visible, "detailed mode did not expose timing");
+        });
         run(4, "config layout", this::checkConfigLayout);
         run(0, "preview hint and focus", () -> {
             EditBox preview = configScreen.preview;
@@ -566,6 +625,7 @@ public final class SelfTest {
         run(0, "screenshot config", () -> grab("config-screen"));
         run(1, "cycle appear style", () -> {
             AppearStyle before = ConfigManager.get().appearStyle;
+            configScreen.showOption("appearStyle");
             configScreen.appearButton.onPress();
             check(ConfigManager.get().appearStyle != before, "appear style button did not change the config");
         });
@@ -615,14 +675,27 @@ public final class SelfTest {
             check(configScreen.getFocused() == configScreen.preview,
                     "releasing the slider did not give the focus back to the preview");
         });
+        run(1, "custom colour entry retains focus and validates HEX", () -> {
+            configScreen.showOption("cursorHexColor");
+            EditBox hex = (EditBox) configScreen.options().get("cursorHexColor");
+            click(configScreen, hex);
+            check(configScreen.getFocused() == hex, "HEX input lost focus to the preview");
+            hex.setValue("#12ABEF");
+            check("#12ABEF".equals(ConfigManager.get().cursorHexColor), "valid HEX colour was not applied");
+            hex.setValue("#12");
+            check("#12ABEF".equals(ConfigManager.get().cursorHexColor), "incomplete HEX overwrote the last valid colour");
+        });
         run(1, "toggle enabled off", () -> {
+            configScreen.showOption("enabled");
             configScreen.enabledButton.onPress();
             check(!ConfigManager.get().enabled, "enabled toggle did not switch off");
             check(!configScreen.appearButton.active && !configScreen.durationSlider.active,
                     "style options stay active while disabled");
-            check(configScreen.optionsButtonToggle.active, "the options button toggle was greyed out");
+            check(configScreen.optionsButtonToggle.active == ConfigAccess.canHideOptionsButton(),
+                    "navigation availability does not match Mod Menu presence");
         });
         run(1, "toggle enabled on", () -> {
+            configScreen.showOption("enabled");
             configScreen.enabledButton.onPress();
             check(ConfigManager.get().enabled, "enabled toggle did not switch on");
             check(configScreen.appearButton.active && configScreen.durationSlider.active,
@@ -647,19 +720,25 @@ public final class SelfTest {
         // turning the Options button off (and on again) takes effect on the Options screen we return to
         run(1, "options button off", () -> {
             configScreen.showOption("optionsButton");
-            configScreen.optionsButtonToggle.onPress();
-            check(!ConfigManager.get().optionsButton, "options button toggle did not change the config");
+            if (ConfigAccess.canHideOptionsButton()) {
+                configScreen.optionsButtonToggle.onPress();
+                check(!ConfigManager.get().optionsButton, "options button toggle did not change the config");
+            } else {
+                check(!configScreen.optionsButtonToggle.active && ConfigManager.get().optionsButton,
+                        "settings could be hidden without Mod Menu");
+            }
         });
         run(1, "press done", () -> configScreen.doneButton.onPress());
         waitFor(0, "back on options screen", 20, () -> mc.screen instanceof OptionsScreen);
-        run(2, "options button gone", () -> check(OptionsButton.find(mc.screen) == null,
-                "the Options screen still shows the button after turning it off"));
+        run(2, "options button visibility follows available settings entry", () ->
+                check((OptionsButton.find(mc.screen) == null) == ConfigAccess.canHideOptionsButton(),
+                        "the Options button visibility does not match Mod Menu availability"));
         run(1, "open config again", () -> mc.setScreen(new ConfigScreen(mc.screen)));
         run(3, "options button on", () -> {
             configScreen = (ConfigScreen) mc.screen;
             configScreen.showOption("optionsButton");
-            configScreen.optionsButtonToggle.onPress();
-            check(ConfigManager.get().optionsButton, "options button toggle did not change the config");
+            if (ConfigAccess.canHideOptionsButton()) configScreen.optionsButtonToggle.onPress();
+            check(ConfigManager.get().optionsButton, "options button toggle did not restore the config");
             configScreen.doneButton.onPress();
         });
         waitFor(0, "back on options screen (2)", 20, () -> mc.screen instanceof OptionsScreen);
@@ -671,7 +750,8 @@ public final class SelfTest {
             try {
                 OptionsScreen second = new OptionsScreen(new TitleScreen(), mc.options);
                 mc.setScreen(second);
-                check(OptionsButton.find(second) == null, "options button added although switched off");
+                check((OptionsButton.find(second) == null) == ConfigAccess.canHideOptionsButton(),
+                        "a moved config hid the only available settings entry");
             } finally {
                 ConfigManager.get().optionsButton = true;
             }
@@ -681,7 +761,10 @@ public final class SelfTest {
             mc.setScreen(new ConfigScreen(mc.screen));
             configScreen = (ConfigScreen) mc.screen;
             configScreen.resetButton.onPress();
-            check(ConfigManager.get().equals(TypingConfig.defaults()), "Reset did not restore defaults: " + ConfigManager.get());
+            TypingConfig expectedDefaults = TypingConfig.defaults();
+            expectedDefaults.settingsModeChosen = true;
+            expectedDefaults.advancedSettings = true;
+            check(ConfigManager.get().equals(expectedDefaults), "Reset did not restore controls and preserve mode: " + ConfigManager.get());
             String json = readConfigFile();
             check(json.contains("\"appearStyle\": \"slide_up\""), "reset config not saved: " + json);
             configScreen.doneButton.onPress();
@@ -1024,27 +1107,28 @@ public final class SelfTest {
 
     private void checkConfigLayout() {
         configScreen = (ConfigScreen) mc.screen;
-        check(configScreen.options().size() == 33, "config option/action count: " + configScreen.options().size());
-        for (int page = 0; page < 4; page++) {
-            configScreen.showPage(page);
+        check(configScreen.options().size() == 39, "config option/action count: " + configScreen.options().size());
+        for (var entry : configScreen.options().entrySet()) {
+            configScreen.showOption(entry.getKey());
+            check(entry.getValue().visible, "detailed control is unreachable: " + entry.getKey());
             List<AbstractWidget> widgets = new ArrayList<>();
-            for (GuiEventListener l : configScreen.children()) {
-                if (l instanceof AbstractWidget w && w.visible) {
-                    check(w.getX() >= 0 && w.getY() >= 0 && w.getX() + w.getWidth() <= configScreen.width
-                                    && w.getY() + w.getHeight() <= configScreen.height,
-                            "config widget outside the screen: " + w.getMessage().getString());
-                    for (AbstractWidget o : widgets) {
-                        check(!overlaps(w, o), "config widgets overlap: " + w.getMessage().getString() + " / "
-                                + o.getMessage().getString());
+            for (GuiEventListener listener : configScreen.children()) {
+                if (listener instanceof AbstractWidget widget && widget.visible) {
+                    check(widget.getX() >= 0 && widget.getY() >= 0
+                                    && widget.getX() + widget.getWidth() <= configScreen.width
+                                    && widget.getY() + widget.getHeight() <= configScreen.height,
+                            "config widget outside the screen: " + widget.getMessage().getString());
+                    for (AbstractWidget previous : widgets) {
+                        check(!overlaps(widget, previous), "config widgets overlap: "
+                                + widget.getMessage().getString() + " / " + previous.getMessage().getString());
                     }
-                    widgets.add(w);
+                    widgets.add(widget);
                 }
             }
-            check(widgets.size() >= 10, "config screen has only " + widgets.size() + " widgets");
-            log("config page " + page + " " + configScreen.width + "x" + configScreen.height + ": " + widgets.size()
-                    + " widgets, no overlaps");
         }
         configScreen.showPage(0);
+        configScreen.showOption("enabled");
+        log("all 39 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
     }
 
     private static boolean overlaps(AbstractWidget a, AbstractWidget b) {
@@ -1080,6 +1164,8 @@ public final class SelfTest {
             return;
         }
         finished = true;
+        StyleLibraryUiProbe.abort();
+        try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             if (original != null) {
                 ConfigManager.get().copyFrom(original);

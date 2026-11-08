@@ -5,6 +5,7 @@ public final class TypingSoundFeedback {
     public static final long MIN_INTERVAL_MS = 25;
     private long lastSoundMs;
     private boolean played;
+    private final TypingRhythm rhythm = new TypingRhythm();
 
     /** One result per edit: pasting a paragraph never produces a burst of sounds. */
     public static TypingSoundAction classify(String before, String after) {
@@ -36,11 +37,23 @@ public final class TypingSoundFeedback {
 
     /** Bounds overlap during key repeat without dropping normal human typing. Uses a monotonic clock. */
     public boolean tryAcquire(long nowMs) {
-        if (played && nowMs >= lastSoundMs && nowMs - lastSoundMs < MIN_INTERVAL_MS) return false;
+        return tryAcquire(nowMs, false);
+    }
+
+    /** Adaptive feedback softens and spaces rapid repeats; explicit auditions use the unmodified path. */
+    public boolean tryAcquire(long nowMs, boolean adaptive) {
+        if (adaptive) rhythm.record(nowMs);
+        else rhythm.reset();
+        long minimum = adaptive ? rhythm.soundIntervalMs(nowMs) : MIN_INTERVAL_MS;
+        if (played && nowMs >= lastSoundMs && nowMs - lastSoundMs < minimum) return false;
         played = true;
         lastSoundMs = nowMs;
         return true;
     }
 
-    public void reset() { played = false; }
+    public float volumeScale(long nowMs, boolean adaptive) {
+        return adaptive ? rhythm.volumeScale(nowMs) : 1f;
+    }
+
+    public void reset() { played = false; rhythm.reset(); }
 }

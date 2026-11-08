@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class VisualPresetTest {
     private static final Set<String> VISUAL_FIELDS = Set.of("appearStyle", "removeStyle", "easing", "durationMs",
             "removeDurationMs", "intensity", "removeIntensity", "staggerMs", "maxStaggerMs", "smoothReflow",
-            "smoothCursor", "glideMs", "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth");
+            "smoothCursor", "glideMs", "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth",
+            "cursorCustomColor", "cursorHexColor", "cursorBlinkMs", "cursorSoftBlink", "cursorKeepVisibleWhileTyping");
 
     @Test
     void eachPresetIsDistinctValidAndRecognisedAfterAnyPreviousPreset() {
@@ -74,6 +75,7 @@ class VisualPresetTest {
                 if (field.getType() == int.class) field.setInt(changed, field.getInt(changed) + 1);
                 else if (field.getType() == float.class) field.setFloat(changed, field.getFloat(changed) + 0.01f);
                 else if (field.getType() == boolean.class) field.setBoolean(changed, !field.getBoolean(changed));
+                else if (field.getType() == String.class) field.set(changed, "#112233");
                 else {
                     Object current = field.get(changed);
                     Object[] choices = field.getType().getEnumConstants();

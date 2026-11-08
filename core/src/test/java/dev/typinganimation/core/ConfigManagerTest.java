@@ -71,10 +71,12 @@ class ConfigManagerTest {
                 "glideMs", "animateChat", "animateOtherFields", "animateMultiline", "onlyWhenFocused",
                 "optionsButton", "removeIntensity", "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth",
                 "animateSigns", "typingSounds", "soundPreset", "soundVolume", "soundPitch",
-                "soundVariation", "soundOnDelete", "soundOnEnter"}) {
+                "soundVariation", "soundOnDelete", "soundOnEnter", "cursorCustomColor", "cursorHexColor",
+                "cursorBlinkMs", "cursorSoftBlink", "cursorKeepVisibleWhileTyping", "adaptiveTyping",
+                "customSoundPack", "advancedSettings", "settingsModeChosen"}) {
             assertTrue(o.has(key), key);
         }
-        assertEquals(30, o.size());
+        assertEquals(39, o.size());
     }
 
     @Test
@@ -159,7 +161,7 @@ class ConfigManagerTest {
         assertEquals(expected, c);
         // normalised file now has every key
         JsonObject o = JsonParser.parseString(readFile()).getAsJsonObject();
-        assertEquals(30, o.size());
+        assertEquals(39, o.size());
         assertEquals(500, o.get("durationMs").getAsInt());
         assertEquals("pop", o.get("appearStyle").getAsString());
     }

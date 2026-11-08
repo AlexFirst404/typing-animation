@@ -31,7 +31,7 @@ public final class OptionsButton {
      */
     public static void addTo(LayoutElement contents, Screen optionsScreen) {
         try {
-            if (!ConfigManager.get().optionsButton || !(contents instanceof GridLayout grid)) {
+            if (!ConfigAccess.showOptionsButton() || !(contents instanceof GridLayout grid)) {
                 return;
             }
             int[] children = {0};
@@ -68,7 +68,7 @@ public final class OptionsButton {
     static Screen returnTarget(Screen parent) {
         try {
             if (parent instanceof OptionsScreen && parent instanceof ParentAccess access
-                    && (find(parent) != null) != ConfigManager.get().optionsButton) {
+                    && (find(parent) != null) != ConfigAccess.showOptionsButton()) {
                 Minecraft mc = Minecraft.getInstance();
                 return new OptionsScreen(access.typinganimation$lastScreen(), mc.options);
             }

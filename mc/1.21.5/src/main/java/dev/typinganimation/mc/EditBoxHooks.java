@@ -192,6 +192,7 @@ public final class EditBoxHooks {
         final float dx = caretDx(box, a, x);
         final TypingConfig cfg = ConfigManager.get();
         final boolean custom = a.active && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+        if (custom) color = a.cursorBlink.tint(color);
         if (dx == 0f && !custom) {
             return sixArg ? gg.drawString(font, text, x, y, color, shadow) : gg.drawString(font, text, x, y, color);
         }
@@ -218,6 +219,7 @@ public final class EditBoxHooks {
         final float dx = caretDx(box, a, x1);
         final TypingConfig cfg = ConfigManager.get();
         final boolean custom = a.active && a.animate(cfg, box.isFocused()) && CursorAppearance.custom(cfg);
+        if (custom) color = a.cursorBlink.tint(color);
         if (dx == 0f && !custom) {
             gg.fill(type, x1, y1, x2, y2, color);
             return;

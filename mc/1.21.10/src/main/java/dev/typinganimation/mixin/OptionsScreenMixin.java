@@ -3,6 +3,7 @@ package dev.typinganimation.mixin;
 import dev.typinganimation.core.ConfigManager;
 import dev.typinganimation.core.TypingAnimationMod;
 import dev.typinganimation.mc.OptionsButton;
+import dev.typinganimation.mc.ConfigAccess;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -53,7 +54,7 @@ public abstract class OptionsScreenMixin extends Screen {
         try {
             if (contents instanceof GridLayout grid) {
                 typinganimation$grid = grid;
-                if (ConfigManager.get().optionsButton) {
+                if (ConfigAccess.showOptionsButton()) {
                     // added before vanilla registers the grid's widgets, so vanilla registers it too
                     typinganimation$button = OptionsButton.addToGrid(grid, this);
                 }
@@ -67,7 +68,7 @@ public abstract class OptionsScreenMixin extends Screen {
     @Inject(method = "repositionElements", at = @At("HEAD"))
     private void typinganimation$syncButton(CallbackInfo ci) {
         try {
-            boolean wanted = ConfigManager.get().optionsButton;
+            boolean wanted = ConfigAccess.showOptionsButton();
             Button button = typinganimation$button;
             if (button == null) {
                 if (!wanted) {

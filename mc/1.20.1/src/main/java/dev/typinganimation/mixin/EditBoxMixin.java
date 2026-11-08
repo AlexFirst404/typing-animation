@@ -1,5 +1,11 @@
 package dev.typinganimation.mixin;
 
+import net.minecraft.Util;
+
+import dev.typinganimation.core.TypingConfig;
+
+import dev.typinganimation.core.ConfigManager;
+
 import dev.typinganimation.core.FieldKind;
 import dev.typinganimation.mc.EditBoxHooks;
 import dev.typinganimation.mc.TypingStateHolder;
@@ -29,6 +35,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(EditBox.class)
 public abstract class EditBoxMixin implements TypingStateHolder {
+    @Shadow private int frame;
+
     @Shadow @Final private Font font;
     @Shadow private String value;
     @Shadow private int displayPos;
@@ -114,5 +122,16 @@ public abstract class EditBoxMixin implements TypingStateHolder {
     @Inject(method = "renderWidget", at = @At("RETURN"))
     private void typinganimation$end(GuiGraphics gg, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         EditBoxHooks.end((EditBox) (Object) this, typinganimation$animator(), gg, value, cursorPos, maxLength);
+    }
+
+    /** Changes only blink timing; vanilla retains focus, selection and viewport checks. */
+    @Redirect(method = "renderWidget", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/EditBox;frame:I", opcode = 180))
+    private int typinganimation$customBlink(EditBox widget) {
+        TypingConfig cfg = ConfigManager.get();
+        long now = Util.getMillis();
+        typinganimation$animator().cursorBlink.observe(value, now);
+        boolean visible = typinganimation$animator().cursorBlink.visible(frame / 6 % 2 == 0, (long) frame * 50L, now, cfg,
+                cfg.enabled && (typinganimation$animator().preview || dev.typinganimation.core.FieldKind.isAnimated(typinganimation$animator().kind, cfg)));
+        return visible ? 0 : 6;
     }
 }
