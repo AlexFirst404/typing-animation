@@ -10,7 +10,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:53.330Z",
       "fileId": 9516190,
-      "uploadedAt": "2026-11-08T20:17:54.665Z"
+      "uploadedAt": "2026-11-08T20:17:54.665Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/190/typinganimation-1.3.0-1.20-1.20.1-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.20-1.20.1-fabric.jar",
+      "verifiedSha512": "a5a64303022202fafd12adb4c5d532dfc1cca2aab1d6c21a15208b6b455e43c74b7d228f8fb43b2354db78fab81e68c9b61ec0a81879887042e46dd0378304ed",
+      "verifiedBytes": 422544,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.20-1.20.1-forge.jar",
@@ -20,7 +33,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:54.667Z",
       "fileId": 9516192,
-      "uploadedAt": "2026-11-08T20:17:55.279Z"
+      "uploadedAt": "2026-11-08T20:17:55.279Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/192/typinganimation-1.3.0-1.20-1.20.1-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.20-1.20.1-forge.jar",
+      "verifiedSha512": "afd53616ed7872bd6f304ba99ddd0d3070999bb668e24ab8a4b9e0085e550777df417df4d44e5b63b8ac1c5b594c5c9950df15ac6277696a3f0509f4c24e1dd5",
+      "verifiedBytes": 423776,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21-1.21.1-fabric.jar",
@@ -30,7 +56,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:55.281Z",
       "fileId": 9516193,
-      "uploadedAt": "2026-11-08T20:17:56.019Z"
+      "uploadedAt": "2026-11-08T20:17:56.019Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/193/typinganimation-1.3.0-1.21-1.21.1-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21-1.21.1-fabric.jar",
+      "verifiedSha512": "c993a301dd5877af8798219e0e57b91f3090daf4ac1cd332750232be13e22a8e0831776d6324a5af9865fddd594cd58a7ad4ef9c8d21ca50eb9d1f91bade6ad6",
+      "verifiedBytes": 414539,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21-1.21.1-forge.jar",
@@ -40,7 +79,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:56.021Z",
       "fileId": 9516194,
-      "uploadedAt": "2026-11-08T20:17:56.784Z"
+      "uploadedAt": "2026-11-08T20:17:56.784Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/194/typinganimation-1.3.0-1.21-1.21.1-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21-1.21.1-forge.jar",
+      "verifiedSha512": "b83d624f759961ebd442a4e9cfe1860cf22487bab63a5937aaf6eb5b476c0758afdecd2723c9aebb99733e73fe01e27803a76907d9336df5857f8dbe9b61a7f9",
+      "verifiedBytes": 412407,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21-1.21.1-neoforge.jar",
@@ -50,7 +102,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:56.785Z",
       "fileId": 9516196,
-      "uploadedAt": "2026-11-08T20:17:57.681Z"
+      "uploadedAt": "2026-11-08T20:17:57.681Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/196/typinganimation-1.3.0-1.21-1.21.1-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21-1.21.1-neoforge.jar",
+      "verifiedSha512": "d482b9d411a5d65d749880735a9a6cfd411dc6918ad937f05e28bf474b202ddd386cf3add0ce887c388e7f4bcbbc19242f34a378e69e88484ba61f8ae8e74b49",
+      "verifiedBytes": 411432,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.4-fabric.jar",
@@ -60,7 +125,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:57.683Z",
       "fileId": 9516197,
-      "uploadedAt": "2026-11-08T20:17:58.889Z"
+      "uploadedAt": "2026-11-08T20:17:58.889Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/197/typinganimation-1.3.0-1.21.4-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.4-fabric.jar",
+      "verifiedSha512": "27041de1a15effeaffc88e158a52e916899c8d5de8cfaf230c071a53297b1457e12e13b9ba1957512f8bb044d1415fcde8bfae79e9d8c3b8bcb48c4bb4f621cd",
+      "verifiedBytes": 418517,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.4-forge.jar",
@@ -70,7 +148,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:58.891Z",
       "fileId": 9516198,
-      "uploadedAt": "2026-11-08T20:17:59.452Z"
+      "uploadedAt": "2026-11-08T20:17:59.452Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/198/typinganimation-1.3.0-1.21.4-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.4-forge.jar",
+      "verifiedSha512": "176f1d7bcfa6606616f721b873ddcbe9f3613b0da1e1c5caa68a1566c9648e670f88211ed56e0731d0589a168dcd6c4bdd9f7532f2c7292c64c8bb18e170f55d",
+      "verifiedBytes": 416412,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.4-neoforge.jar",
@@ -80,7 +171,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:17:59.454Z",
       "fileId": 9516199,
-      "uploadedAt": "2026-11-08T20:18:00.021Z"
+      "uploadedAt": "2026-11-08T20:18:00.021Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/199/typinganimation-1.3.0-1.21.4-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.4-neoforge.jar",
+      "verifiedSha512": "cc9935b3c78a26c704e38cf8bef1fcbf9a0c2d2f66318b644ce69a0b2917b2c3235e7251591e8e98a6bfa49e9409503eda3e511e1a53ed668418b2d1523681cb",
+      "verifiedBytes": 415352,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.5-fabric.jar",
@@ -90,7 +194,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:00.023Z",
       "fileId": 9516200,
-      "uploadedAt": "2026-11-08T20:18:00.880Z"
+      "uploadedAt": "2026-11-08T20:18:00.880Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/200/typinganimation-1.3.0-1.21.5-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.5-fabric.jar",
+      "verifiedSha512": "1735560bd647f4328c9acfcbb5caa9c7e7ea7f146566ecd2c3e0ba4a6c0e617a3dae0a2834acbe3972dbb944530afede9615d70bf261444bf5dc3e940fcb6cd3",
+      "verifiedBytes": 419167,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.5-forge.jar",
@@ -100,7 +217,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:00.882Z",
       "fileId": 9516201,
-      "uploadedAt": "2026-11-08T20:18:01.453Z"
+      "uploadedAt": "2026-11-08T20:18:01.453Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/201/typinganimation-1.3.0-1.21.5-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.5-forge.jar",
+      "verifiedSha512": "992dc2cb631cf014a182f0ab084e641c213817c9e1c3c8207b2467fe842e5cf7de74e9222de8dd40a0bf4f6663c1b50920301e1f542d31a01110250dae82bd16",
+      "verifiedBytes": 417032,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.5-neoforge.jar",
@@ -110,7 +240,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:01.455Z",
       "fileId": 9516202,
-      "uploadedAt": "2026-11-08T20:18:02.055Z"
+      "uploadedAt": "2026-11-08T20:18:02.055Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/202/typinganimation-1.3.0-1.21.5-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.5-neoforge.jar",
+      "verifiedSha512": "89c01ec0422d66a4a26c2a229396b40fb8c6b4c1f30a695f740392f5bdcb5fd175db42e06b73940481b10bef241d722e31d30df55c424e486f94e7fb957cf7e5",
+      "verifiedBytes": 415974,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.6-1.21.8-fabric.jar",
@@ -120,7 +263,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:02.056Z",
       "fileId": 9516204,
-      "uploadedAt": "2026-11-08T20:18:02.851Z"
+      "uploadedAt": "2026-11-08T20:18:02.851Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/204/typinganimation-1.3.0-1.21.6-1.21.8-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.6-1.21.8-fabric.jar",
+      "verifiedSha512": "dd8943cbd7f2db27bb5d55cce0d55f9fb26820fb37e1486dfa088cd5e39adfbc7c99a296818d5171f08c29c3a345e98c3211a37da6dc7143e89842c54b3eb090",
+      "verifiedBytes": 424330,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.6-1.21.8-forge.jar",
@@ -130,7 +286,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:02.853Z",
       "fileId": 9516205,
-      "uploadedAt": "2026-11-08T20:18:03.542Z"
+      "uploadedAt": "2026-11-08T20:18:03.542Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/205/typinganimation-1.3.0-1.21.6-1.21.8-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.6-1.21.8-forge.jar",
+      "verifiedSha512": "f0d96e8a9cd3956705480e25debe44b44348cf7b53ac81c96edae43ae3e4e43c0791d2407920c71cf742553b4f21f09453b5c89bddff102839e07a8c97359457",
+      "verifiedBytes": 421801,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.6-1.21.8-neoforge.jar",
@@ -140,7 +309,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:03.543Z",
       "fileId": 9516206,
-      "uploadedAt": "2026-11-08T20:18:04.179Z"
+      "uploadedAt": "2026-11-08T20:18:04.179Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/206/typinganimation-1.3.0-1.21.6-1.21.8-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.6-1.21.8-neoforge.jar",
+      "verifiedSha512": "1917c5297c9b90cd3ea18b7995411740bed134582fa696137d092605eef301e68bd5e760aad3ef905724c5cf5783f0c0213209fe9665aabc9d205b4e391370a2",
+      "verifiedBytes": 420880,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.9-1.21.10-fabric.jar",
@@ -150,7 +332,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:04.180Z",
       "fileId": 9516207,
-      "uploadedAt": "2026-11-08T20:18:04.797Z"
+      "uploadedAt": "2026-11-08T20:18:04.797Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/207/typinganimation-1.3.0-1.21.9-1.21.10-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.9-1.21.10-fabric.jar",
+      "verifiedSha512": "2baabf05db22615af6090c340bf49881568e45e417af64d8008de83e16ac1739e049e8dd69fb85dfe8f63617a2d2325df2b9c94cb835ea7cf41a6d4a484c9cce",
+      "verifiedBytes": 423930,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.9-1.21.10-forge.jar",
@@ -160,7 +355,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:04.799Z",
       "fileId": 9516209,
-      "uploadedAt": "2026-11-08T20:18:05.405Z"
+      "uploadedAt": "2026-11-08T20:18:05.405Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/209/typinganimation-1.3.0-1.21.9-1.21.10-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.9-1.21.10-forge.jar",
+      "verifiedSha512": "8a083213c4d6a81ad10919dfe90bcec55ebac0672ef4f309e99f9e61de2bcd237e2d5754d6e033793d0e118c4de9b9baa799cc7f50d798d17457cc9169fcf073",
+      "verifiedBytes": 421726,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.9-1.21.10-neoforge.jar",
@@ -170,7 +378,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:05.407Z",
       "fileId": 9516210,
-      "uploadedAt": "2026-11-08T20:18:06.031Z"
+      "uploadedAt": "2026-11-08T20:18:06.031Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/210/typinganimation-1.3.0-1.21.9-1.21.10-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.9-1.21.10-neoforge.jar",
+      "verifiedSha512": "ae2c04bec325cddb193b468fb5efe96d8d3a77ed5df988e2089aeaacb9b28a6fa2839c0e9726cebd17a0f9c5c993b6f50bfd418bd24995f0408d4f6e32076a12",
+      "verifiedBytes": 420844,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.11-fabric.jar",
@@ -180,7 +401,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:06.033Z",
       "fileId": 9516212,
-      "uploadedAt": "2026-11-08T20:18:06.936Z"
+      "uploadedAt": "2026-11-08T20:18:06.936Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/212/typinganimation-1.3.0-1.21.11-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.11-fabric.jar",
+      "verifiedSha512": "78b5bac604c8cc666e3729a5d10c5287a41f2f87b083f055b8b60200ee4f069a66862fb0cfa017b7f9bb9b3db1daa1af602f29fc2cd0c5fceb841352885ca247",
+      "verifiedBytes": 424945,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.11-forge.jar",
@@ -190,7 +424,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:06.937Z",
       "fileId": 9516213,
-      "uploadedAt": "2026-11-08T20:18:07.819Z"
+      "uploadedAt": "2026-11-08T20:18:07.819Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/213/typinganimation-1.3.0-1.21.11-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.11-forge.jar",
+      "verifiedSha512": "528109b4b9655b9a568eaa63318f91e46e5111a336ac2dae316ebea6393015dadf6bb46a3b9fa2be0e7a2f981d2456f695025500c5a8397ee9d8774a964258d2",
+      "verifiedBytes": 422580,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+1.21.11-neoforge.jar",
@@ -200,7 +447,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:07.820Z",
       "fileId": 9516214,
-      "uploadedAt": "2026-11-08T20:18:08.570Z"
+      "uploadedAt": "2026-11-08T20:18:08.570Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/214/typinganimation-1.3.0-1.21.11-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-1.21.11-neoforge.jar",
+      "verifiedSha512": "7183d82e70ef8b2268ed00012dddd62a5a5de3fa4260821ad531bc7e6c7d9c8240ba9d88fb1c186fad03107c751d39a30d0408872f9a459505b14d5847b37a06",
+      "verifiedBytes": 421692,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.1-26.1.2-fabric.jar",
@@ -210,7 +470,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:08.572Z",
       "fileId": 9516215,
-      "uploadedAt": "2026-11-08T20:18:09.189Z"
+      "uploadedAt": "2026-11-08T20:18:09.189Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/215/typinganimation-1.3.0-26.1-26.1.2-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-26.1-26.1.2-fabric.jar",
+      "verifiedSha512": "821971ba833a01b67a3f1fff7d1b24a868ba217e16c1085d5be1a97e6166344756112abb2b564c8000fe599d4198344102c4bf22cc3b3109320b84be034daa28",
+      "verifiedBytes": 423070,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.1-26.1.2-forge.jar",
@@ -220,7 +493,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:09.191Z",
       "fileId": 9516216,
-      "uploadedAt": "2026-11-08T20:18:09.923Z"
+      "uploadedAt": "2026-11-08T20:18:09.923Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/216/typinganimation-1.3.0-26.1-26.1.2-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-26.1-26.1.2-forge.jar",
+      "verifiedSha512": "5c4db791d5c866abaaf09f6445c30bbb72659de7efdbd4fdfe02325da1912c3a6f9fe6233bb6b34d6778fa2c9c106a6130a213eb9d80cb636ce1fdebaf51fd55",
+      "verifiedBytes": 421317,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.1-26.1.2-neoforge.jar",
@@ -230,7 +516,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:09.927Z",
       "fileId": 9516217,
-      "uploadedAt": "2026-11-08T20:18:11.066Z"
+      "uploadedAt": "2026-11-08T20:18:11.066Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/217/typinganimation-1.3.0-26.1-26.1.2-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-26.1-26.1.2-neoforge.jar",
+      "verifiedSha512": "fd0e8c768d36029b1fdf459f0823ca1fd047687ac10d6f12f05cdbc6c8a34eb3e3cdea781ab68bde66bfc4b1287d3002ec4628e0842da3bb722215a16ade397d",
+      "verifiedBytes": 420428,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.2-fabric.jar",
@@ -240,7 +539,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:11.069Z",
       "fileId": 9516219,
-      "uploadedAt": "2026-11-08T20:18:12.136Z"
+      "uploadedAt": "2026-11-08T20:18:12.136Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/219/typinganimation-1.3.0-26.2-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-26.2-fabric.jar",
+      "verifiedSha512": "1ee029adcb422a93bd9dc20d2c275763ba59c150440f0399baa77c4c08a4ccbb6985b278241eedc6c1e9ef604cae9593c080766a08d98fd5ddb1bfa67b5be6bc",
+      "verifiedBytes": 423314,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.2-forge.jar",
@@ -250,7 +562,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:12.138Z",
       "fileId": 9516220,
-      "uploadedAt": "2026-11-08T20:18:13.305Z"
+      "uploadedAt": "2026-11-08T20:18:13.305Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/220/typinganimation-1.3.0-26.2-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-26.2-forge.jar",
+      "verifiedSha512": "dc9b184cae9258245c256cfe9926d715be05231f47b178b7c2077ae5e44fca2bdc344d2dcddfb1b5929d3c50387da50e018bf726f15a8a639bc3b1eba330f789",
+      "verifiedBytes": 421563,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.2-neoforge.jar",
@@ -260,7 +585,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:13.307Z",
       "fileId": 9516221,
-      "uploadedAt": "2026-11-08T20:18:13.981Z"
+      "uploadedAt": "2026-11-08T20:18:13.981Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/221/typinganimation-1.3.0-26.2-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-26.2-neoforge.jar",
+      "verifiedSha512": "94e7619f43019ece0b3a83ef4e5088f46cd8b83d0210eb66f25d4b8fbbfd50606374b09e58fc238cf8de530c99dddd7ab65be29c0bea5d91660a0a985e74e222",
+      "verifiedBytes": 420676,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.3-fabric.jar",
@@ -270,7 +608,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:13.983Z",
       "fileId": 9516222,
-      "uploadedAt": "2026-11-08T20:18:14.803Z"
+      "uploadedAt": "2026-11-08T20:18:14.803Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/222/typinganimation-1.3.0-26.3-fabric.jar",
+      "storedFilename": "typinganimation-1.3.0-26.3-fabric.jar",
+      "verifiedSha512": "eb6ed2613ad7d50545104701358e8bede5308c86b4ca0daf1ac6c4e736c05f55e89c1c45eecb4c3d9b2b87e212e0d3798115e8bf29b61a7eeb612ae422d1cdd5",
+      "verifiedBytes": 460046,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.3-forge.jar",
@@ -280,7 +631,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:14.805Z",
       "fileId": 9516223,
-      "uploadedAt": "2026-11-08T20:18:15.588Z"
+      "uploadedAt": "2026-11-08T20:18:15.588Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/223/typinganimation-1.3.0-26.3-forge.jar",
+      "storedFilename": "typinganimation-1.3.0-26.3-forge.jar",
+      "verifiedSha512": "f0ab1a591449322b9a5438ac5532acbff00b4c2c0ec6366877ffc1d650d9b1d864dcf74f442cef285f806ff11b458a7765c81c63d57ba3c273cace9e7ffe7dbb",
+      "verifiedBytes": 458173,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     },
     {
       "filename": "typinganimation-1.3.0+26.3-neoforge.jar",
@@ -290,7 +654,20 @@
       "projectId": "1741028",
       "startedAt": "2026-11-08T20:18:15.590Z",
       "fileId": 9516224,
-      "uploadedAt": "2026-11-08T20:18:16.600Z"
+      "uploadedAt": "2026-11-08T20:18:16.600Z",
+      "downloadUrl": "https://edge.forgecdn.net/files/9516/224/typinganimation-1.3.0-26.3-neoforge.jar",
+      "storedFilename": "typinganimation-1.3.0-26.3-neoforge.jar",
+      "verifiedSha512": "454f0c28052d44d2bc84adb15d99668d3815de155f0314779c9b7b4bcfb9c6fb163e6faabcc725cc4b2be751c3ef138155f3ac3bb6ef11b0e2617832245a6157",
+      "verifiedBytes": 457287,
+      "verificationTime": "2026-11-08T20:23:53.169070+00:00",
+      "statusAtVerification": {
+        "status": "Processing",
+        "observedAt": "2026-11-08T20:22:06.620947+00:00"
+      },
+      "latestStatus": {
+        "status": "Approved",
+        "observedAt": "2026-11-08T20:28:07.146Z"
+      }
     }
   ],
   "pending": null
