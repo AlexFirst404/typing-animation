@@ -22,7 +22,7 @@ Each file includes the same EN/RU release changelog. Fabric upload payloads reco
 
 Upload acceptance is confirmed; the author dashboard's moderation status and public CDN downloads were not inspected in this run. This record does not claim that all files are approved or publicly downloadable yet.
 
-The new shared description is committed in GitHub and both local platform kits. Updating the live CurseForge description was not performed: Computer Use stopped because browser URL policy enforcement is not supported for the current Windows browser. The release changelog was uploaded with every file; it is separate from the project description.
+The shared description was subsequently **saved in the CurseForge author dashboard and verified after reloading** on 12 November 2026. The saved full text, all 23 image URLs and every link match the prepared HTML. All 23 images loaded; seven GIFs, four wide SVG dividers and two centered platform-link rows are retained. Both English and Russian book/Scholar sections are present, and the previous restriction to book support from 1.21.6 is removed. The initial native Windows-browser attempt was blocked by unavailable URL policy support; the successful follow-up used the supported in-app browser. The release changelog remains attached separately to every file.
 
 ## Modrinth
 
