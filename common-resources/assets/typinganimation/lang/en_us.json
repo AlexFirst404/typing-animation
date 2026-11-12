@@ -33,7 +33,7 @@
   "typinganimation.config.animateOtherFields": "Other Fields",
   "typinganimation.config.animateOtherFields.tooltip": "Animate every other single-line text field: search boxes, the anvil, world and server names and more.",
   "typinganimation.config.animateMultiline": "Multi-line Fields",
-  "typinganimation.config.animateMultiline.tooltip": "Animate multi-line text boxes, such as descriptions and report comments.",
+  "typinganimation.config.animateMultiline.tooltip": "Animate book pages (including Scholar), descriptions and report comments. Turning pages never animates as an edit.",
   "typinganimation.config.optionsButton": "Options Button",
   "typinganimation.config.optionsButton.tooltip": "Show a Typing Animation button in the Options screen. When hidden, open these settings from the mods list or edit typinganimation.json.",
   "typinganimation.config.ms": "%s ms",

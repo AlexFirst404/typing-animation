@@ -2,12 +2,12 @@
   "_notes": [
     "Read by scripts/modrinth-publish.mjs (keys starting with '_' are ignored). See modrinth/README.md.",
     "Links (source_url, issues_url, wiki_url, discord_url, license_url): null = not set, otherwise an https:// URL.",
-    "extra_loaders: final stable 1.3.0 JARs passed full production self-tests with installed-copy SHA-256 verification on NeoForge 47.1.106 (1.20.1-forge) and Quilt Loader 0.30.2 (1.20.1-fabric, 1.21.1-fabric, 1.21.11-fabric, 26.2-fabric, 26.3-fabric). Quilt 0.30.2 provides fabricloader 0.19.5, so 26.3-fabric is now tagged Quilt and requires Quilt 0.30.2 or newer. The four older Quilt combinations also retain their previous 1.2.0 production validation on Quilt 0.30.1; that earlier evidence is recorded in docs/validation-1.2.0.md. Other Fabric jars have no additional Quilt tag. Stable 1.3.0 checks include all built-in sound events, a real imported custom sound pack, preset-library UI actions, cursor controls and both sign editors; see docs/validation-1.3.0.md.",
+    "extra_loaders: final stable 1.4.0 JARs passed full production self-tests with installed-copy SHA-256 verification on NeoForge 47.1.106 (1.20.1-forge) and Quilt Loader 0.30.2 (1.20.1-fabric, 1.21.1-fabric, 1.21.11-fabric, 26.2-fabric, 26.3-fabric). Quilt 0.30.2 provides fabricloader 0.19.5; 26.3-fabric requires Quilt 0.30.2 or newer. The four older Quilt combinations also retain historical 1.2.0 validation on Quilt 0.30.1 in docs/validation-1.2.0.md. Other Fabric jars have no additional Quilt tag. The full stable 1.4.0 production matrix passed 11/11: these six extra-loader cases, three optional Scholar cases and two additional remapped Fabric cases. All completed audio and book checks with exact installed-file hashes; see docs/validation-1.4.0.md. Only self-test diagnostics changed after the approved beta; product implementation bytecode and all common resources remain identical.",
     "dependencies_by_loader: added to every version whose target uses that loader ('name' is informational only)."
   ],
   "slug": "typing-animation",
   "title": "Typing Animation",
-  "summary": "Smooth typing, shareable presets, custom keyboard sounds and a personal cursor for chat, signs and text fields. Simple or detailed settings. Client-side only.",
+  "summary": "Smooth typing for chat, signs and books, with shareable presets, custom keyboard sounds and a personal cursor. Optional Scholar support. Client-side only.",
   "project_type": "mod",
   "categories": [
     "utility",

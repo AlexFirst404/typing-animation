@@ -17,7 +17,12 @@
     "MultiLineSoundMixin",
     "SignSoundMixin",
     "ChatSoundMixin",
-    "SoundResourcePackMixin"
+    "SoundResourcePackMixin",
+    "BookEditScreenMixin",
+    "BookPosAccessor",
+    "BookTestAccessor",
+    "ScholarTextBoxMixin",
+    "ScholarBookScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

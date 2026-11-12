@@ -33,7 +33,7 @@
   "typinganimation.config.animateOtherFields": "Другие поля",
   "typinganimation.config.animateOtherFields.tooltip": "Анимировать остальные однострочные поля: поиск, наковальню, названия миров и серверов и многое другое.",
   "typinganimation.config.animateMultiline": "Многострочные поля",
-  "typinganimation.config.animateMultiline.tooltip": "Анимировать многострочные поля ввода, например описания и комментарии к жалобам.",
+  "typinganimation.config.animateMultiline.tooltip": "Анимировать страницы книг (включая Scholar), описания и комментарии к жалобам. Перелистывание не считается редактированием.",
   "typinganimation.config.optionsButton": "Кнопка в настройках",
   "typinganimation.config.optionsButton.tooltip": "Показывать кнопку «Анимация ввода» на экране «Настройки». Если её скрыть, эти параметры можно открыть из списка модов или изменить в файле typinganimation.json.",
   "typinganimation.config.ms": "%s мс",

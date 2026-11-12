@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AbstractSignEditScreenMixin",
+    "BookEditScreenMixin",
     "ChatScreenMixin",
     "ClientLanguageMixin",
     "EditBoxMixin",
@@ -20,7 +21,9 @@
     "ChatSoundMixin",
     "SoundResourcePackMixin",
     "EditBoxTestAccessor",
-    "MultiLineTestAccessor"
+    "MultiLineTestAccessor",
+    "ScholarTextBoxMixin",
+    "ScholarBookScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

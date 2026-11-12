@@ -1,25 +1,23 @@
-# 1.3.0 · Make it yours
+# 1.4.0 · Books and Scholar
 
-- **Basic or Detailed settings:** choose on your first visit and switch later without losing your values. Basic shows the essentials; Detailed makes every timing, cursor and sound control reachable on compact pages, including at 320 × 240.
-- **Your own named presets:** save animation, cursor and sound together, then apply, duplicate, rename, import or export JSON files. A name collision creates a separate imported copy. Applying a shared style preserves your enabled fields, settings entry point and interface mode.
-- **Optional adaptive typing:** quick keystrokes shorten new animations and soften rapid sound feedback. Slow typing keeps the full configured effect. Existing animations keep their progress as your pace changes, and pasted text remains one bulk edit. Adaptive typing is off by default.
-- **More cursor personality:** custom `#RRGGBB` colours, an adjustable blink period, soft fading and an option to keep the caret visible while typing. Native focus, selection, clipping and the vanilla caret shape are preserved unless you choose another shape.
-- **Custom sound pack library:** import a ZIP of Ogg Vorbis samples, audition it and choose Use. Drop a JSON or ZIP into the library to fill its import path, then press Import. Installed sound packs can be switched without reloading resources again; missing packs fall back to your built-in family.
-- **Hide the Options button with Mod Menu:** available on Fabric/Quilt when Mod Menu provides the alternative entry point. Without Mod Menu the button stays available, including after moving a config between loaders.
+- **Bring your books to life:** typing, deletion and smooth cursor animations now work in the legacy vanilla book editor on Minecraft 1.20–1.21.5, including the title when signing a book and sound feedback for accepted input.
+- **Optional Scholar support:** animate its two page fields independently, plus its centered title and author fields. Scholar keeps control of formatting, colours, wrapping, alignment, selection and editing.
+- **Clean page transitions:** turning pages clears the previous page's animation state, including short, empty and identical pages. Existing text stays still instead of replaying as newly typed text.
+- **Quiet navigation:** opening a book, turning pages and changing only Scholar formatting do not play typing sounds. Your existing animation, cursor and sound preferences apply while editing.
+- **Unicode-aware integration:** Scholar's character positions are mapped to Java text indices, including supplementary characters. Wide signing titles in the legacy editor stay visible within the book's full bounds.
 
-Typing sounds remain **off by default**. The four built-in sound families, six built-in visual presets, 17 appearance effects, 10 removal effects, smooth cursor and support for ordinary/hanging signs remain available. A shared preset refers to its custom sound pack by content ID, so share the pack ZIP with the JSON when needed. Existing Minecraft resource-pack sound overrides continue to work.
+Book pages and Scholar fields use **Fields → Multi-line Fields**. Turn that setting off to use native rendering while keeping normal book input. Typing sounds remain **off by default**.
 
-Client-side only. **No Fabric API required. Mod Menu is recommended and optional** for Fabric/Quilt. Download the file matching your Minecraft version and loader.
+Client-side only, by **AlexFirst**. **Scholar is optional**, and its own requirements depend on the version you install. Typing Animation does not require Fabric API. **Mod Menu is recommended and optional** on Fabric/Quilt. Choose the file matching your Minecraft version and loader.
 
 ## По-русски
 
-- **Базовый или подробный интерфейс:** выбор при первом входе и возможность изменить его позже без потери настроек. В базовом режиме остаётся главное, в подробном доступны все параметры на компактных страницах, в том числе при размере интерфейса 320 × 240.
-- **Собственные пресеты:** сохраняйте анимацию, курсор и звук под именем, применяйте, копируйте, переименовывайте, импортируйте и экспортируйте JSON-файлы. Совпадение имени при импорте создаёт отдельную копию. Выбор полей, режим интерфейса и кнопка доступа к настройкам сохраняются.
-- **Адаптация к скорости печати:** при быстром наборе новые анимации становятся короче, звук мягче. При медленном наборе эффект проигрывается полностью. Уже начатые анимации не возвращаются назад при смене темпа, вставка остаётся одной операцией. **Адаптация изначально выключена.**
-- **Новые настройки курсора:** свой HEX-цвет, период и плавность мигания, постоянная видимость при печати. Фокус, выделение текста и границы полей сохраняют обычное поведение.
-- **Библиотека звуков:** импорт ZIP с Ogg Vorbis, прослушивание и выбор набора. JSON или ZIP можно перетащить в окно библиотеки, затем нажать «Импорт». Между установленными наборами можно переключаться без повторной перезагрузки ресурсов. Если набора нет, используются встроенные звуки.
-- **Скрытие кнопки настроек с Mod Menu:** доступно на Fabric/Quilt, когда установлен Mod Menu. Без него кнопка остаётся видимой, чтобы доступ к настройкам не потерялся.
+- **Анимации в книгах:** набор, удаление и плавное движение курсора теперь работают в старом редакторе книг на Minecraft 1.20–1.21.5, включая название при подписании и звук принятого ввода.
+- **Необязательная поддержка Scholar:** две страницы анимируются независимо; также поддерживаются поля названия и автора. Сохраняются форматирование, цвета, переносы, выравнивание, выделение и обычное редактирование.
+- **Аккуратное перелистывание:** смена страницы сбрасывает старые эффекты, даже если следующая страница короткая, пустая или с таким же текстом. Уже записанный текст не проигрывает анимацию заново.
+- **Тихая навигация:** открытие книги, перелистывание и изменение только форматирования Scholar не воспроизводят звук печати. При редактировании применяются ваши настройки анимации, курсора и звука.
+- **Корректная работа с Unicode:** учтены разные системы индексов символов Scholar и Java, включая символы за пределами BMP. Широкие названия при подписании в старом редакторе остаются видимыми в пределах книги.
 
-**Звук изначально выключен.** Четыре звуковых профиля, шесть готовых визуальных наборов, 17 эффектов появления, 10 эффектов удаления, плавный курсор и оба вида табличек сохранены. Если пресет использует собственный звук, передайте другу и JSON, и ZIP-набор. Замена звуков обычным ресурс-паком по-прежнему работает.
+Страницы книг и поля Scholar управляются настройкой **«Поля → Многострочные поля»**. Её выключение возвращает обычную отрисовку и сохраняет ввод. **Звуки печати изначально выключены.**
 
-Автор: **AlexFirst**. Мод только клиентский, Fabric API не нужен. **Mod Menu** остаётся рекомендуемой необязательной зависимостью для Fabric/Quilt.
+Автор: **AlexFirst**. Мод только клиентский. **Scholar необязателен**; его собственные зависимости зависят от установленной версии. Typing Animation не требует Fabric API. **Mod Menu** рекомендуется как необязательная зависимость на Fabric/Quilt. Выбирайте файл под свою версию Minecraft и загрузчик.

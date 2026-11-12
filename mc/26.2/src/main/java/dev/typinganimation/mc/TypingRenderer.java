@@ -382,6 +382,13 @@ public final class TypingRenderer {
         }
     }
 
+    /** Scholar's styled rendering is mapped to its separate unformatted UTF-16 animation value. */
+    public static boolean formattedMultilineSegment(WidgetAnimation anim, Object owner, Font font,
+            FormattedCharSequence sequence, String plain, int start, int x, int y, int color, boolean shadow) {
+        if (!anim.frameActive || anim.graphics == null || start < 0 || plain.isEmpty()) return false;
+        return segment(anim, owner, font, sequence, plain, start, x, y, color, shadow, true, false) == DRAWN;
+    }
+
     /**
      * True when bidi reordering of {@code str} is the identity: no formatting codes, no char from the Hebrew block
      * on (no right-to-left, Arabic shaping or bidi control chars), and a left-to-right default direction.

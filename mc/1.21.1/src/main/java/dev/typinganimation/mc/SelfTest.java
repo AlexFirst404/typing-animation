@@ -65,6 +65,10 @@ public final class SelfTest {
     private TypingConfig original;
     private SelfTestScreen screen;
     private Screen signScreen;
+    private net.minecraft.client.gui.screens.inventory.BookEditScreen bookScreen;
+    private TypingConfig beforeBookTest;
+    private int[] bookVanillaPixels;
+    private java.util.concurrent.CompletableFuture<int[]> bookPixels;
     private TypingConfig beforeSignTest;
     private TypingConfig beforeSoundTest;
     private String asyncFailure;
@@ -502,6 +506,8 @@ public final class SelfTest {
             ConfigManager.get().copyFrom(beforeSignTest);
         });
 
+        addBookTests();
+        addScholarTests();
         addTypingSoundTests();
         run(1, "import custom sound library", () -> {
             try { reload = CustomSoundPackProbe.prepare(); }
@@ -801,6 +807,120 @@ public final class SelfTest {
         run(0, "capture " + name, () -> screen.requestCapture(name, delayMs, null));
     }
 
+
+    /** Drives the actual vanilla BookEditScreen, including its page controls and signing dialog. */
+
+
+    /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addScholarTests() {
+        if (!ScholarCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))
+                run(0, "require Scholar compatibility fixture", () -> { throw new IllegalStateException("Scholar was required but not loaded"); });
+            return;
+        }
+        run(0, "open actual Scholar text boxes", () -> { try { ScholarCompatibilityProbe.prepare(); } catch (Exception failure) { throw new IllegalStateException(failure); } });
+        waitFor(0, "Scholar pages, formatting, cursor, signing and page turns", 600, () -> {
+            try { return ScholarCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Scholar compatibility probe failed", failure); }
+        });
+        run(0, "capture Scholar book widgets", () -> writeScreenshot("30-scholar-books"));
+        run(0, "restore after Scholar compatibility checks", ScholarCompatibilityProbe::cleanup);
+    }
+
+    private void addBookTests() {
+        run(1, "open real legacy book editor", () -> {
+            beforeBookTest = ConfigManager.get().copy();
+            ConfigManager.get().copyFrom(TypingConfig.defaults());
+            ConfigManager.get().typingSounds = true;
+            style(AppearStyle.POP, RemoveStyle.FADE, 300, 450);
+            bookScreen = BookSelfTest.create();
+            mc.setScreen(bookScreen);
+            TypingSounds.resetTestCounters();
+        });
+        waitFor(1, "real book rendered", 100, () -> ((BookStateHolder) bookScreen).typinganimation$bookAnimation().frames >= 3);
+        run(1, "book accepted character", () -> {
+            bookScreen.charTyped('B', 0);
+            check(TypingSounds.playedCount == 1, "book typing sound missing");
+        });
+        run(2, "book accepted space", () -> bookScreen.charTyped(' ', 0));
+        run(2, "book accepted character 2", () -> bookScreen.charTyped('C', 0));
+        run(2, "book accepted newline", () -> bookScreen.keyPressed(InputConstants.KEY_RETURN, 0, 0));
+        run(2, "book accepted character 3", () -> bookScreen.charTyped('D', 0));
+        run(3, "book cursor navigation is silent", () -> {
+            check(TypingSounds.playedCount == 5, "book input sound count");
+            bookScreen.keyPressed(InputConstants.KEY_LEFT, 0, 0);
+            check(TypingSounds.playedCount == 5, "book navigation made a sound");
+        });
+        run(2, "book accepted deletion", () -> { bookScreen.keyPressed(InputConstants.KEY_RIGHT, 0, 0); bookScreen.keyPressed(InputConstants.KEY_BACKSPACE, 0, 0); });
+        run(3, "book rendering evidence", () -> {
+            BookAnimation a = ((BookStateHolder) bookScreen).typinganimation$bookAnimation();
+            check(a.animatedFrames > 0, "real book never animated");
+            check(a.ghostFrames > 0, "real book never drew deletion ghosts");
+            check(a.caretGlides > 0, "real book cursor never glided");
+            check(TypingSounds.playedCount == 6, "book deletion sound missing");
+            bookScreen.keyPressed(InputConstants.KEY_PAGEDOWN, 0, 0);
+        });
+        run(3, "book page navigation resets animation", () -> {
+            var book = (dev.typinganimation.mixin.BookTestAccessor) bookScreen;
+            check(book.typinganimation$page() == 1, "book PageDown did not change page");
+            check(((BookStateHolder) bookScreen).typinganimation$bookAnimation().ghostCount() == 0,
+                    "book page change retained previous page ghosts");
+            check(TypingSounds.playedCount == 6, "page turn made a typing sound");
+            bookScreen.keyPressed(InputConstants.KEY_PAGEUP, 0, 0);
+        });
+        run(3, "book multiline toggle applies", () -> {
+            ConfigManager.get().animateMultiline = false;
+            bookScreen.charTyped('Z', 0);
+            check(TypingSounds.playedCount == 6, "disabled book field made a sound");
+        });
+        run(2, "book signing mode", () -> {
+            ConfigManager.get().animateMultiline = true;
+            ((dev.typinganimation.mixin.BookTestAccessor) bookScreen).typinganimation$signButton().onPress();
+        });
+        run(3, "book signing title input", () -> bookScreen.charTyped('T', 0));
+        run(3, "book signing verification", () -> {
+            var book = (dev.typinganimation.mixin.BookTestAccessor) bookScreen;
+            check("T".equals(book.typinganimation$title()), "book signing title input failed");
+            check(TypingSounds.playedCount == 7, "book signing title sound missing");
+        });
+        run(0, "prepare maximum-width signing title", () -> BookSelfTest.prepareWideTitle(bookScreen));
+        run(3, "capture native wide signing title", () -> bookPixels = BookSelfTest.wideTitlePixels(bookScreen));
+        waitFor(0, "native wide title pixels ready", 100, () -> bookPixels.isDone());
+        run(0, "baseline wide title minus final character", () -> BookSelfTest.saveWideNativeAndRemoveLast(bookScreen, bookPixels.join()));
+        run(3, "capture wide title before final input", () -> bookPixels = BookSelfTest.wideTitlePixels(bookScreen));
+        waitFor(0, "wide title background pixels ready", 100, () -> bookPixels.isDone());
+        run(0, "type final wide title character", () -> BookSelfTest.saveWideBackgroundAndTypeLast(bookScreen, bookPixels.join()));
+        run(6, "capture visibly fading wide title", () -> bookPixels = BookSelfTest.wideTitlePixels(bookScreen));
+        waitFor(0, "animated wide title pixels ready", 100, () -> bookPixels.isDone());
+        run(0, "wide title glyph remains visible past page text bounds", () -> BookSelfTest.verifyWideTitleAnimation(bookPixels.join()));
+        run(45, "settle wide title animation", () -> TypingRenderer.forcePerChar = true);
+        run(3, "capture settled wide title", () -> bookPixels = BookSelfTest.wideTitlePixels(bookScreen));
+        waitFor(0, "settled wide title pixels ready", 100, () -> bookPixels.isDone());
+        run(0, "wide title preserves native pixels", () -> {
+            BookSelfTest.verifyWideTitleFidelity(bookPixels.join());
+            TypingRenderer.forcePerChar = false;
+            ((dev.typinganimation.mixin.BookTestAccessor) bookScreen).typinganimation$cancelButton().onPress();
+        });
+        run(20, "book vanilla pixel baseline", () -> ConfigManager.get().enabled = false);
+        run(3, "capture book vanilla pixels", () -> bookPixels = BookSelfTest.pixels(bookScreen));
+        waitFor(0, "book vanilla pixels ready", 100, () -> bookPixels.isDone());
+        run(0, "prepare animated book pixel capture", () -> {
+            bookVanillaPixels = bookPixels.join();
+            ConfigManager.get().enabled = true;
+            TypingRenderer.forcePerChar = true;
+        });
+        run(4, "capture animated book pixels", () -> bookPixels = BookSelfTest.pixels(bookScreen));
+        waitFor(0, "book animated pixels ready", 100, () -> bookPixels.isDone());
+        run(0, "book settled pixels match vanilla", () -> {
+            check(java.util.Arrays.equals(bookVanillaPixels, bookPixels.join()),
+                    "settled real book page/cursor differs from vanilla pixels");
+            TypingRenderer.forcePerChar = false;
+            ConfigManager.get().copyFrom(beforeBookTest);
+            mc.setScreen(screen);
+            log("real legacy book: typing/deletion/wrapping/caret/pages/signing/audio/toggle and vanilla pixels passed");
+        });
+    }
+
     private void addTypingSoundTests() {
         run(1, "prepare input sound tests", () -> {
             beforeSoundTest = ConfigManager.get().copy();
@@ -1094,6 +1214,7 @@ public final class SelfTest {
         }
         finished = true;
         StyleLibraryUiProbe.abort();
+        try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             if (original != null) {

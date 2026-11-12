@@ -4,7 +4,7 @@
 
 ![Pixel highlight](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/point-inline-2x.png) **Client-only · Shareable presets · Custom sounds · Your own cursor**
 
-Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and optional keyboard sounds give each keystroke a character — in chat, commands, search fields, **signs and hanging signs**. Settled text keeps its vanilla appearance.
+Give Minecraft's text a little personality. Letters animate in and out, edits glide into place, and optional keyboard sounds give each keystroke a character — in chat, commands, search fields, **signs, hanging signs and books**. Settled text keeps its vanilla appearance.
 
 **Fabric · Forge · NeoForge · English & Russian · No Fabric API required**
 
@@ -83,6 +83,10 @@ Smooth horizontal **and vertical** movement, with its own speed setting. Keep th
 
 Animations and optional typing sounds work while editing **ordinary and hanging signs**, across all four lines. Text colours, glowing text and normal editing controls stay intact.
 
+### ▥ Write a book · new in 1.4
+
+Book pages animate while you type and erase, with a smooth cursor. Turning a page displays its contents immediately. **Scholar** has an optional integration for its two-page editor and signing fields, preserving colours, formatting and alignment. Control page effects with **Fields → Multi-line Fields**; Scholar is not required.
+
 ![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/signs.gif)
 
 ## ![Settings](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-03-2x.png) Make it yours
@@ -119,7 +123,7 @@ Syntax highlighting stays intact while typing and completing commands with **Tab
 
 ### Compatibility notes
 
-Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. **Minecraft 26.3 requires Quilt Loader 0.30.2 or newer.** Book input is supported from Minecraft 1.21.6. Mods replacing the standard text renderer may conflict.
+Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric files specifically tagged Quilt. **Minecraft 26.3 requires Quilt Loader 0.30.2 or newer.** Editable books are supported throughout the Minecraft versions listed above. Install a matching Scholar version if you want its redesigned editor. Mods replacing the standard text renderer may conflict.
 
 **Made by AlexFirst** · [Source code on GitHub](https://github.com/AlexFirst404/typing-animation) · **MIT** · Modpacks welcome.
 
@@ -129,13 +133,15 @@ Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric fi
 
 **Новое в 1.3:** сохраняйте собственные пресеты анимации, курсора и звука, копируйте, переименовывайте и делитесь ими через **импорт и экспорт JSON**. Свои звуковые наборы в **ZIP с Ogg Vorbis** можно импортировать и прослушать в библиотеке. JSON или ZIP можно перетащить в её окно.
 
+**Новое в 1.4:** анимации страниц книг на всех поддерживаемых версиях и необязательная совместимость со **Scholar**, включая две страницы и поля подписи. Цвета, форматирование и переносы сохраняются. Перелистывание не запускает эффекты печати; страницы управляются пунктом **«Поля → Многострочные поля»**.
+
 **Адаптация к скорости печати** ускоряет анимации и приглушает звук при быстром наборе. Включается отдельно. Курсору можно задать **HEX-цвет, период и плавность мигания**, постоянную видимость при наборе, форму, толщину и плавность движения по двум осям.
 
 При первом входе выберите **«Базовый»** или **«Подробный»** интерфейс; режим можно поменять позже без сброса настроек. Четыре вкладки, живой предпросмотр и **«Демо»** помогают подобрать свой стиль. С установленным **Mod Menu** на Fabric/Quilt кнопку в «Настройках» можно скрыть; без него она остаётся доступной.
 
 Шесть готовых визуальных наборов применяются кнопкой **«Применить»**. Четыре встроенных звуковых профиля: **печатная машинка, механическая клавиатура, мягкий звук и ноутбук**. **Звук изначально выключен**; включается во вкладке «Звук». Для пресета с собственным звуком передайте другу и JSON, и ZIP-набор.
 
-**Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. **Для Minecraft 26.3 нужен Quilt Loader 0.30.2 или новее.** Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются, книги поддерживаются с 1.21.6. Автор — **AlexFirst**.
+**Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. **Для Minecraft 26.3 нужен Quilt Loader 0.30.2 или новее.** Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются. Автор — **AlexFirst**.
 
 ---
 
@@ -157,7 +163,7 @@ bash scripts/run-target.sh 26.3-neoforge selftest
 
 Release JARs are collected in `dist/`. Always use `--no-daemon` for direct Gradle commands. The standalone `core` Gradle project contains the JUnit tests.
 
-In-game self-tests exercise mixin application, typing, deletion, selections, scrolling, animation styles, both sign editors and all settings tabs. They also check sound input gates, visual-preset isolation, sound audition, first-visit interface modes, named preset menu actions and imported sound pack resources. They compare settled text against vanilla pixels, save screenshots, report `SELFTEST PASS` or `SELFTEST FAIL`, then close the client.
+In-game self-tests exercise mixin application, typing, deletion, selections, scrolling, animation styles, both sign editors, actual book editing/signing screens and all settings tabs. When Scholar is installed, they also exercise its real text boxes and page-assignment method. They check sound input gates, visual-preset isolation, sound audition, first-visit interface modes, named preset menu actions and imported sound pack resources. They compare settled text against vanilla pixels, save screenshots, report `SELFTEST PASS` or `SELFTEST FAIL`, then close the client.
 
 ```bash
 # Record actual Minecraft UI and build GIFs/screenshots:
@@ -174,6 +180,6 @@ The media recorder creates a disposable showcase world and saves frames in the s
 
 The 36 original keyboard samples are generated by `scripts/generate-typing-sounds.py`; its `--check` mode verifies reproducibility without changing assets. The source lists the Python audio-library versions used. Sound resources and English/Russian subtitles are validated by the core tests.
 
-**Documentation:** [Engineering spec](docs/SPEC.md) · [1.3.0 release notes](docs/changelog-1.3.0.md) · [1.3.0 validation](docs/validation-1.3.0.md) · [Custom sound packs](docs/custom-sound-packs.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
+**Documentation:** [Engineering spec](docs/SPEC.md) · [1.4 release notes](docs/changelog-1.4.0.md) · [1.4 release validation](docs/validation-1.4.0.md) · [Custom sound packs](docs/custom-sound-packs.md) · [Modrinth publishing](modrinth/README.md) · [CurseForge publishing](curseforge/README.md). Edit the shared public description in [`docs/project-description.md`](docs/project-description.md), then run the sync script. Publish credentials belong only in process environment variables, never in repository files.
 
 **По-русски:** для сборки нужны JDK 17, 21 и 25; готовые JAR находятся в `dist/`. Команда `selftest` запускает проверку в настоящем клиенте Minecraft. Общее описание для Modrinth, CurseForge и GitHub редактируется в `docs/project-description.md` и переносится командой `node scripts/sync-description.mjs`.

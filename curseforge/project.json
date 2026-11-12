@@ -3,7 +3,7 @@
   "slug": "typing-animation",
   "url": "https://www.curseforge.com/minecraft/mc-mods/typing-animation",
   "name": "Typing Animation",
-  "summary": "Smooth typing, shareable presets, custom keyboard sounds and a personal cursor for chat, signs and text fields. Simple or detailed settings. Client-side only.",
+  "summary": "Smooth typing for chat, signs and books, with shareable presets, custom keyboard sounds and a personal cursor. Optional Scholar support. Client-side only.",
   "source": {
     "provider": "GitHub",
     "url": "https://github.com/AlexFirst404/typing-animation"

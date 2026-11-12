@@ -217,6 +217,8 @@ public final class SelfTest {
     private void fail(String reason, Throwable t) {
         finished = true;
         StyleLibraryUiProbe.abort();
+        try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { BookSelfTest.cleanup(); } catch (Throwable ignored) { /* test-owned fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             restoreConfig();
@@ -704,6 +706,8 @@ public final class SelfTest {
             ConfigManager.get().copyFrom(beforeSignTest);
         });
 
+        addBookTests();
+        addScholarTests();
         addTypingSoundTests();
 
         addCustomSoundLibraryTests();
@@ -1336,6 +1340,72 @@ public final class SelfTest {
         waitFrames(3);
     }
 
+    /** Real vanilla page/sign screens, including short and empty page transitions. */
+
+    /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addScholarTests() {
+        if (!ScholarCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))
+                act("require Scholar compatibility fixture", () -> { throw new IllegalStateException("Scholar was required but not loaded"); });
+            return;
+        }
+        act("open actual Scholar text boxes", ScholarCompatibilityProbe::prepare);
+        until("Scholar pages, formatting, cursor, signing and page turns", () -> {
+            try { return ScholarCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Scholar compatibility probe failed", failure); }
+        }, 600);
+        screenshot("30-scholar-books");
+        act("restore after Scholar compatibility checks", ScholarCompatibilityProbe::cleanup);
+    }
+
+    private void addBookTests() {
+        act("open actual vanilla book editor", BookSelfTest::prepare);
+        until("actual book page rendered", BookSelfTest::pageRendered, 200);
+        act("type in actual book page", BookSelfTest::typePage);
+        waitFrames(3);
+        screenshot("28-book-typing");
+        act("verify actual book typing and move caret", BookSelfTest::verifyTyping);
+        waitFrames(3);
+        act("delete actual book character", BookSelfTest::deletePageCharacter);
+        waitFrames(3);
+        act("verify book deletion and PageDown", BookSelfTest::verifyDeletionAndNextPage);
+        waitFrames(3);
+        act("short book page stays settled", () -> BookSelfTest.verifyPageRest("Two"));
+        act("open empty book page", () -> BookSelfTest.nextPage(""));
+        waitFrames(3);
+        act("empty book page stays settled", () -> BookSelfTest.verifyPageRest(""));
+        act("open similar short book page", () -> BookSelfTest.nextPage("Two!"));
+        waitFrames(3);
+        act("similar book page stays settled", () -> BookSelfTest.verifyPageRest("Two!"));
+        act("restore empty book page", () -> BookSelfTest.previousPage(""));
+        waitFrames(3);
+        act("restored empty page stays settled", () -> BookSelfTest.verifyPageRest(""));
+        act("restore short book page", () -> BookSelfTest.previousPage("Two"));
+        waitFrames(3);
+        act("restored short page stays settled", () -> BookSelfTest.verifyPageRest("Two"));
+        act("restore edited first book page", () -> BookSelfTest.previousPage("On!"));
+        waitFrames(3);
+        act("edited book page is preserved", () -> BookSelfTest.verifyPageRest("On!"));
+        act("advance to short page", () -> BookSelfTest.nextPage("Two"));
+        waitFrames(3);
+        act("advance to blank page", () -> BookSelfTest.nextPage(""));
+        waitFrames(3);
+        act("advance to similar page", () -> BookSelfTest.nextPage("Two!"));
+        waitFrames(3);
+        act("open wrapped book page", () -> BookSelfTest.nextPage("A longer book page checks ordinary wrapping across several lines of text."));
+        waitFrames(3);
+        act("verify wrapping and type on book page", BookSelfTest::verifyWrappedPageAndType);
+        waitFrames(3);
+        act("verify wrapped typing and rejected input then sign", BookSelfTest::verifyWrappedTypingAndLimit);
+        until("actual book title rendered", BookSelfTest::titleRendered, 200);
+        act("type in actual signing screen", BookSelfTest::typeTitle);
+        waitFrames(3);
+        screenshot("29-book-title");
+        act("verify book title and cancel signing", BookSelfTest::verifyTitleAndReturn);
+        waitFrames(3);
+        act("restore after book fixture", BookSelfTest::cleanup);
+    }
+
     // =================================================================== input helpers
 
     private static void type(GuiEventListener widget, char c) {
@@ -1367,6 +1437,8 @@ public final class SelfTest {
                 "net.minecraft.client.gui.components.MultilineTextField",
                 "net.minecraft.client.gui.components.MultilineTextField$StringView",
                 "net.minecraft.client.gui.screens.ChatScreen",
+                "net.minecraft.client.gui.screens.inventory.BookEditScreen",
+                "net.minecraft.client.gui.screens.inventory.BookSignScreen",
                 "net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen",
                 "net.minecraft.client.gui.screens.options.OptionsScreen",
                 "net.minecraft.client.StringSplitter",
