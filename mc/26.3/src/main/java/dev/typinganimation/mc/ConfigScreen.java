@@ -142,7 +142,7 @@ public class ConfigScreen extends Screen {
             return switch (entry.getKey()) {
                 case "enabled", "appearStyle", "removeStyle", "adaptiveTyping", "visualPreset", "applyPreset",
                      "smoothCursor", "cursorStyle", "cursorColor", "cursorKeepVisibleWhileTyping",
-                     "animateChat", "animateOtherFields", "animateMultiline", "animateSigns", "optionsButton",
+                     "animateChat", "animateOtherFields", "animateMultiline", "animateSigns", "pauseOptionsButton", "optionsButton",
                      "typingSounds", "soundPreset", "soundVolume", "soundTest" -> true;
                 default -> false;
             };
@@ -315,6 +315,7 @@ public class ConfigScreen extends Screen {
             behaviour.add(toggle("animateMultiline", cfg.animateMultiline, v -> cfg.animateMultiline = v));
         }
         behaviour.add(toggle("onlyWhenFocused", cfg.onlyWhenFocused, v -> cfg.onlyWhenFocused = v));
+        behaviour.add(toggle("pauseOptionsButton", cfg.pauseOptionsButton, v -> cfg.pauseOptionsButton = v));
         behaviour.add(toggle("optionsButton", cfg.optionsButton, v -> cfg.optionsButton = v));
         addPage(behaviour, 2, left, right, gridY);
 
@@ -505,7 +506,7 @@ public class ConfigScreen extends Screen {
     }
 
     private static boolean independentControl(String key) {
-        return key.equals("enabled") || key.equals("optionsButton") || key.equals("typingSounds")
+        return key.equals("enabled") || key.equals("optionsButton") || key.equals("pauseOptionsButton") || key.equals("typingSounds")
                 || key.startsWith("sound") || key.equals("visualPreset") || key.equals("applyPreset");
     }
 

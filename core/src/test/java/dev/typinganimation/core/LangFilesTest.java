@@ -26,7 +26,7 @@ class LangFilesTest {
     private static final Path LANG = Path.of("..", "common-resources", "assets", "typinganimation", "lang");
     private static final String[] UI_FIELDS = {"enabled", "appearStyle", "removeStyle", "easing", "durationMs",
             "intensity", "staggerMs", "glideMs", "smoothReflow", "smoothCursor", "animateChat", "animateOtherFields",
-            "animateMultiline", "optionsButton", "removeDurationMs", "removeIntensity", "maxStaggerMs",
+            "animateMultiline", "optionsButton", "pauseOptionsButton", "removeDurationMs", "removeIntensity", "maxStaggerMs",
             "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth", "animateSigns", "onlyWhenFocused",
             "typingSounds", "soundPreset", "soundVolume", "soundPitch", "soundVariation", "soundOnDelete", "soundOnEnter"};
 

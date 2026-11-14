@@ -20,7 +20,27 @@ public enum VisualPreset {
     WAVE(AppearStyle.WAVE, RemoveStyle.FADE, Easing.AUTO, 360, 200, 1.1f, 0.8f,
             28, 560, true, 75, true, 80, CursorStyle.UNDERLINE, CursorColor.AQUA, 1),
     GLITCH(AppearStyle.SCRAMBLE, RemoveStyle.SCATTER, Easing.LINEAR, 200, 140, 1f, 1.2f,
-            8, 180, false, 0, false, 0, CursorStyle.BLOCK, CursorColor.MINT, 1);
+            8, 180, false, 0, false, 0, CursorStyle.BLOCK, CursorColor.MINT, 1),
+    TERMINAL(AppearStyle.NONE, RemoveStyle.NONE, Easing.LINEAR, 40, 40, 0.25f, 0.25f,
+            0, 0, false, 0, false, 0, CursorStyle.BLOCK, CursorColor.MINT, 1, 900, false, true),
+    TYPEWRITER(AppearStyle.SLIDE_DOWN, RemoveStyle.FALL, Easing.EXPO_OUT, 100, 100, 0.3f, 0.35f,
+            16, 300, false, 0, false, 0, CursorStyle.BAR, CursorColor.GOLD, 1, 700, false, true),
+    SNAPPY(AppearStyle.SLIDE_RIGHT, RemoveStyle.SLIDE_LEFT, Easing.EXPO_OUT, 120, 100, 0.5f, 0.55f,
+            3, 120, true, 25, true, 25, CursorStyle.BAR, CursorColor.WHITE, 1, 450, false, true),
+    FLOATING(AppearStyle.SLIDE_UP, RemoveStyle.FLY_UP, Easing.SINE_IN_OUT, 420, 300, 0.65f, 0.65f,
+            24, 600, true, 120, true, 140, CursorStyle.UNDERLINE, CursorColor.AQUA, 1, 1000, true, true),
+    ELASTIC(AppearStyle.GROW, RemoveStyle.SQUASH, Easing.ELASTIC_OUT, 420, 240, 1.1f, 0.85f,
+            20, 500, true, 80, true, 90, CursorStyle.BAR, CursorColor.LAVENDER, 2, 650, true, true),
+    RETRO(AppearStyle.FLIP, RemoveStyle.SHRINK, Easing.CUBIC_OUT, 220, 140, 0.85f, 0.75f,
+            12, 300, true, 35, false, 0, CursorStyle.BLOCK, CursorColor.GOLD, 1, 700, false, true),
+    SWING(AppearStyle.SWING, RemoveStyle.FLY_UP, Easing.SINE_IN_OUT, 460, 280, 0.8f, 0.6f,
+            22, 520, true, 95, true, 110, CursorStyle.BAR, CursorColor.RED, 1, 900, true, true),
+    ORBIT(AppearStyle.SPIRAL, RemoveStyle.SPIRAL, Easing.CUBIC_OUT, 380, 260, 0.65f, 0.7f,
+            20, 480, true, 70, true, 85, CursorStyle.UNDERLINE, CursorColor.LAVENDER, 1, 850, true, true),
+    PAPER(AppearStyle.DROP, RemoveStyle.FALL, Easing.AUTO, 340, 280, 0.65f, 0.8f,
+            26, 550, true, 80, true, 80, CursorStyle.BAR, CursorColor.WHITE, 1, 800, true, true),
+    CINEMATIC(AppearStyle.ZOOM_OUT, RemoveStyle.FADE, Easing.SINE_OUT, 480, 320, 0.5f, 0.5f,
+            32, 750, true, 150, true, 170, CursorStyle.UNDERLINE, CursorColor.GOLD, 1, 1200, true, true);
 
     private final String translationKey;
     /** Private template is never returned or mutated after enum construction. */
@@ -30,6 +50,15 @@ public enum VisualPreset {
                  float intensity, float removeIntensity, int stagger, int maxStagger,
                  boolean reflow, int glide, boolean smoothCursor, int cursorGlide,
                  CursorStyle cursorStyle, CursorColor cursorColor, int cursorWidth) {
+        this(appear, remove, easing, duration, removeDuration, intensity, removeIntensity, stagger, maxStagger,
+                reflow, glide, smoothCursor, cursorGlide, cursorStyle, cursorColor, cursorWidth, 600, false, false);
+    }
+
+    VisualPreset(AppearStyle appear, RemoveStyle remove, Easing easing, int duration, int removeDuration,
+                 float intensity, float removeIntensity, int stagger, int maxStagger,
+                 boolean reflow, int glide, boolean smoothCursor, int cursorGlide,
+                 CursorStyle cursorStyle, CursorColor cursorColor, int cursorWidth,
+                 int cursorBlink, boolean softBlink, boolean visibleWhileTyping) {
         translationKey = "typinganimation.preset." + name().toLowerCase(Locale.ROOT);
         settings = new TypingConfig();
         settings.appearStyle = appear;
@@ -48,6 +77,9 @@ public enum VisualPreset {
         settings.cursorStyle = cursorStyle;
         settings.cursorColor = cursorColor;
         settings.cursorWidth = cursorWidth;
+        settings.cursorBlinkMs = cursorBlink;
+        settings.cursorSoftBlink = softBlink;
+        settings.cursorKeepVisibleWhileTyping = visibleWhileTyping;
     }
 
     public String translationKey() {

@@ -32,6 +32,7 @@ class UserPresetLibraryTest {
         style.customSoundPack = "0123456789abcdef01234567";
         style.enabled = false;
         style.optionsButton = false;
+        style.pauseOptionsButton = false;
         style.animateChat = false;
         style.settingsModeChosen = true;
         style.advancedSettings = true;
@@ -39,11 +40,12 @@ class UserPresetLibraryTest {
         assertTrue(saved.ok());
         assertEquals(java.util.List.of("Моя машинка"), library.list());
         JsonObject settings = JsonParser.parseString(Files.readString(saved.path())).getAsJsonObject().getAsJsonObject("settings");
-        for (String key : new String[]{"enabled", "optionsButton", "animateChat", "animateSigns", "onlyWhenFocused",
+        for (String key : new String[]{"enabled", "optionsButton", "pauseOptionsButton", "animateChat", "animateSigns", "onlyWhenFocused",
                 "advancedSettings", "settingsModeChosen"}) assertFalse(settings.has(key), key);
         TypingConfig target = new TypingConfig();
         target.animateOtherFields = false;
         target.onlyWhenFocused = false;
+        target.pauseOptionsButton = false;
         assertTrue(library.apply("Моя машинка", target).ok());
         assertEquals(AppearStyle.SPIRAL, target.appearStyle);
         assertEquals(RemoveStyle.SCATTER, target.removeStyle);
@@ -59,6 +61,7 @@ class UserPresetLibraryTest {
         assertEquals("0123456789abcdef01234567", target.customSoundPack);
         assertTrue(target.enabled);
         assertTrue(target.optionsButton);
+        assertFalse(target.pauseOptionsButton, "applying a style must not restore the in-game settings button");
         assertTrue(target.animateChat);
         assertFalse(target.animateOtherFields);
         assertFalse(target.onlyWhenFocused);
@@ -127,6 +130,7 @@ class UserPresetLibraryTest {
         JsonObject settings = object.getAsJsonObject("settings");
         settings.addProperty("enabled", false);
         settings.addProperty("optionsButton", false);
+        settings.addProperty("pauseOptionsButton", true);
         settings.addProperty("advancedSettings", true);
         settings.addProperty("settingsModeChosen", true);
         settings.addProperty("animateSigns", false);
@@ -134,9 +138,11 @@ class UserPresetLibraryTest {
         Files.writeString(exported, object.toString());
         var imported = library.importFile(exported);
         TypingConfig target = new TypingConfig();
+        target.pauseOptionsButton = false;
         assertTrue(library.apply(imported.name(), target).ok());
         assertTrue(target.enabled);
         assertTrue(target.optionsButton);
+        assertFalse(target.pauseOptionsButton, "an imported preset must not change the user's hidden in-game button");
         assertTrue(target.animateSigns);
         assertFalse(target.advancedSettings);
         assertFalse(target.settingsModeChosen);

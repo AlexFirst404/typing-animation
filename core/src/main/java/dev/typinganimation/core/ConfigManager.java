@@ -189,6 +189,7 @@ public final class ConfigManager {
         o.addProperty("animateSigns", c.animateSigns);
         o.addProperty("onlyWhenFocused", c.onlyWhenFocused);
         o.addProperty("optionsButton", c.optionsButton);
+        o.addProperty("pauseOptionsButton", c.pauseOptionsButton);
         o.addProperty("advancedSettings", c.advancedSettings);
         o.addProperty("settingsModeChosen", c.settingsModeChosen);
         return GSON.toJson(o) + System.lineSeparator();
@@ -238,6 +239,7 @@ public final class ConfigManager {
         c.animateSigns = readBool(o, "animateSigns", c.animateSigns);
         c.onlyWhenFocused = readBool(o, "onlyWhenFocused", c.onlyWhenFocused);
         c.optionsButton = readBool(o, "optionsButton", c.optionsButton);
+        c.pauseOptionsButton = readBool(o, "pauseOptionsButton", c.pauseOptionsButton);
         c.advancedSettings = readBool(o, "advancedSettings", c.advancedSettings);
         c.settingsModeChosen = readBool(o, "settingsModeChosen", c.settingsModeChosen);
     }

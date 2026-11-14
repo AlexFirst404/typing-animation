@@ -2,6 +2,7 @@ package dev.typinganimation.forge;
 
 import dev.typinganimation.mc.ClientInit;
 import dev.typinganimation.mc.ConfigScreen;
+import dev.typinganimation.mc.ConfigAccess;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -17,5 +18,6 @@ final class ForgeClient {
         // 47.1 (the Function<Screen, Screen> one exists only in Forge 47.4.x).
         ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
                 () -> new ConfigScreenHandler.ConfigScreenFactory((minecraft, parent) -> new ConfigScreen(parent)));
+        ConfigAccess.setNativeSettingsAvailable(true);
     }
 }

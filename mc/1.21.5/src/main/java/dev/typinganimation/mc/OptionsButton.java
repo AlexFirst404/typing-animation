@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -22,6 +23,12 @@ public final class OptionsButton {
         Screen typinganimation$lastScreen();
     }
 
+    /** Hide only the Options screen reached from pause; the main-menu entry remains independent. */
+    public static boolean showFor(Screen optionsScreen) {
+        return ConfigAccess.showOptionsButton(optionsScreen instanceof ParentAccess access
+                && access.typinganimation$lastScreen() instanceof PauseScreen);
+    }
+
     private OptionsButton() {
     }
 
@@ -31,7 +38,7 @@ public final class OptionsButton {
      */
     public static void addTo(LayoutElement contents, Screen optionsScreen) {
         try {
-            if (!ConfigAccess.showOptionsButton() || !(contents instanceof GridLayout grid)) {
+            if (!showFor(optionsScreen) || !(contents instanceof GridLayout grid)) {
                 return;
             }
             int[] children = {0};
@@ -68,7 +75,7 @@ public final class OptionsButton {
     static Screen returnTarget(Screen parent) {
         try {
             if (parent instanceof OptionsScreen && parent instanceof ParentAccess access
-                    && (find(parent) != null) != ConfigAccess.showOptionsButton()) {
+                    && (find(parent) != null) != showFor(parent)) {
                 Minecraft mc = Minecraft.getInstance();
                 return new OptionsScreen(access.typinganimation$lastScreen(), mc.options);
             }

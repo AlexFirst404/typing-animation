@@ -22,7 +22,8 @@
     "SoundResourcePackMixin",
     "ScholarTextBoxMixin",
     "ScholarBookScreenMixin",
-    "EditBoxTestAccessor"
+    "EditBoxTestAccessor",
+    "BetterCommandTextFieldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -2,6 +2,7 @@ package dev.typinganimation.neoforge;
 
 import dev.typinganimation.mc.ClientInit;
 import dev.typinganimation.mc.ConfigScreen;
+import dev.typinganimation.mc.ConfigAccess;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -15,5 +16,6 @@ public final class TypingAnimationNeoForge {
         ClientInit.init(FMLPaths.CONFIGDIR.get());
         container.registerExtensionPoint(IConfigScreenFactory.class,
                 (IConfigScreenFactory) (mod, parent) -> new ConfigScreen(parent));
+        ConfigAccess.setNativeSettingsAvailable(true);
     }
 }

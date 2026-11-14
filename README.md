@@ -45,7 +45,13 @@ Try Slide Right, Zoom Out, Flip, Swing, Roll and Spiral, then pair them with you
 
 ### ✧ Pick a mood
 
-Start with **Default · Minimal · Soft · Bouncy · Wave · Glitch**. Select a built-in preset, press **Apply**, then fine-tune it in the live preview. These presets change motion and the cursor while keeping your sound settings and field choices. Manual edits appear as **Custom**.
+Choose from **16 built-in visual presets**. Keep it simple with **Default · Minimal · Soft**, add character with **Bouncy · Wave · Glitch**, or try the ten new combinations in **1.5**:
+
+| Crisp & familiar | Gentle & spacious | Playful & expressive |
+|---|---|---|
+| **Terminal · Typewriter · Snappy · Retro** | **Floating · Paper · Cinematic** | **Elastic · Swing · Orbit** |
+
+Select a preset, press **Apply**, then fine-tune it in the live preview. Presets combine motion with a matching cursor, including its blinking and fade. Your sound settings, enabled fields and interface choices stay yours. **Typewriter** is a visual style; choose its sound separately in Sound. Manual visual edits appear as **Custom**.
 
 ![Built-in visual presets and live preview, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
 
@@ -101,13 +107,17 @@ Four settings tabs: **Animations · Cursor · Fields · Sound**, with a **live p
 
 Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Individual controls apply immediately; a visual preset uses **Apply**. Settings are saved in `config/typinganimation.json`.
 
-With **Mod Menu installed on Fabric/Quilt**, you can hide the Typing Animation button from Options. Without Mod Menu the button stays available, so you can always reach the settings.
+**New in 1.5:** **Fields → Show Button In Game** hides the entry in Options opened from the pause menu, while keeping the main-menu entry. This separate switch works without Mod Menu. To hide the button globally, use the separate Options-button switch with Forge/NeoForge's built-in mods list or Mod Menu on Fabric/Quilt.
 
 ## / Commands keep their colours
 
 Syntax highlighting stays intact while typing and completing commands with **Tab**.
 
 ![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
+
+### ▸ More command editors · new in 1.5
+
+Animations, smooth caret motion and optional keyboard sounds now work in **CommandBlockUIOverhaul** on Forge 1.20.1 / NeoForge 1.21.1 and **Better Command Block UI** on Fabric/Quilt. Keep their command colours, indentation, selection and scrolling. Enable **Fields → Multi-line Fields**; neither editor is required. Install each editor's own dependencies when using it, including matching Fabric API for Better Command Block UI on 26.3.
 
 ![Download and installation](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-03-wide.svg)
 
@@ -137,15 +147,23 @@ Use the Forge file on NeoForge 1.20.1. Quilt support is limited to the Fabric fi
 
 **Адаптация к скорости печати** ускоряет анимации и приглушает звук при быстром наборе. Включается отдельно. Курсору можно задать **HEX-цвет, период и плавность мигания**, постоянную видимость при наборе, форму, толщину и плавность движения по двум осям.
 
-При первом входе выберите **«Базовый»** или **«Подробный»** интерфейс; режим можно поменять позже без сброса настроек. Четыре вкладки, живой предпросмотр и **«Демо»** помогают подобрать свой стиль. С установленным **Mod Menu** на Fabric/Quilt кнопку в «Настройках» можно скрыть; без него она остаётся доступной.
+При первом входе выберите **«Базовый»** или **«Подробный»** интерфейс; режим можно поменять позже без сброса настроек. Четыре вкладки, живой предпросмотр и **«Демо»** помогают подобрать свой стиль.
 
-Шесть готовых визуальных наборов применяются кнопкой **«Применить»**. Четыре встроенных звуковых профиля: **печатная машинка, механическая клавиатура, мягкий звук и ноутбук**. **Звук изначально выключен**; включается во вкладке «Звук». Для пресета с собственным звуком передайте другу и JSON, и ZIP-набор.
+**Новое в 1.5:** **«Поля → Кнопка в игре»** скрывает вход в настройках из меню паузы, сохраняя вход из главного меню. Mod Menu для этого не нужен. Для общего скрытия кнопки используйте отдельный переключатель и встроенный список модов Forge/NeoForge либо Mod Menu на Fabric/Quilt.
+
+Добавлена необязательная совместимость с **CommandBlockUIOverhaul** на Forge 1.20.1 / NeoForge 1.21.1 и **Better Command Block UI** на Fabric/Quilt. Анимации, плавный курсор и звук сохраняют родную подсветку, выделение и прокрутку. Включаются через **«Поля → Многострочные поля»**. Зависимости самих редакторов устанавливаются отдельно; Better Command Block UI для 26.3 нужен подходящий Fabric API.
+
+**16 готовых визуальных наборов** применяются кнопкой **«Применить»**. В **1.5** добавлены **Терминал · Машинка · Быстрый · Парящий · Упругий · Ретро · Маятник · Орбита · Бумажный · Кино**. Каждый сочетает движение текста с оформлением и миганием курсора. Ваши звуки, выбранные поля и настройки интерфейса сохраняются; для «Машинки» звук выбирается отдельно.
+
+Четыре встроенных звуковых профиля: **печатная машинка, механическая клавиатура, мягкий звук и ноутбук**. **Звук изначально выключен**; включается во вкладке «Звук». Для пресета с собственным звуком передайте другу и JSON, и ZIP-набор.
 
 **Настройки → Анимация ввода…**. Для Fabric/Quilt рекомендуем **Mod Menu** по ссылкам выше; зависимость необязательная. **Для Minecraft 26.3 нужен Quilt Loader 0.30.2 или новее.** Мод только клиентский, Fabric API не нужен. Цвета команд сохраняются. Автор — **AlexFirst**.
 
 ---
 
 ## Build & contribute
+
+**1.5.0** adds 16 built-in presets, a separate in-game settings-button switch and optional command-editor adapters. See [release notes](docs/changelog-1.5.0.md), [release validation](docs/validation-1.5.0.md) and the [popular-mod compatibility survey](docs/compatibility-audit-2026-11-13.md). The survey distinguishes source inspection from runtime tests.
 
 Each `targets/<Minecraft>-<loader>/` directory is an independent Gradle project. Shared animation code lives in `core/`, Minecraft integrations in `mc/<version>/`, and translations and the pixel logo in `common-resources/`.
 

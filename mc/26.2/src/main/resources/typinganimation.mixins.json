@@ -21,7 +21,8 @@
     "ChatSoundMixin",
     "SoundResourcePackMixin",
     "ScholarTextBoxMixin",
-    "ScholarBookScreenMixin"
+    "ScholarBookScreenMixin",
+    "BetterCommandTextFieldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

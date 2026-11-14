@@ -7,7 +7,7 @@ All code, texts and media of this project are original. Another mod with a simil
 (Modrinth), is *All Rights Reserved*: never copy, paraphrase or port its code, names of its classes, its texts or
 its assets, and never describe this mod by comparison to it (Modrinth page, README, changelog).
 
-- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.4.0` · License: MIT
+- Mod id: `typinganimation` · Name: `Typing Animation` · Version: `1.5.0` · License: MIT
 - Java package root: `dev.typinganimation`
 - Client only. Must never be required on servers; must never crash the game (see "Safety").
 - No dependency on Fabric API. Mod Menu integration on Fabric is optional (compileOnly). Scholar compatibility is optional and does not make Scholar or its own dependencies mandatory.
@@ -119,7 +119,7 @@ unobfuscated 26.x), NeoForge/Forge use official names natively.
   `compileClasspath` in `scripts/target-common.gradle`) while the dev client runs the loader's own Mixin, so every
   injector `at`/`slice` is written in the single-value form that all Mixin and MixinExtras versions read (see the
   Fabric loader floors in section 1).
-- Output jar name: `typinganimation-1.4.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
+- Output jar name: `typinganimation-1.5.0+<rangeLabel>-<loader>.jar`, rangeLabel like `1.21.6-1.21.8` or `26.3`
   (the only jar in `build/libs`; Fabric's remapJar, Forge 1.20.1's reobfJar and the plain jar task all produce it).
 - Mod metadata: id/name/version/license MIT/authors `AlexFirst`/description (see lang `typinganimation.description`
   in English)/icon `assets/typinganimation/icon.png`; client-only markers where the loader supports them
@@ -225,7 +225,8 @@ public final class TypingConfig {                  // plain mutable fields + def
   public boolean animateMultiline = true;
   public boolean animateSigns = true;
   public boolean onlyWhenFocused = true;   // unfocused fields change instantly
-  public boolean optionsButton = true;     // show button in vanilla Options screen
+  public boolean optionsButton = true;     // global Options button; protected when no alternate settings entry
+  public boolean pauseOptionsButton = true; // show the button in Options opened from the pause menu
   public TypingConfig copy(); public void clamp(); public static TypingConfig defaults();
 }
 
@@ -249,7 +250,8 @@ public enum SoundPreset {
 }
 
 public enum VisualPreset {
-  DEFAULT, MINIMAL, SOFT, BOUNCY, WAVE, GLITCH;
+  DEFAULT, MINIMAL, SOFT, BOUNCY, WAVE, GLITCH,
+  TERMINAL, TYPEWRITER, SNAPPY, FLOATING, ELASTIC, RETRO, SWING, ORBIT, PAPER, CINEMATIC;
   public String translationKey(); // "typinganimation.preset.<lower_name>"
   public void applyTo(TypingConfig config); // non-null; mutates visual fields only, does not save
   public static VisualPreset match(TypingConfig config); // exact visual match, or null for custom/null
@@ -265,12 +267,19 @@ public final class TypingSoundFeedback {
 }
 ```
 
-Visual presets update 16 motion/cursor fields: appearance/removal styles, easing, both durations and intensities,
-stagger and its cap, reflow/cursor smoothing and speeds, cursor shape, colour and width. They preserve `enabled`,
-all sound settings, all field toggles, `onlyWhenFocused` and `optionsButton`. `DEFAULT` restores the original visual
+The sixteen visual presets update 21 motion/cursor fields: appearance/removal styles, easing, both durations and intensities,
+stagger and its cap, reflow/cursor smoothing and speeds, cursor shape, palette/custom colour and width, blink period,
+soft blinking and visibility during typing. They preserve `enabled`,
+all sound settings, all field toggles, `onlyWhenFocused`, `optionsButton` and `pauseOptionsButton`. `DEFAULT` restores the original visual
 defaults; `MINIMAL` uses brief fades without stagger; `SOFT` uses a gentle slide and lavender bar; `BOUNCY` uses
 pop/shrink and a gold bar; `WAVE` uses waves and an aqua underline; `GLITCH` uses scramble/scatter and a mint block
-with instant reflow/cursor movement. There is no saved preset name: `match` derives it from current values, so
+with instant reflow/cursor movement. Their original order and settings remain unchanged. The ten new combinations are
+`TERMINAL` (instant text and mint block cursor), `TYPEWRITER` (short downward strikes and gold bar), `SNAPPY`
+(brief side-to-side motion), `FLOATING` (slow rise and aqua underline), `ELASTIC` (elastic growth and squash),
+`RETRO` (flipping text and gold block), `SWING` (pendulum motion and pink bar), `ORBIT` (spiralling appearance/removal),
+`PAPER` (drop/fall), and `CINEMATIC` (slow zoom and gold underline). Their blinking/soft-fade/typing visibility is
+part of the visual preset; the selected sound family, volume, adaptive typing and custom sound pack stay personal.
+There is no saved preset name: `match` derives it from current values, so
 manual edits display Custom and sound/field changes do not change the recognised visual preset.
 
 ```java
@@ -402,17 +411,21 @@ Both are exact at rest; the self-test of the render-state groups additionally tr
   `intensity`, `removeIntensity`, `staggerMs`, `maxStaggerMs`;
   Cursor: `smoothCursor`, `cursorGlideMs`, `cursorStyle`, `cursorColor`, `cursorWidth`, `smoothReflow`, `glideMs`;
   Fields: `animateChat`, `animateOtherFields`, `animateMultiline` (only where supported),
-  `animateSigns`, `onlyWhenFocused`, `optionsButton`;
+  `animateSigns`, `onlyWhenFocused`, `pauseOptionsButton`, `optionsButton`;
   Sound: `typingSounds`, `soundPreset`, `soundVolume`, `soundPitch`, `soundVariation`, `soundOnDelete`,
   `soundOnEnter`, plus an explicit sound audition button;
   tooltips for each; bottom row "Reset" + "Done". A visual preset selector and **Apply** button sit above the
   animation controls. Cycling the selector stages a choice without mutating settings; Apply changes the visual
   values together and refreshes their controls while preserving preview text. Manual controls apply live;
-  settings save on Done/close. While `enabled` is off, visual/field controls are greyed out except `optionsButton`,
+  settings save on Done/close. While `enabled` is off, visual/field controls are greyed out except `optionsButton`, `pauseOptionsButton`,
   the preset selector and Apply. Sound controls and audition remain usable. Slider labels: "220 ms", "14 ms/char", intensity
   "1x" / "1.5x" / "1.25x" (no trailing zeros); arrow keys move a slider by exactly one step.
   Must fit a 240 px tall scaled screen.
-- **Options screen button**: when `optionsButton` is on, the vanilla Options screen shows a compact button
+- **Options screen button**: the global `optionsButton` setting controls the vanilla Options entry. A separate
+  `pauseOptionsButton` switch hides it only when that Options screen returns to a `PauseScreen`; this switch is
+  editable in Basic and Detailed mode on every loader, even without Mod Menu or with animations disabled. The
+  main-menu entry stays available as a recovery path unless the global switch is disabled with another registered
+  settings entry. Both settings apply on return from config, reopening and resize. A visible screen shows a compact button
   (`typinganimation.options.button`) — in the options grid if the version makes that clean (1.21+: a 150 px button
   as its own row, centred under both columns), else top-left corner (x=6, y=6, height 20, width = text width + 16;
   1.20.x, whose grid already fills a 240 px screen, and newer groups when another mod replaced the grid). The hooks
@@ -472,10 +485,15 @@ The mode can be changed at any time and only filters controls, never discards th
 Detailed controls use eight-item subpages so every control remains reachable at 320×240.
 Reset restores effect defaults while retaining the chosen interface mode.
 
-`ConfigAccess` is loader-neutral. Fabric glue reports whether Mod Menu is installed. Hiding
-`optionsButton` is allowed only when this alternate settings entry is available. Every Options
-hook also enforces reachability, so removing Mod Menu or moving a config between loaders cannot
-hide the only settings entry point.
+`ConfigAccess` is loader-neutral. Fabric glue reports whether Mod Menu is installed; Forge and
+NeoForge report their native alternative only after registering the mods-list config factory.
+Hiding the global `optionsButton` is allowed when either alternative is available. Without an
+alternative, every Options hook keeps the main-menu button reachable and `ensureReachable()`
+restores only that global preference. The independent `pauseOptionsButton` is always respected;
+removing Mod Menu or moving a config between loaders never overrides the user's in-game choice.
+The ten Options-screen mixins expose their parent through `OptionsButton.ParentAccess`, so no
+world needs to be loaded to identify the pause-menu path. Preset application/import preserves
+both navigation preferences.
 
 New config fields (all handled by copy, clamp, equality and explicit JSON mapping):
 `adaptiveTyping=false`, `cursorCustomColor=false`, `cursorHexColor="#C4B5FD"`,
@@ -522,6 +540,14 @@ jar.glob=build/libs/typinganimation-*+1.21-1.21.1-neoforge.jar   (matches exactl
   (and remember `TypingRenderer.firstError` for the self-test). Never crash the game.
 - No per-frame allocations beyond small unavoidable ones (e.g. `FormattedCharSequence.codepoint`).
 - Client-only classes must not load on a dedicated server (loader glue guards by dist/environment).
+
+## 8.1 Optional command editors (1.5)
+
+- **CommandBlockUIOverhaul:** optional `CommandBlockOverhaulMixin` in the 1.20.1 and 1.21.1 source groups, matching the published Forge 1.20.1 and NeoForge 1.21.1 editors. The adapter retains native formatted line sequences, indentation, wrapping, selection, command data and scrolling.
+- **Better Command Block UI:** optional `BetterCommandTextFieldMixin` in all ten source groups. Published upstream builds use Fabric/Quilt. The adapter observes the native coloured command chunks and maps virtual indentation back to the original text indices. Chunks containing legacy section-sign formatting retain native drawing; other supported chunks animate.
+- Both adapters use per-widget state and **FieldKind.MULTILINE**, including the master and focus gates. Disabling the field must not alter text entry. Loading a command, assigning the same or a different command, and viewport navigation do not replay typing effects. Accepted edits produce at most one sound; refused input and programmatic setters stay silent.
+- Foreign mixins are `@Pseudo`, with explicit published override aliases where Minecraft names are remapped. Minecraft invocations use mapped descriptors; reflection reads only upstream-owned layout/accessor APIs. Neither upstream mod nor its classes are bundled or required by Typing Animation. Each upstream mod retains its own loader and dependency requirements.
+- Unknown optional APIs fall back to the native editor and warn once per widget class. New integration checks use actual upstream widgets in isolated self-test screens, require the mod through an explicit test environment flag, preserve exact installed artifact hashes and compare native pixels. They do not submit commands or connect to a server.
 
 ## 9. Dev self-test (every target must pass)
 

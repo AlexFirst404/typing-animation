@@ -54,6 +54,11 @@ class VisualPresetTest {
         original.animateSigns = false;
         original.onlyWhenFocused = false;
         original.optionsButton = false;
+        original.pauseOptionsButton = false;
+        original.adaptiveTyping = true;
+        original.customSoundPack = "custom-board";
+        original.advancedSettings = true;
+        original.settingsModeChosen = true;
         for (VisualPreset preset : VisualPreset.values()) {
             TypingConfig changed = original.copy();
             preset.applyTo(changed);
@@ -105,7 +110,7 @@ class VisualPresetTest {
     }
 
     @Test
-    void minimalSoftAndPlayfulProfilesHaveDifferentMotionIntent() {
+    void quietCrispAndPlayfulProfilesHaveDifferentMotionIntent() {
         TypingConfig minimal = new TypingConfig(), soft = new TypingConfig(), bouncy = new TypingConfig();
         VisualPreset.MINIMAL.applyTo(minimal);
         VisualPreset.SOFT.applyTo(soft);
@@ -117,5 +122,24 @@ class VisualPresetTest {
         assertTrue(soft.cursorGlideMs > minimal.cursorGlideMs);
         assertEquals(Easing.BACK_OUT, bouncy.easing.resolve(bouncy.appearStyle.defaultEasing()),
                 "bouncy profile should actually use an overshooting appearance curve");
+
+        TypingConfig terminal = new TypingConfig(), snappy = new TypingConfig(), floating = new TypingConfig();
+        TypingConfig elastic = new TypingConfig(), cinematic = new TypingConfig();
+        VisualPreset.TERMINAL.applyTo(terminal);
+        VisualPreset.SNAPPY.applyTo(snappy);
+        VisualPreset.FLOATING.applyTo(floating);
+        VisualPreset.ELASTIC.applyTo(elastic);
+        VisualPreset.CINEMATIC.applyTo(cinematic);
+        assertEquals(AppearStyle.NONE, terminal.appearStyle, "terminal glyphs arrive without a reveal delay");
+        assertEquals(RemoveStyle.NONE, terminal.removeStyle, "terminal deletion does not leave ghosts");
+        assertFalse(terminal.smoothReflow);
+        assertFalse(terminal.smoothCursor);
+        assertTrue(terminal.cursorKeepVisibleWhileTyping, "a terminal caret stays visible during commands");
+        assertTrue(snappy.durationMs < floating.durationMs);
+        assertTrue(snappy.maxStaggerMs < cinematic.maxStaggerMs, "quick pastes should not queue a cinematic reveal");
+        assertTrue(snappy.cursorGlideMs < cinematic.cursorGlideMs);
+        assertTrue(floating.cursorSoftBlink, "the floating profile should keep its caret motion gentle");
+        assertEquals(Easing.ELASTIC_OUT, elastic.easing);
+        assertTrue(elastic.easing.apply(0.1f) > 1f, "the elastic curve must visibly overshoot");
     }
 }

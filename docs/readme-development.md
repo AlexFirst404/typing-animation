@@ -1,5 +1,7 @@
 ## Build & contribute
 
+**1.5.0** adds 16 built-in presets, a separate in-game settings-button switch and optional command-editor adapters. See [release notes](docs/changelog-1.5.0.md), [release validation](docs/validation-1.5.0.md) and the [popular-mod compatibility survey](docs/compatibility-audit-2026-11-13.md). The survey distinguishes source inspection from runtime tests.
+
 Each `targets/<Minecraft>-<loader>/` directory is an independent Gradle project. Shared animation code lives in `core/`, Minecraft integrations in `mc/<version>/`, and translations and the pixel logo in `common-resources/`.
 
 Install JDK **17, 21 and 25**. Build scripts discover them automatically; use `JDK17_HOME`, `JDK21_HOME` and `JDK25_HOME` for custom locations. Gradle runs on JDK 21 for Forge/NeoForge and JDK 25 for Fabric; toolchains select the compilation version.

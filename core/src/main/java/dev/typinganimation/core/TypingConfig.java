@@ -74,6 +74,8 @@ public final class TypingConfig {
     public boolean onlyWhenFocused = true;
     /** Show button in vanilla Options screen. */
     public boolean optionsButton = true;
+    /** Show the Options button when that screen was opened from the in-game pause menu. */
+    public boolean pauseOptionsButton = true;
     public boolean advancedSettings = false;
     /** First settings visit asks which detail level to show, without changing the effects. */
     public boolean settingsModeChosen = false;
@@ -130,6 +132,7 @@ public final class TypingConfig {
         animateSigns = o.animateSigns;
         onlyWhenFocused = o.onlyWhenFocused;
         optionsButton = o.optionsButton;
+        pauseOptionsButton = o.pauseOptionsButton;
         advancedSettings = o.advancedSettings;
         settingsModeChosen = o.settingsModeChosen;
     }
@@ -198,6 +201,7 @@ public final class TypingConfig {
                 && animateOtherFields == o.animateOtherFields && animateMultiline == o.animateMultiline
                 && animateSigns == o.animateSigns
                 && onlyWhenFocused == o.onlyWhenFocused && optionsButton == o.optionsButton
+                && pauseOptionsButton == o.pauseOptionsButton
                 && advancedSettings == o.advancedSettings && settingsModeChosen == o.settingsModeChosen;
     }
 
@@ -207,7 +211,7 @@ public final class TypingConfig {
                 removeIntensity, staggerMs, maxStaggerMs, smoothReflow, smoothCursor, glideMs, cursorGlideMs,
                 cursorStyle, cursorColor, cursorWidth, typingSounds, soundPreset, soundVolume, soundPitch,
                 soundVariation, soundOnDelete, soundOnEnter, animateChat, animateOtherFields,
-                animateMultiline, animateSigns, onlyWhenFocused, optionsButton, cursorCustomColor, cursorHexColor,
+                animateMultiline, animateSigns, onlyWhenFocused, optionsButton, pauseOptionsButton, cursorCustomColor, cursorHexColor,
                 cursorBlinkMs, cursorSoftBlink, cursorKeepVisibleWhileTyping, adaptiveTyping, customSoundPack,
                 advancedSettings, settingsModeChosen);
     }
@@ -228,7 +232,8 @@ public final class TypingConfig {
                 + ", animateChat=" + animateChat + ", animateOtherFields=" + animateOtherFields
                 + ", animateMultiline=" + animateMultiline + ", animateSigns=" + animateSigns
                 + ", onlyWhenFocused=" + onlyWhenFocused
-                + ", optionsButton=" + optionsButton + ", cursorCustomColor=" + cursorCustomColor
+                + ", optionsButton=" + optionsButton + ", pauseOptionsButton=" + pauseOptionsButton
+                + ", cursorCustomColor=" + cursorCustomColor
                 + ", cursorHexColor=" + cursorHexColor + ", cursorBlinkMs=" + cursorBlinkMs
                 + ", cursorSoftBlink=" + cursorSoftBlink + ", cursorKeepVisibleWhileTyping=" + cursorKeepVisibleWhileTyping
                 + ", adaptiveTyping=" + adaptiveTyping + ", customSoundPack=" + customSoundPack

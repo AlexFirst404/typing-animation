@@ -69,14 +69,14 @@ class ConfigManagerTest {
         for (String key : new String[]{"enabled", "appearStyle", "removeStyle", "easing", "durationMs",
                 "removeDurationMs", "intensity", "staggerMs", "maxStaggerMs", "smoothReflow", "smoothCursor",
                 "glideMs", "animateChat", "animateOtherFields", "animateMultiline", "onlyWhenFocused",
-                "optionsButton", "removeIntensity", "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth",
+                "optionsButton", "pauseOptionsButton", "removeIntensity", "cursorGlideMs", "cursorStyle", "cursorColor", "cursorWidth",
                 "animateSigns", "typingSounds", "soundPreset", "soundVolume", "soundPitch",
                 "soundVariation", "soundOnDelete", "soundOnEnter", "cursorCustomColor", "cursorHexColor",
                 "cursorBlinkMs", "cursorSoftBlink", "cursorKeepVisibleWhileTyping", "adaptiveTyping",
                 "customSoundPack", "advancedSettings", "settingsModeChosen"}) {
             assertTrue(o.has(key), key);
         }
-        assertEquals(39, o.size());
+        assertEquals(40, o.size());
     }
 
     @Test
@@ -106,6 +106,7 @@ class ConfigManagerTest {
         c.animateSigns = false;
         c.onlyWhenFocused = false;
         c.optionsButton = false;
+        c.pauseOptionsButton = false;
         TypingConfig expected = c.copy();
         ConfigManager.save();
 
@@ -138,6 +139,15 @@ class ConfigManagerTest {
             ConfigManager.save();
             assertEquals(c1, reinit(dir).cursorColor);
         }
+        for (boolean showInGame : new boolean[]{false, true}) {
+            loaded.optionsButton = !showInGame;
+            loaded.pauseOptionsButton = showInGame;
+            ConfigManager.save();
+            TypingConfig reopened = reinit(dir);
+            assertEquals(!showInGame, reopened.optionsButton);
+            assertEquals(showInGame, reopened.pauseOptionsButton,
+                    "the in-game visibility preference is persisted independently of the global button");
+        }
     }
 
     @Test
@@ -161,9 +171,11 @@ class ConfigManagerTest {
         assertEquals(expected, c);
         // normalised file now has every key
         JsonObject o = JsonParser.parseString(readFile()).getAsJsonObject();
-        assertEquals(39, o.size());
+        assertEquals(40, o.size());
         assertEquals(500, o.get("durationMs").getAsInt());
         assertEquals("pop", o.get("appearStyle").getAsString());
+        assertTrue(c.pauseOptionsButton, "old configs retain the existing in-game button by default");
+        assertTrue(o.get("pauseOptionsButton").getAsBoolean());
     }
 
     @Test

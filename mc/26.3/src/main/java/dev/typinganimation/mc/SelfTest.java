@@ -26,6 +26,7 @@ import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.input.CharacterEvent;
@@ -218,6 +219,7 @@ public final class SelfTest {
         finished = true;
         StyleLibraryUiProbe.abort();
         try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { BetterCommandCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
         try { BookSelfTest.cleanup(); } catch (Throwable ignored) { /* test-owned fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
@@ -708,6 +710,7 @@ public final class SelfTest {
 
         addBookTests();
         addScholarTests();
+        addBetterCommandTests();
         addTypingSoundTests();
 
         addCustomSoundLibraryTests();
@@ -719,6 +722,7 @@ public final class SelfTest {
         act("restore after named preset actions", StyleLibraryUiProbe::cleanup);
 
         addCustomizationUiTests();
+        addPauseOptionsButtonTests();
 
         act("open options", () -> {
             options = new OptionsScreen(startScreen, mc.options);
@@ -760,7 +764,7 @@ public final class SelfTest {
                 checkLayout(config, "ConfigScreen page " + page, true);
             }
             config.showPage(0);
-            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 39 : 38),
+            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 40 : 39),
                     "unexpected option count " + config.options().size());
             int w = config.width;
             int h = config.height;
@@ -1340,9 +1344,104 @@ public final class SelfTest {
         waitFrames(3);
     }
 
+    /** Hiding only the in-game entry remains reversible from the title menu, even with animation off. */
+    private void addPauseOptionsButtonTests() {
+        TypingConfig[] saved = new TypingConfig[1];
+        Screen[] previous = new Screen[1];
+        OptionsScreen[] paused = new OptionsScreen[1];
+        OptionsScreen[] main = new OptionsScreen[1];
+        act("open pause options with its settings entry enabled", () -> {
+            saved[0] = cfg().copy();
+            previous[0] = mc.gui.screen();
+            cfg().settingsModeChosen = true;
+            cfg().advancedSettings = false;
+            cfg().enabled = false;
+            cfg().optionsButton = true;
+            cfg().pauseOptionsButton = true;
+            paused[0] = new OptionsScreen(new PauseScreen(true), mc.options);
+            mc.gui.setScreen(paused[0]);
+            AbstractWidget entry = findOptionsButton(paused[0]);
+            check(entry.visible && entry.active, "pause settings entry missing when enabled");
+        });
+        waitFrames(2);
+        act("hide pause settings entry through Basic controls", () -> {
+            click(paused[0], findOptionsButton(paused[0]));
+            ConfigScreen edit = (ConfigScreen) mc.gui.screen();
+            edit.showOption("pauseOptionsButton");
+            AbstractWidget toggle = edit.option("pauseOptionsButton");
+            check(toggle.visible && toggle.active,
+                    "pause visibility toggle unavailable in Basic mode with animation disabled");
+            click(edit, toggle);
+            check(!cfg().pauseOptionsButton && cfg().optionsButton,
+                    "pause toggle changed the global settings entry preference");
+            click(edit, edit.doneButton());
+            check(mc.gui.screen() instanceof OptionsScreen returned
+                            && returned instanceof OptionsButton.ParentAccess access
+                            && access.typinganimation$lastScreen() instanceof PauseScreen,
+                    "Done lost the pause options context");
+            AbstractWidget entry = optionsButtonOrNull(mc.gui.screen());
+            check(entry == null || (!entry.visible && !entry.active),
+                    "pause settings entry stayed visible after returning from config");
+            ConfigManager.reload();
+            check(!cfg().pauseOptionsButton && cfg().optionsButton && !cfg().enabled,
+                    "pause settings preference did not survive reload independently");
+        });
+        waitFrames(2);
+        act("hidden pause entry stays hidden when reopened", () -> {
+            paused[0] = new OptionsScreen(new PauseScreen(true), mc.options);
+            mc.gui.setScreen(paused[0]);
+            AbstractWidget entry = optionsButtonOrNull(paused[0]);
+            check(entry == null || (!entry.visible && !entry.active),
+                    "reopening pause options restored a hidden settings entry");
+        });
+        waitFrames(2);
+        screenshot("38-pause-options-hidden");
+        act("title settings retain access when the pause entry is hidden", () -> {
+            main[0] = new OptionsScreen(new TitleScreen(), mc.options);
+            mc.gui.setScreen(main[0]);
+            AbstractWidget entry = findOptionsButton(main[0]);
+            check(entry.visible && entry.active, "hiding the pause entry hid the title-menu entry");
+        });
+        waitFrames(2);
+        screenshot("39-title-settings-entry");
+        act("title settings can restore the pause entry", () -> {
+            click(main[0], findOptionsButton(main[0]));
+            ConfigScreen edit = (ConfigScreen) mc.gui.screen();
+            edit.showOption("pauseOptionsButton");
+            click(edit, edit.option("pauseOptionsButton"));
+            check(cfg().pauseOptionsButton, "title-menu controls could not restore the pause entry");
+            click(edit, edit.doneButton());
+            paused[0] = new OptionsScreen(new PauseScreen(true), mc.options);
+            mc.gui.setScreen(paused[0]);
+            AbstractWidget entry = findOptionsButton(paused[0]);
+            check(entry.visible && entry.active, "restored pause settings entry is missing");
+            LOG.info(TAG + "pause settings visibility: Basic control, disabled master, return/reopen, persistence and title recovery passed");
+        });
+        act("restore after pause settings entry checks", () -> {
+            cfg().copyFrom(saved[0]);
+            ConfigManager.save();
+            mc.gui.setScreen(previous[0]);
+        });
+    }
+
     /** Real vanilla page/sign screens, including short and empty page transitions. */
 
     /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addBetterCommandTests() {
+        if (!BetterCommandCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_BETTER_COMMAND")))
+                act("require Better Command Block UI fixture", () -> { throw new IllegalStateException("Better Command Block UI was required but not loaded"); });
+            return;
+        }
+        act("open actual Better Command Block UI editor", BetterCommandCompatibilityProbe::prepare);
+        until("Better Command Block UI rendering, editing and field gates", () -> {
+            try { return BetterCommandCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI compatibility probe failed", failure); }
+        }, 600);
+        screenshot("35-better-command-editor");
+        act("restore after Better Command Block UI checks", BetterCommandCompatibilityProbe::cleanup);
+    }
+
     private void addScholarTests() {
         if (!ScholarCompatibilityProbe.available()) {
             if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))

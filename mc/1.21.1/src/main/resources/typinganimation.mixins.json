@@ -22,7 +22,9 @@
     "BookPosAccessor",
     "BookTestAccessor",
     "ScholarTextBoxMixin",
-    "ScholarBookScreenMixin"
+    "ScholarBookScreenMixin",
+    "CommandBlockOverhaulMixin",
+    "BetterCommandTextFieldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -512,6 +512,7 @@ public final class SelfTest {
 
         addBookTests();
         addScholarTests();
+        addBetterCommandTests();
         addTypingSoundTests();
         run(1, "import custom sound library", () -> {
             try { reload = CustomSoundPackProbe.prepare(); }
@@ -816,6 +817,24 @@ public final class SelfTest {
 
 
     /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addBetterCommandTests() {
+        if (!BetterCommandCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_BETTER_COMMAND")))
+                run(0, "require Better Command Block UI fixture", () -> { throw new IllegalStateException("Better Command Block UI was required but not loaded"); });
+            return;
+        }
+        run(0, "open actual Better Command Block UI editor", () -> {
+            try { BetterCommandCompatibilityProbe.prepare(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI fixture initialization", failure); }
+        });
+        waitFor(0, "Better Command Block UI rendering, editing and field gates", 600, () -> {
+            try { return BetterCommandCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI compatibility probe failed", failure); }
+        });
+        run(0, "capture Better Command Block UI editor", () -> writeScreenshot("35-better-command-editor"));
+        run(0, "restore after Better Command Block UI checks", BetterCommandCompatibilityProbe::cleanup);
+    }
+
     private void addScholarTests() {
         if (!ScholarCompatibilityProbe.available()) {
             if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))
@@ -1118,15 +1137,9 @@ public final class SelfTest {
         s.mouseReleased(x, y, 0);
     }
 
-    /** The grey suggestion of an EditBox (diagnostics only: reflection on the private field, Mojang name in dev). */
+    /** Reads the same preview hint in development and remapped production clients. */
     private static String suggestion(EditBox box) {
-        try {
-            java.lang.reflect.Field f = EditBox.class.getDeclaredField("suggestion");
-            f.setAccessible(true);
-            return (String) f.get(box);
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            throw new AssertionError("can not read the EditBox suggestion", e);
-        }
+        return ((dev.typinganimation.mixin.EditBoxTestAccessor) box).typinganimation$getSuggestion();
     }
 
     private static String readConfigFile() {
@@ -1167,7 +1180,7 @@ public final class SelfTest {
 
     private void checkConfigLayout() {
         configScreen = (ConfigScreen) mc.screen;
-        check(configScreen.options().size() == 39, "config option/action count: " + configScreen.options().size());
+        check(configScreen.options().size() == 40, "config option/action count: " + configScreen.options().size());
         for (var entry : configScreen.options().entrySet()) {
             configScreen.showOption(entry.getKey());
             check(entry.getValue().visible, "detailed control is unreachable: " + entry.getKey());
@@ -1188,7 +1201,7 @@ public final class SelfTest {
         }
         configScreen.showPage(0);
         configScreen.showOption("enabled");
-        log("all 39 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
+        log("all 40 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
     }
 
     private static boolean overlaps(AbstractWidget a, AbstractWidget b) {
@@ -1226,6 +1239,7 @@ public final class SelfTest {
         finished = true;
         StyleLibraryUiProbe.abort();
         try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { BetterCommandCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             if (original != null) {

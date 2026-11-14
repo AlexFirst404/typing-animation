@@ -39,6 +39,7 @@ class TypingConfigTest {
         assertTrue(c.animateSigns);
         assertTrue(c.onlyWhenFocused);
         assertTrue(c.optionsButton);
+        assertTrue(c.pauseOptionsButton);
         TypingConfig clamped = c.copy();
         clamped.clamp();
         assertEquals(c, clamped, "defaults are within range");
@@ -124,10 +125,15 @@ class TypingConfigTest {
         a.appearStyle = AppearStyle.SCRAMBLE;
         a.intensity = 2.5f;
         a.onlyWhenFocused = false;
+        a.pauseOptionsButton = false;
         TypingConfig b = a.copy();
         assertNotSame(a, b);
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
+        b.pauseOptionsButton = true;
+        assertFalse(a.pauseOptionsButton);
+        assertNotEquals(a, b, "in-game navigation preference is part of config identity");
+        b.pauseOptionsButton = false;
         b.durationMs = 500;
         assertEquals(220, a.durationMs);
         assertNotEquals(a, b);

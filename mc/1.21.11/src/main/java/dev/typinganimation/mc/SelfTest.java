@@ -215,6 +215,7 @@ public final class SelfTest {
         finished = true;
         StyleLibraryUiProbe.abort();
         try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { BetterCommandCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
         try { BookSelfTest.cleanup(); } catch (Throwable ignored) { /* test-owned fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
@@ -657,6 +658,7 @@ public final class SelfTest {
 
         addBookTests();
         addScholarTests();
+        addBetterCommandTests();
         addTypingSoundTests();
 
         addCustomSoundLibraryTests();
@@ -709,7 +711,7 @@ public final class SelfTest {
                 checkLayout(config, "ConfigScreen page " + page, true);
             }
             config.showPage(0);
-            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 39 : 38),
+            check(config.options().size() == (TypingRenderer.MULTILINE_SUPPORTED ? 40 : 39),
                     "unexpected option count " + config.options().size());
             int w = config.width;
             int h = config.height;
@@ -1001,6 +1003,21 @@ public final class SelfTest {
     /** Real vanilla page/sign screens, including short and empty page transitions. */
 
     /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addBetterCommandTests() {
+        if (!BetterCommandCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_BETTER_COMMAND")))
+                act("require Better Command Block UI fixture", () -> { throw new IllegalStateException("Better Command Block UI was required but not loaded"); });
+            return;
+        }
+        act("open actual Better Command Block UI editor", BetterCommandCompatibilityProbe::prepare);
+        until("Better Command Block UI rendering, editing and field gates", () -> {
+            try { return BetterCommandCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI compatibility probe failed", failure); }
+        }, 600);
+        screenshot("35-better-command-editor");
+        act("restore after Better Command Block UI checks", BetterCommandCompatibilityProbe::cleanup);
+    }
+
     private void addScholarTests() {
         if (!ScholarCompatibilityProbe.available()) {
             if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))

@@ -2,6 +2,7 @@ package dev.typinganimation.forge;
 
 import dev.typinganimation.mc.ClientInit;
 import dev.typinganimation.mc.ConfigScreen;
+import dev.typinganimation.mc.ConfigAccess;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -15,5 +16,6 @@ final class ForgeClient {
         ClientInit.init(FMLPaths.CONFIGDIR.get());
         context.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
                 () -> new ConfigScreenHandler.ConfigScreenFactory((minecraft, parent) -> new ConfigScreen(parent)));
+        ConfigAccess.setNativeSettingsAvailable(true);
     }
 }

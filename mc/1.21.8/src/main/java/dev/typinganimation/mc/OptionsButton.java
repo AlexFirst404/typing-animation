@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
@@ -15,6 +16,17 @@ import net.minecraft.network.chat.contents.TranslatableContents;
  */
 public final class OptionsButton {
     public static final String KEY = "typinganimation.options.button";
+
+    /** The screen the Options screen returns to, exposed by its mixin. */
+    public interface ParentAccess {
+        Screen typinganimation$lastScreen();
+    }
+
+    /** Hide only the Options screen reached from pause; the main-menu entry remains independent. */
+    public static boolean showFor(Screen optionsScreen) {
+        return ConfigAccess.showOptionsButton(optionsScreen instanceof ParentAccess access
+                && access.typinganimation$lastScreen() instanceof PauseScreen);
+    }
 
     private OptionsButton() {
     }

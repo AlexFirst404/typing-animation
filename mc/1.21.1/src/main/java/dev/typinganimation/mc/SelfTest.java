@@ -508,6 +508,8 @@ public final class SelfTest {
 
         addBookTests();
         addScholarTests();
+        addBetterCommandTests();
+        addCommandBlockOverhaulTests();
         addTypingSoundTests();
         run(1, "import custom sound library", () -> {
             try { reload = CustomSoundPackProbe.prepare(); }
@@ -812,6 +814,42 @@ public final class SelfTest {
 
 
     /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addCommandBlockOverhaulTests() {
+        if (!CommandBlockOverhaulCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_COMMAND_OVERHAUL")))
+                run(0, "require CommandBlockUIOverhaul fixture", () -> { throw new IllegalStateException("CommandBlockUIOverhaul was required but not loaded"); });
+            return;
+        }
+        run(0, "open actual CommandBlockUIOverhaul editor", () -> {
+            try { CommandBlockOverhaulCompatibilityProbe.prepare(); }
+            catch (Exception failure) { throw new IllegalStateException("CommandBlockUIOverhaul fixture initialization", failure); }
+        });
+        waitFor(0, "CommandBlockUIOverhaul rendering, editing and native pixels", 600, () -> {
+            try { return CommandBlockOverhaulCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("CommandBlockUIOverhaul compatibility probe failed", failure); }
+        });
+        run(0, "capture CommandBlockUIOverhaul editor", () -> writeScreenshot("31-command-overhaul"));
+        run(0, "restore after CommandBlockUIOverhaul checks", CommandBlockOverhaulCompatibilityProbe::cleanup);
+    }
+
+    private void addBetterCommandTests() {
+        if (!BetterCommandCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_BETTER_COMMAND")))
+                run(0, "require Better Command Block UI fixture", () -> { throw new IllegalStateException("Better Command Block UI was required but not loaded"); });
+            return;
+        }
+        run(0, "open actual Better Command Block UI editor", () -> {
+            try { BetterCommandCompatibilityProbe.prepare(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI fixture initialization", failure); }
+        });
+        waitFor(0, "Better Command Block UI rendering, editing and field gates", 600, () -> {
+            try { return BetterCommandCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI compatibility probe failed", failure); }
+        });
+        run(0, "capture Better Command Block UI editor", () -> writeScreenshot("35-better-command-editor"));
+        run(0, "restore after Better Command Block UI checks", BetterCommandCompatibilityProbe::cleanup);
+    }
+
     private void addScholarTests() {
         if (!ScholarCompatibilityProbe.available()) {
             if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))
@@ -1156,7 +1194,7 @@ public final class SelfTest {
 
     private void checkConfigLayout() {
         configScreen = (ConfigScreen) mc.screen;
-        check(configScreen.options().size() == 39, "config option/action count: " + configScreen.options().size());
+        check(configScreen.options().size() == 40, "config option/action count: " + configScreen.options().size());
         for (var entry : configScreen.options().entrySet()) {
             configScreen.showOption(entry.getKey());
             check(entry.getValue().visible, "detailed control is unreachable: " + entry.getKey());
@@ -1177,7 +1215,7 @@ public final class SelfTest {
         }
         configScreen.showPage(0);
         configScreen.showOption("enabled");
-        log("all 39 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
+        log("all 40 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
     }
 
     private static boolean overlaps(AbstractWidget a, AbstractWidget b) {
@@ -1215,6 +1253,8 @@ public final class SelfTest {
         finished = true;
         StyleLibraryUiProbe.abort();
         try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { BetterCommandCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { CommandBlockOverhaulCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             if (original != null) {

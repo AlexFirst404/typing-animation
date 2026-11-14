@@ -25,6 +25,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -552,6 +553,8 @@ public final class SelfTest {
 
         addBookTests();
         addScholarTests();
+        addBetterCommandTests();
+        addCommandBlockOverhaulTests();
         addTypingSoundTests();
         run(1, "import custom sound library", () -> {
             try { reload = CustomSoundPackProbe.prepare(); }
@@ -587,6 +590,8 @@ public final class SelfTest {
             try { StyleLibraryUiProbe.cleanup(); }
             catch (Exception e) { throw new IllegalStateException("Preset library UI cleanup", e); }
         });
+
+        addPauseOptionsButtonTests();
 
         // 9. Options screen -> our button -> ConfigScreen -> interact -> Done
         run(1, "open options", () -> mc.setScreen(new OptionsScreen(new TitleScreen(), mc.options)));
@@ -797,6 +802,88 @@ public final class SelfTest {
         run(2, "finish", this::finish);
     }
 
+    /** Uses the real Options parent, without needing a world, to exercise in-game-only visibility. */
+    private void addPauseOptionsButtonTests() {
+        TypingConfig[] saved = new TypingConfig[1];
+        Screen[] previous = new Screen[1];
+        OptionsScreen[] paused = new OptionsScreen[1];
+        OptionsScreen[] main = new OptionsScreen[1];
+        run(1, "open pause options with its settings entry enabled", () -> {
+            TypingConfig cfg = ConfigManager.get();
+            saved[0] = cfg.copy();
+            previous[0] = mc.screen;
+            cfg.settingsModeChosen = true;
+            cfg.advancedSettings = false;
+            cfg.enabled = false;
+            cfg.optionsButton = true;
+            cfg.pauseOptionsButton = true;
+            paused[0] = new OptionsScreen(new PauseScreen(true), mc.options);
+            mc.setScreen(paused[0]);
+            Button entry = OptionsButton.find(paused[0]);
+            check(entry != null && entry.visible && entry.active,
+                    "pause settings entry missing when enabled");
+        });
+        run(2, "hide pause settings entry through Basic controls", () -> {
+            OptionsButton.find(paused[0]).onPress();
+            ConfigScreen edit = (ConfigScreen) mc.screen;
+            edit.showOption("pauseOptionsButton");
+            AbstractWidget toggle = edit.options().get("pauseOptionsButton");
+            check(toggle != null && toggle.visible && toggle.active,
+                    "pause visibility toggle unavailable in Basic mode with animation disabled");
+            click(edit, toggle);
+            check(!ConfigManager.get().pauseOptionsButton && ConfigManager.get().optionsButton,
+                    "pause toggle changed the global settings entry preference");
+            edit.doneButton.onPress();
+            check(mc.screen instanceof OptionsScreen returned
+                            && returned instanceof OptionsButton.ParentAccess access
+                            && access.typinganimation$lastScreen() instanceof PauseScreen,
+                    "Done lost the pause options context");
+            Button entry = OptionsButton.find(mc.screen);
+            check(entry == null || (!entry.visible && !entry.active),
+                    "pause settings entry stayed visible after returning from config");
+            ConfigManager.reload();
+            check(!ConfigManager.get().pauseOptionsButton && ConfigManager.get().optionsButton
+                            && !ConfigManager.get().enabled,
+                    "pause settings preference did not survive reload independently");
+        });
+        run(2, "hidden pause entry stays hidden when reopened", () -> {
+            paused[0] = new OptionsScreen(new PauseScreen(true), mc.options);
+            mc.setScreen(paused[0]);
+            Button entry = OptionsButton.find(paused[0]);
+            check(entry == null || (!entry.visible && !entry.active),
+                    "reopening pause options restored a hidden settings entry");
+        });
+        run(2, "capture hidden pause settings entry", () -> grab("38-pause-options-hidden"));
+        run(1, "title settings retain access when the pause entry is hidden", () -> {
+            main[0] = new OptionsScreen(new TitleScreen(), mc.options);
+            mc.setScreen(main[0]);
+            Button entry = OptionsButton.find(main[0]);
+            check(entry != null && entry.visible && entry.active,
+                    "hiding the pause entry hid the title-menu entry");
+        });
+        run(2, "capture title-menu settings recovery entry", () -> grab("39-title-settings-entry"));
+        run(1, "title settings can restore the pause entry", () -> {
+            OptionsButton.find(main[0]).onPress();
+            ConfigScreen edit = (ConfigScreen) mc.screen;
+            edit.showOption("pauseOptionsButton");
+            click(edit, edit.options().get("pauseOptionsButton"));
+            check(ConfigManager.get().pauseOptionsButton,
+                    "title-menu controls could not restore the pause entry");
+            edit.doneButton.onPress();
+            paused[0] = new OptionsScreen(new PauseScreen(true), mc.options);
+            mc.setScreen(paused[0]);
+            Button entry = OptionsButton.find(paused[0]);
+            check(entry != null && entry.visible && entry.active,
+                    "restored pause settings entry is missing");
+            log("pause settings visibility: Basic control, disabled master, return/reopen, persistence and title recovery passed");
+        });
+        run(1, "restore after pause settings entry checks", () -> {
+            ConfigManager.get().copyFrom(saved[0]);
+            ConfigManager.save();
+            mc.setScreen(previous[0]);
+        });
+    }
+
     private void switchLanguage(String code) {
         if (originalLanguage == null) {
             originalLanguage = mc.getLanguageManager().getSelected();
@@ -878,6 +965,42 @@ public final class SelfTest {
 
 
     /** Optional compatibility is exercised against real Scholar widgets when the mod is installed. */
+    private void addCommandBlockOverhaulTests() {
+        if (!CommandBlockOverhaulCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_COMMAND_OVERHAUL")))
+                run(0, "require CommandBlockUIOverhaul fixture", () -> { throw new IllegalStateException("CommandBlockUIOverhaul was required but not loaded"); });
+            return;
+        }
+        run(0, "open actual CommandBlockUIOverhaul editor", () -> {
+            try { CommandBlockOverhaulCompatibilityProbe.prepare(); }
+            catch (Exception failure) { throw new IllegalStateException("CommandBlockUIOverhaul fixture initialization", failure); }
+        });
+        waitFor(0, "CommandBlockUIOverhaul rendering, editing and native pixels", 600, () -> {
+            try { return CommandBlockOverhaulCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("CommandBlockUIOverhaul compatibility probe failed", failure); }
+        });
+        run(0, "capture CommandBlockUIOverhaul editor", () -> writeScreenshot("31-command-overhaul"));
+        run(0, "restore after CommandBlockUIOverhaul checks", CommandBlockOverhaulCompatibilityProbe::cleanup);
+    }
+
+    private void addBetterCommandTests() {
+        if (!BetterCommandCompatibilityProbe.available()) {
+            if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_BETTER_COMMAND")))
+                run(0, "require Better Command Block UI fixture", () -> { throw new IllegalStateException("Better Command Block UI was required but not loaded"); });
+            return;
+        }
+        run(0, "open actual Better Command Block UI editor", () -> {
+            try { BetterCommandCompatibilityProbe.prepare(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI fixture initialization", failure); }
+        });
+        waitFor(0, "Better Command Block UI rendering, editing and field gates", 600, () -> {
+            try { return BetterCommandCompatibilityProbe.tick(); }
+            catch (Exception failure) { throw new IllegalStateException("Better Command Block UI compatibility probe failed", failure); }
+        });
+        run(0, "capture Better Command Block UI editor", () -> writeScreenshot("35-better-command-editor"));
+        run(0, "restore after Better Command Block UI checks", BetterCommandCompatibilityProbe::cleanup);
+    }
+
     private void addScholarTests() {
         if (!ScholarCompatibilityProbe.available()) {
             if ("1".equals(System.getenv("TYPINGANIMATION_REQUIRE_SCHOLAR")))
@@ -1227,7 +1350,7 @@ public final class SelfTest {
 
     private void checkConfigLayout() {
         configScreen = (ConfigScreen) mc.screen;
-        check(configScreen.options().size() == 39, "config option/action count: " + configScreen.options().size());
+        check(configScreen.options().size() == 40, "config option/action count: " + configScreen.options().size());
         for (var entry : configScreen.options().entrySet()) {
             configScreen.showOption(entry.getKey());
             check(entry.getValue().visible, "detailed control is unreachable: " + entry.getKey());
@@ -1248,7 +1371,7 @@ public final class SelfTest {
         }
         configScreen.showPage(0);
         configScreen.showOption("enabled");
-        log("all 39 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
+        log("all 40 controls reachable with no overlap at " + configScreen.width + "x" + configScreen.height);
     }
 
     private static boolean overlaps(AbstractWidget a, AbstractWidget b) {
@@ -1286,6 +1409,8 @@ public final class SelfTest {
         finished = true;
         StyleLibraryUiProbe.abort();
         try { ScholarCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { BetterCommandCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
+        try { CommandBlockOverhaulCompatibilityProbe.abort(); } catch (Throwable ignored) { /* test-owned optional fixture */ }
         try { CustomSoundPackProbe.abort(); } catch (Throwable ignored) { /* test-owned cleanup */ }
         try {
             if (original != null) {

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
@@ -29,13 +30,19 @@ public final class OptionsButton {
         Screen typinganimation$lastScreen();
     }
 
+    /** Hide only the Options screen reached from pause; the main-menu entry remains independent. */
+    public static boolean showFor(Screen optionsScreen) {
+        return ConfigAccess.showOptionsButton(optionsScreen instanceof ParentAccess access
+                && access.typinganimation$lastScreen() instanceof PauseScreen);
+    }
+
     private OptionsButton() {
     }
 
     /** The button for this Options screen, or null when the setting is off (or on failure). */
     public static Button create(Screen optionsScreen, Font font) {
         try {
-            if (!ConfigAccess.showOptionsButton()) {
+            if (!showFor(optionsScreen)) {
                 return null;
             }
             Component label = Component.translatable(KEY);
@@ -70,7 +77,7 @@ public final class OptionsButton {
     static Screen returnTarget(Screen parent) {
         try {
             if (parent instanceof OptionsScreen && parent instanceof ParentAccess access
-                    && (find(parent) != null) != ConfigAccess.showOptionsButton()) {
+                    && (find(parent) != null) != showFor(parent)) {
                 Minecraft mc = Minecraft.getInstance();
                 return new OptionsScreen(access.typinganimation$lastScreen(), mc.options);
             }

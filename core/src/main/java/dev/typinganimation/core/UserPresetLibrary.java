@@ -30,7 +30,7 @@ public final class UserPresetLibrary {
     private static final String FORMAT = "typinganimation-preset";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final String[] PERSONAL_KEYS = {"enabled", "animateChat", "animateOtherFields", "animateMultiline",
-            "animateSigns", "onlyWhenFocused", "optionsButton", "advancedSettings", "settingsModeChosen"};
+            "animateSigns", "onlyWhenFocused", "optionsButton", "pauseOptionsButton", "advancedSettings", "settingsModeChosen"};
     private final Path directory;
 
     public enum Status { OK, INVALID_NAME, ALREADY_EXISTS, NOT_FOUND, INVALID_FILE, UNSUPPORTED_VERSION, TOO_LARGE, IO_ERROR }

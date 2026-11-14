@@ -23,7 +23,8 @@
     "EditBoxTestAccessor",
     "MultiLineTestAccessor",
     "ScholarTextBoxMixin",
-    "ScholarBookScreenMixin"
+    "ScholarBookScreenMixin",
+    "BetterCommandTextFieldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

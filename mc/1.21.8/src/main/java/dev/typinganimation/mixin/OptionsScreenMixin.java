@@ -1,16 +1,16 @@
 package dev.typinganimation.mixin;
 
-import dev.typinganimation.core.ConfigManager;
 import dev.typinganimation.core.TypingAnimationMod;
 import dev.typinganimation.mc.OptionsButton;
-import dev.typinganimation.mc.ConfigAccess;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.Component;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * grid is handed to {@code HeaderAndFooterLayout#addToContents}), or, if the contents are not a grid (another mod
  * changed the screen), as a compact button in the top-left corner.
  *
- * <p>The {@code optionsButton} setting is applied again in {@code repositionElements}, which runs at the end of
+ * <p>The global and in-game button settings are applied again in {@code repositionElements}, which runs at the end of
  * {@code init} and whenever the (already initialised) screen is shown again, e.g. when the config screen returns
  * to it: the button is added when it was switched on, and hidden/disabled when it was switched off (its grid row
  * stays empty until the screen is opened again; the grid has no way to remove a child).
@@ -30,7 +30,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <p>Both hooks run inside vanilla's {@code init}: a failure is logged once and the screen is left as vanilla built it.
  */
 @Mixin(OptionsScreen.class)
-public abstract class OptionsScreenMixin extends Screen {
+public abstract class OptionsScreenMixin extends Screen implements OptionsButton.ParentAccess {
+    @Shadow @Final private Screen lastScreen;
     @Unique
     private static boolean typinganimation$failureLogged;
     @Unique
@@ -54,7 +55,7 @@ public abstract class OptionsScreenMixin extends Screen {
         try {
             if (contents instanceof GridLayout grid) {
                 typinganimation$grid = grid;
-                if (ConfigAccess.showOptionsButton()) {
+                if (OptionsButton.showFor(this)) {
                     // added before vanilla registers the grid's widgets, so vanilla registers it too
                     typinganimation$button = OptionsButton.addToGrid(grid, this);
                 }
@@ -68,7 +69,7 @@ public abstract class OptionsScreenMixin extends Screen {
     @Inject(method = "repositionElements", at = @At("HEAD"))
     private void typinganimation$syncButton(CallbackInfo ci) {
         try {
-            boolean wanted = ConfigAccess.showOptionsButton();
+            boolean wanted = OptionsButton.showFor(this);
             Button button = typinganimation$button;
             if (button == null) {
                 if (!wanted) {
@@ -88,6 +89,11 @@ public abstract class OptionsScreenMixin extends Screen {
         } catch (Throwable t) {
             typinganimation$failed(t);
         }
+    }
+
+    @Override
+    public Screen typinganimation$lastScreen() {
+        return lastScreen;
     }
 
     @Unique
