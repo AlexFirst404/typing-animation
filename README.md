@@ -28,7 +28,7 @@ Insert a word, erase a sentence or paste a message. Text shifts smoothly, while 
 
 **Optional adaptive typing** follows your pace: faster keystrokes use shorter animations and gentler sound feedback. Slow typing keeps the full effect. Enable it when you want it; pasting stays one bulk edit.
 
-![Typing, editing and pasting in Minecraft chat](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/chat-typing.gif)
+![Typing, editing and pasting in Minecraft chat](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/chat-typing.gif)
 
 ## ✦ Find your favourite motion
 
@@ -37,11 +37,11 @@ Insert a word, erase a sentence or paste a message. Text shifts smoothly, while 
 | **17 effects** + Off | **10 effects** + Off | **10 easing curves** + Auto |
 | Pop, Wave, Scramble, Flip, Swing, Roll, Spiral and more | Fade, Fall, Scatter, Spin, Squash and more | Separate duration and intensity; adjustable stagger and text glide |
 
-![Pop, Scramble, Wave and Drop paired with removal effects](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/styles.gif)
+![Pop, Scramble, Wave and Drop paired with removal effects](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/styles.gif)
 
 Try Slide Right, Zoom Out, Flip, Swing, Roll and Spiral, then pair them with your favourite removal effect.
 
-![Slide Right, Zoom Out, Flip, Swing, Roll and Spiral](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/new-styles.gif)
+![Slide Right, Zoom Out, Flip, Swing, Roll and Spiral](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/new-styles.gif)
 
 ### ✧ Pick a mood
 
@@ -53,13 +53,13 @@ Choose from **16 built-in visual presets**. Keep it simple with **Default · Min
 
 Select a preset, press **Apply**, then fine-tune it in the live preview. Presets combine motion with a matching cursor, including its blinking and fade. Your sound settings, enabled fields and interface choices stay yours. **Typewriter** is a visual style; choose its sound separately in Sound. Manual visual edits appear as **Custom**.
 
-![Built-in visual presets and live preview, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-settings.png)
+![Built-in visual presets and live preview, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/preset-settings.png)
 
 ### ✧ Share your style · new in 1.3
 
 Save your own combination of **animation, cursor and sound** under a name. Apply, duplicate or rename it, then **export a JSON preset** to share with friends. Importing a matching name creates a separate copy. Your enabled fields and interface preferences stay yours.
 
-![Named preset library with save, apply, duplicate, rename, import and export](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/preset-library-1.3.png)
+![Named preset library with save, apply, duplicate, rename, import and export](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/preset-library-1.3.png)
 
 ![Purple pixel divider — typing sounds](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/divider-02-wide.svg)
 
@@ -75,7 +75,7 @@ Four sound families with distinct key, space, Backspace and Enter feedback. Adju
 
 ![Sound note](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-01-2x.png) **Sounds are off by default**; your existing sound settings carry over. Enable them in the **Sound** tab. Pasting makes at most one sound; cursor navigation and automatic field updates stay quiet.
 
-![Built-in sound controls and the Test Sound button, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/sound-settings.png)
+![Built-in sound controls and the Test Sound button, shown in the 1.2 interface](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/sound-settings.png)
 
 ## │ A cursor that follows you
 
@@ -83,7 +83,7 @@ Smooth horizontal **and vertical** movement, with its own speed setting. Keep th
 
 **New in 1.3:** enter your own **HEX colour**, adjust the blink period, choose a soft fade, or keep the caret visible while typing. Find the fine controls in **Detailed** mode.
 
-![Smooth caret movement with custom shapes and colours](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/smooth-cursor.gif)
+![Smooth caret movement with custom shapes and colours](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/smooth-cursor.gif)
 
 ## ▣ Leave a sign
 
@@ -93,17 +93,17 @@ Animations and optional typing sounds work while editing **ordinary and hanging 
 
 Book pages animate while you type and erase, with a smooth cursor. Turning a page displays its contents immediately. **Scholar** has an optional integration for its two-page editor and signing fields, preserving colours, formatting and alignment. Control page effects with **Fields → Multi-line Fields**; Scholar is not required.
 
-![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/signs.gif)
+![Animated typing and cursor movement on ordinary and hanging signs](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/signs.gif)
 
 ## ![Settings](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/pixel-ui/mini-icon-03-2x.png) Make it yours
 
 Choose **Basic** or **Detailed** on your first settings visit, then switch modes whenever you like. Basic keeps the essentials close; Detailed exposes timing, intensity, blink and sound controls across compact pages. Switching modes keeps your saved values.
 
-![Basic settings with the live preview, built-in presets and mode switch](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/basic-settings-1.3.png)
+![Basic settings with the live preview, built-in presets and mode switch](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/basic-settings-1.3.png)
 
 Four settings tabs: **Animations · Cursor · Fields · Sound**, with a **live preview** and **Demo** to try your changes.
 
-![Animation controls and live Demo, recorded in 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/settings-tabs.gif)
+![Animation controls and live Demo, recorded in 1.1](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/settings-tabs.gif)
 
 Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForge's mod list, or **Mod Menu** on Fabric. Individual controls apply immediately; a visual preset uses **Apply**. Settings are saved in `config/typinganimation.json`.
 
@@ -113,7 +113,7 @@ Open **Options → Typing Animation…**, the **Config** button in Forge/NeoForg
 
 Syntax highlighting stays intact while typing and completing commands with **Tab**.
 
-![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/modrinth/gallery/command-highlighting.gif)
+![Command colours and Tab completion during animations](https://raw.githubusercontent.com/AlexFirst404/typing-animation/master/branding/description-media/command-highlighting.gif)
 
 ### ▸ More command editors · new in 1.5
 
